@@ -20,9 +20,6 @@
     + accès à toutes les commandes.
     + génération de rapports de ventes (par boutique, période).
     + export CSV
-- ***Promotions & coupons :***
-    + création et gestion des codes promo globaux.
-    + paramètres (pourcentage,montant fixe, conditions).
 - ***Analytics :***
     + tableaux de bord basiques (ventes, produits les plus vendus, gestion des stocks).
 - ***Modération des avis :***
@@ -59,14 +56,12 @@
 - ***Option de retrait :***
     + activer/désactiver le retrait en magasin `click & collect`.
     + gestion des plage horaires.
-- ***chat/support : `(optionnel)`***
-    + messagerie rapide (optionnelle) pour échanger avec les acheteurs.
 
 ### ***Profil : client(acheteur)***
 
 - ***Inscription/connexion :***
     + compte client.
-    + gestion profil.
+    + gestion profil.(nom , prenom , email , num tel)
     + récupération de mot de passe.
 - ***Navigation & recherche :***
     + catalogue.
@@ -74,8 +69,7 @@
     + recherche full-text, autocomplétion.
 - ***Panier & commande :***
     + ajouter au panier.
-    + gestion du panier.
-    + checkou.
+    + suppression du panier.
     + choix de livraison ou retrait en magasin
 - ***Historique commandes :***
     + consulter commande passées, détails et status.
@@ -84,23 +78,7 @@
 - ***Promotions & coupons :***
   + appliquer des code promo.
   + voir les offres disponibles.
-- ***Programme fidélité `(optionnel)` :***
-    + accumulation de points.
-    + utilisation de réduction selon seuils.
 - ***Notification :***
     + notifications in-app pour confirmer de commande,offres et promotions.
-- ***Wishlist & réservations :***
-    + Liste de favoris.
-    + réserver un produit pour retrait `Click & Collect`.
-- ***Contact Boutique `optionnel` :***
-    + possibilité d'envoyer un message simple ou ouvrir un chat.
 
->  ***izay sy izay moa izany no nieritreretako azy fa de ahitsio izay tsa mety sy izay tokony esorina fa otran'ny betsaka ihany***
-> ******
 > ***Binôme aujourd'hui , projet validé demain(Normalement) 😅***
-```
-function mdevAmzay(Bandy[] isikaMtsam,Fahazotoana fahazotoana-bedebe){
-    atao izay tokony atao ;
-    return "vita tompoko";
-}
-```
