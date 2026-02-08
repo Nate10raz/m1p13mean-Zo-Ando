@@ -1,45 +1,55 @@
 const mongoose = require('mongoose');
 
 const boutiqueSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true, required: true },
   nom: { type: String, unique: true, required: true, index: true },
   description: String,
   logo: String,
   banner: String,
   adresse: String,
-  boxId: { type: mongoose.Schema.Types.ObjectId, ref: "Box", required: true, unique: true },
-  
-  horaires: [{
-    jour: { type: String, enum: ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] },
-    ouverture: String,
-    fermeture: String
-  }],
-  
+  boxId: { type: mongoose.Schema.Types.ObjectId, ref: 'Box', required: true, unique: true },
+
+  horaires: [
+    {
+      jour: {
+        type: String,
+        enum: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+      },
+      ouverture: String,
+      fermeture: String,
+    },
+  ],
+
   clickCollectActif: { type: Boolean, default: false },
   telephone: String,
   email: String,
-  
-  plage_livraison_boutique: [{
-    jour: { type: String, enum: ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] },
-    ouverture: String,
-    fermeture: String,
-    maxLivraison: Number
-  }],
-  
-  status: { 
-    type: String, 
-    enum: ["en_attente", "active", "suspendue", "rejetee"],
-    default: "en_attente",
-    index: true 
+
+  plage_livraison_boutique: [
+    {
+      jour: {
+        type: String,
+        enum: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+      },
+      ouverture: String,
+      fermeture: String,
+      maxLivraison: Number,
+    },
+  ],
+
+  status: {
+    type: String,
+    enum: ['en_attente', 'active', 'suspendue', 'rejetee'],
+    default: 'en_attente',
+    index: true,
   },
-  
-  statusLivreur: { 
-    type: String, 
-    enum: ["aucun", "active", "occupe"],
-    default: "aucun",
-    index: true 
+
+  statusLivreur: {
+    type: String,
+    enum: ['aucun', 'active', 'occupe'],
+    default: 'aucun',
+    index: true,
   },
-  
+
   accepteLivraisonJourJ: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   dateValidation: Date,
@@ -47,10 +57,10 @@ const boutiqueSchema = new mongoose.Schema({
   noteMoyenne: { type: Number, min: 0, max: 5, default: 0 },
   nombreAvis: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
-boutiqueSchema.pre('save', function(next) {
+boutiqueSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

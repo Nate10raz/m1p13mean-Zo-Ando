@@ -7,36 +7,38 @@ const boxSchema = new mongoose.Schema({
   allee: String,
   position: String,
   description: String,
-  
-  caracteristiques: [{
-    nom: String,
-    valeur: String
-  }],
-  
+
+  caracteristiques: [
+    {
+      nom: String,
+      valeur: String,
+    },
+  ],
+
   photos: [String],
   superficie: { type: Number, required: true },
-  
+
   tarifActuel: {
     montant: Number,
-    unite: { type: String, enum: ["mois", "annee"] },
-    dateDebut: Date
+    unite: { type: String, enum: ['mois', 'annee'] },
+    dateDebut: Date,
   },
-  
+
   estOccupe: { type: Boolean, default: false },
-  boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: "Boutique" },
-  
+  boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique' },
+
   contrat: {
     dateDebut: Date,
     dateFin: Date,
-    reference: String
+    reference: String,
   },
-  
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
-boxSchema.pre('save', function(next) {
+boxSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
