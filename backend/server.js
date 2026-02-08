@@ -3,7 +3,7 @@ import connectDB from './src/config/db.js';
 import { ENV } from './src/config/env.js';
 
 // Connecte la base de données
-connectDB();
+await connectDB();
 
 // Utilise le port défini dans ENV
 const PORT = ENV.PORT;

@@ -1,0 +1,42 @@
+# System
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+tmp/
+coverage/
+
+# Node (spécifique aux sous-projets)
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+backend/dist/
+backend/build/
+backend/out-tsc/
+frontend/dist/
+frontend/out-tsc/
+frontend/build/
+
+# Env / secrets (ne pas tracker)
+backend/.env
+backend/.env.local
+backend/.env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+# fichier npmrc si il contient des tokens
+frontend/.npmrc
+
+# IDEs / editors (global)
+.idea/
+.vscode/
+
+# Misc
+*.swp
+*.swo

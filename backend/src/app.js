@@ -16,12 +16,14 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.use(cookieParser());
-app.use(cors({
+app.use(
+  cors({
     origin: ENV.FRONTEND_URL,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  }),
+);
 
 // Routes
 app.use('/', indexRoutes);
