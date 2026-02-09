@@ -1,0 +1,39 @@
+Module;Tâches;Cote;Assigne a;STATUS
+Authentification;Inscription et création de compte (Client, Boutique);General;Zo;a faire
+Authentification;Connexion et sécurisation des sessions (JWT/Refresh);General;Zo;a faire
+Authentification;Réinitialisation du mot de passe (via Lien/Code);General;Zo;a faire
+Authentification;Modification du profil et préférences utilisateurs;General;Zo;a faire
+Authentification;Validation ou suspension des comptes utilisateurs;Admin;Zo;a faire
+Notifications;Architecture de notifications temps réel (WebSockets);System;Ando;a faire
+Notifications;Gestion des emails transactionnels et templates;System;Ando;a faire
+Catalogue Produits;Gestion de l'arborescence des catégories (Récursif);Admin;Zo;a faire
+Catalogue Produits;Création et modification de fiches produits;Boutique;Zo;a faire
+Catalogue Produits;Gestion des variations de produits (SKU);Boutique;Zo;a faire
+Catalogue Produits;Gestion des médias et galerie produits;Boutique;Zo;a faire
+Catalogue Produits;Configuration des seuils d'alerte de stock;Boutique;Zo;a faire
+Catalogue Produits;Moteur de recherche et filtres de catalogue;Client;Zo;a faire
+Boutique;Configuration des informations générales de la boutique;General;Ando;a faire
+Boutique;Définition des plages horaires et jours d'ouverture;Boutique;Ando;a faire
+Boutique;Gestion des fermetures exceptionnelles et congés;Boutique;Ando;a faire
+Boutique;Configuration des zones et frais de livraison;Boutique;Ando;a faire
+Commande & Panier;Gestion du panier actif (Persistance et calculs);Client;Ando;a faire
+Commande & Panier;Validation du panier, choix livraison et adresse;Client;Ando;a faire
+Commande & Panier;Moteur de commande transactionnel (ACID, Stock);Client;Ando;a faire
+Commande & Panier;Suivi de l'état de préparation et collecte;Boutique;Ando;a faire
+Commande & Panier;Validation finale et suivi livraison (Admin/Livreur);Admin;Ando;a faire
+Locations & Box;Définition des tarifs et types de Box disponibles;Admin;Zo;a faire
+Locations & Box;Soumission et suivi de demande de location;Boutique;Zo;a faire
+Locations & Box;Attribution et validation des contrats de location;Admin;Zo;a faire
+Locations & Box;Gestion des paiements mensuels de loyers;Boutique, Admin;Zo;a faire
+Locations & Box;Suivi de l'historique et des échances contractuelles;Admin, Boutique;Zo;a faire
+Marketing & Avis;Création et gestion des campagnes de coupons;Boutique, Admin;Ando;a faire
+Marketing & Avis;Moteur d'attribution automatique (Triggers);System;Ando;a faire
+Marketing & Avis;Dépôt et consultation des avis produits;Client;Ando;a faire
+Marketing & Avis;Modération et réponse aux avis clients;Boutique;Ando;a faire
+Statistiques;Dashboard financier et KPI globaux;Admin;Zo;a faire
+Statistiques;Rapports de performance et ventes par période;Admin;Zo;a faire
+Statistiques;Dashboard des ventes et vues boutique;Boutique;Ando;a faire
+Statistiques;Export et archivage des données d'activité;General;Ando;a faire
+Publication;Fil d'actualité et algorithme de pertinence;Client;Ando;a faire
+Publication;Système de "J'aime" et interactions temps réel;Client;Ando;a faire
+Publication;Création de publications et gestion médias;Boutique, Admin;Ando;a faire

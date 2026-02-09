@@ -14,7 +14,10 @@ const userSchema = new mongoose.Schema({
   isEmailVerified: { type: Boolean, default: false },
   lastLogin: Date,
   preferences: {
-    notifications: { type: Boolean, default: true },
+    notifications: {
+      email: { type: Boolean, default: true },
+      inApp: { type: Boolean, default: true },
+    },
   },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },

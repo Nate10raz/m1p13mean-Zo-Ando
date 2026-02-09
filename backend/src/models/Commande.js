@@ -15,7 +15,17 @@ const commandeSchema = new mongoose.Schema({
     {
       name: String,
       boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique' },
-      estValidee: { type: Boolean, default: false },
+
+      estAccepte: { type: Boolean, default: false },
+      dateAcceptation: Date,
+
+      // Pour types 'collect' et 'livraison_supermarche'
+      depotEntrepot: {
+        estFait: { type: Boolean, default: false },
+        dateDepot: Date,
+        adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        dateValidation: Date,
+      },
 
       items: [
         {
@@ -47,6 +57,22 @@ const commandeSchema = new mongoose.Schema({
       },
     },
   ],
+
+  // Pour type 'collect'
+  validationCollection: {
+    estCollecte: { type: Boolean, default: false },
+    dateCollection: Date,
+    adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    dateValidation: Date,
+  },
+
+  // Pour types 'livraison_supermarche' et 'livraison_boutique'
+  validationLivraison: {
+    estLivre: { type: Boolean, default: false },
+    dateLivraison: Date,
+    validateurId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Admin ou Client ou Boutique
+    dateValidation: Date,
+  },
 
   adresseLivraison: String,
 
@@ -87,6 +113,9 @@ const commandeSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+
+  estAccepte: { type: Boolean, default: false },
+  acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 commandeSchema.pre('save', function (next) {

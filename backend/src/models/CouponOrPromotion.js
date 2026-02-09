@@ -18,6 +18,22 @@ const couponOrPromotionSchema = new mongoose.Schema({
   dateFin: { type: Date, required: true },
   utilisationMax: Number,
   isActive: { type: Boolean, default: true },
+
+  evenementDeclencheur: {
+    type: String,
+    enum: [
+      'aucun',
+      'nouveau_compte',
+      'anniversaire',
+      'commande_montant',
+      'inactivite',
+      'nombre_commandes',
+    ],
+    default: 'aucun',
+    index: true,
+  },
+  conditionValue: Number,
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

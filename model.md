@@ -15,9 +15,13 @@ Ce modèle représente les utilisateurs de la plateforme avec trois rôles : adm
 - `panierId` : Référence au panier actif
 - `isEmailVerified` : Statut de vérification d'email
 - `lastLogin` : Date de dernière connexion
-- `preferences` : Préférences de notification
-- `isActive` : Statut d'activation du compte
-- `createdAt` et `updatedAt` : Dates de création et modification
+- `preferences` : Préférences utilisateur
+    - `notifications` : 
+        - `email` : Boolean (default: true)
+        - `inApp` : Boolean (default: true)
+- `isActive` : Statut du compte (actif/inactif)
+- `createdAt` : Date de création
+- `updatedAt` : Date de dernière modification
 
 ## 2. **Boutique** (models/Boutique.js)
 Modèle pour les boutiques des commerçants, contenant les informations commerciales, les horaires et les configurations de livraison.
@@ -36,6 +40,7 @@ Modèle pour les boutiques des commerçants, contenant les informations commerci
 - `statusLivreur` : Statut du livreur associé
 - `accepteLivraisonJourJ` : Acceptation des livraisons jour J
 - `noteMoyenne` et `nombreAvis` : Notation de la boutique
+- `validatedBy` : Administrateur ayant validé la boutique
 
 ## 3. **Box** (models/Box.js)
 Représente les boxes/emplacements physiques dans le marché, avec leurs caractéristiques et leur occupation.
@@ -73,6 +78,10 @@ Enregistrement des paiements des boxes par les commerçants.
 - `prixBoxeId` : Référence au prix applicable, indexé
 - `montant` : Montant payé, minimum 0
 - `date` : Date du paiement
+- `status` : Statut du paiement (en_attente, valide, rejete), par défaut en_attente, indexé
+- `dateValidation` : Date de validation par l'admin
+- `adminId` : Référence à l'admin qui a validé
+
 
 ## 6. **Category** (models/Category.js)
 Catégories et sous-catégories pour l'organisation des produits.
@@ -149,13 +158,33 @@ Commandes passées par les clients avec suivi multi-boutiques.
 - `numeroCommande` : Numéro unique généré automatiquement, indexé
 - `clientId` : Référence au client, indexé
 - `clientInfo` : Informations du client au moment de la commande
-- `boutiques` : Commandes groupées par boutique avec statuts individuels
+- `boutiques` : Commandes groupées par boutique
+    - `estAccepte` : Acceptation par la boutique
+    - `dateAcceptation` : Date d'acceptation
+    - `depotEntrepot` : Suivi dépôt (Collect/Supermarché)
+        - `estFait` : Dépôt effectué
+        - `dateDepot` : Date de dépôt
+        - `adminId` : Validateur (Admin)
+        - `dateValidation` : Date de validation
+- `validationCollection` : Suivi Collecte (Click & Collect)
+    - `estCollecte` : Collecte effectuée
+    - `dateCollection` : Date de collecte
+    - `adminId` : Validateur (Admin)
+    - `dateValidation` : Date de validation
+- `validationLivraison` : Suivi Livraison (Supermarché/Boutique)
+    - `estLivre` : Livraison effectuée
+    - `dateLivraison` : Date de livraison
+    - `validateurId` : Validateur (Admin/Client/Boutique)
+    - `dateValidation` : Date de validation
 - `adresseLivraison` : Adresse de livraison
 - `paiement` : Informations de paiement
 - `baseTotal` et `total` : Totaux avant et après réduction
 - `typedelivery` : Type de livraison, indexé
 - `dateDeliveryOrAbleCollect` : Date de livraison/collecte
 - `statusLivraison` : Statut global de livraison, indexé
+- `estAccepte` : Indicateur d'acceptation de la commande
+- `acceptedBy` : Utilisateur ayant accepté la commande
+
 
 ## 12. **CouponOrPromotion** (models/CouponOrPromotion.js)
 Codes promotionnels et coupons de réduction.
@@ -170,6 +199,9 @@ Codes promotionnels et coupons de réduction.
 - `dateDebut` et `dateFin` : Période de validité
 - `utilisationMax` : Nombre maximum d'utilisations
 - `isActive` : Statut d'activation
+- `evenementDeclencheur` : Événement déclenchant l'attribution auto (e.g. nouveau_compte), par défaut 'aucun'
+- `conditionValue` : Valeur associée à la condition (e.g. montant, nombre de jours)
+
 
 ## 13. **PossessionCoupon** (models/PossessionCoupon.js)
 Coupons en possession des utilisateurs.
@@ -188,11 +220,13 @@ Avis et notations des produits par les clients.
 - `produitId` : Référence au produit, indexé
 - `boutiqueId` : Référence à la boutique, indexé
 - `clientId` : Référence au client, indexé
-- `commandeId` : Référence à la commande
 - `note` : Note de 1 à 5
 - `commentaire` et `titre` : Contenu de l'avis
-- `reponse` : Réponse de la boutique
-- `estApprouve` : Statut d'approbation
+- `reponses` : Tableau de réponses
+    - `message` : Contenu de la réponse
+    - `dateReponse` : Date de la réponse
+    - `userId` : ID de l'utilisateur qui a répondu
+    - `roleRepondant` : Rôle du répondant (admin, boutique, client)
 - `estSignale` : Statut de signalement
 - `signalements` : Historique des signalements
 
@@ -287,3 +321,38 @@ Configuration des frais de livraison par boutique.
 - `estActif` : Statut d'activation, indexé
 - `description` : Description des frais
 - `creePar` : Créateur de la configuration
+
+## 22. **DemandeLocationBox** (models/DemandeLocationBox.js)
+Gestion des demandes de location de box par les boutiques.
+
+**Champs principaux :**
+- `boutiqueId` : Référence à la boutique demanderesse, requis
+- `boxId` : Référence au box souhaité, requis
+- `dateDebut` : Date de début souhaitée
+- `status` : Statut de la demande (en_attente, validee, rejetee, annulee)
+- `adminId` : Administrateur ayant traité la demande
+- `dateValidation` : Date de traitement
+- `motif` : Motif de rejet ou commentaire
+
+## 23. **UserToken** (models/UserToken.js)
+Gestion des tokens d'accès et de refresh pour l'authentification.
+
+**Champs principaux :**
+- `userId` : Référence à l'utilisateur, requis
+- `token` : Le token chiffré ou signé, indexé
+- `type` : Type de token (access ou refresh)
+- `createdAt` : Date de création
+- `expiresAt` : Date d'expiration
+
+## 24. **Publication** (models/Publication.js)
+Système de publication (Fil d'actualité) pour les boutiques et administrateurs.
+
+**Champs principaux :**
+- `auteurId` : Auteur (Boutique ou Admin) - Référence `User` ou `Boutique` généralement
+- `roleAuteur` : 'boutique' ou 'admin'
+- `contenu` : Texte de la publication
+- `medias` : Liste d'URL images/vidéos
+- `likes` : Tableau des `userId` ayant aimé la publication
+- `likesCount` : Compteur de likes (dénormalisé pour perfs)
+- `statut` : 'publie', 'brouillon', 'archive'
+- `createdAt` : Date de publication

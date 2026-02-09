@@ -56,6 +56,7 @@ const boutiqueSchema = new mongoose.Schema({
   motifSuspension: String,
   noteMoyenne: { type: Number, min: 0, max: 5, default: 0 },
   nombreAvis: { type: Number, default: 0 },
+  validatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -10,6 +10,14 @@ const payementBoxSchema = new mongoose.Schema({
   },
   montant: { type: Number, required: true, min: 0 },
   date: { type: Date, default: Date.now },
+  status: {
+    type: String,
+    enum: ['en_attente', 'valide', 'rejete'],
+    default: 'en_attente',
+    index: true,
+  },
+  dateValidation: Date,
+  adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 module.exports = mongoose.model('PayementBox', payementBoxSchema);
