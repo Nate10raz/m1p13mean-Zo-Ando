@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const commandeSchema = new mongoose.Schema({
   numeroCommande: { type: String, unique: true, required: true, index: true },
@@ -118,9 +118,8 @@ const commandeSchema = new mongoose.Schema({
   acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
-commandeSchema.pre('save', function (next) {
+commandeSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
 // Générer un numéro de commande unique
@@ -129,7 +128,6 @@ commandeSchema.pre('save', async function (next) {
     const count = await this.constructor.countDocuments();
     this.numeroCommande = `CMD${Date.now()}${String(count + 1).padStart(6, '0')}`;
   }
-  next();
 });
 
-module.exports = mongoose.model('Commande', commandeSchema);
+export default mongoose.model('Commande', commandeSchema);

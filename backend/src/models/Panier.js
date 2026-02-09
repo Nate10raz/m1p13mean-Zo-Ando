@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const panierSchema = new mongoose.Schema({
   clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
@@ -20,13 +20,12 @@ const panierSchema = new mongoose.Schema({
   expiresAt: { type: Date },
 });
 
-panierSchema.pre('save', function (next) {
+panierSchema.pre('save', function () {
   this.updatedAt = Date.now();
   // Définir une expiration après 30 jours
   if (!this.expiresAt) {
     this.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   }
-  next();
 });
 
-module.exports = mongoose.model('Panier', panierSchema);
+export default mongoose.model('Panier', panierSchema);

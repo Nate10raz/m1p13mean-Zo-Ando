@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const mouvementStockSchema = new mongoose.Schema({
   produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', required: true, index: true },
@@ -26,4 +26,4 @@ const mouvementStockSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('MouvementStock', mouvementStockSchema);
+export default mongoose.model('MouvementStock', mouvementStockSchema);

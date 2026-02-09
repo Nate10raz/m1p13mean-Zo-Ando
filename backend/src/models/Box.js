@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const boxSchema = new mongoose.Schema({
   numero: { type: String, unique: true, required: true, index: true },
@@ -38,9 +38,8 @@ const boxSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-boxSchema.pre('save', function (next) {
+boxSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('Box', boxSchema);
+export default mongoose.model('Box', boxSchema);

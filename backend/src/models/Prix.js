@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const prixSchema = new mongoose.Schema({
   produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', index: true },
@@ -13,9 +13,8 @@ const prixSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-prixSchema.pre('save', function (next) {
+prixSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
 // Validation : produitId ou variationId doit être présent
@@ -23,8 +22,7 @@ prixSchema.pre('validate', function (next) {
   if (!this.produitId && !this.variationId) {
     next(new Error('Soit produitId, soit variationId doit être fourni'));
   } else {
-    next();
   }
 });
 
-module.exports = mongoose.model('Prix', prixSchema);
+export default mongoose.model('Prix', prixSchema);

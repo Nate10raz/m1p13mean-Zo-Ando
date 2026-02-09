@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const produitSchema = new mongoose.Schema({
   boutiqueId: {
@@ -53,12 +53,11 @@ const produitSchema = new mongoose.Schema({
   publishedAt: Date,
 });
 
-produitSchema.pre('save', function (next) {
+produitSchema.pre('save', function () {
   this.updatedAt = Date.now();
   if (this.isNew && this.estActif) {
     this.publishedAt = Date.now();
   }
-  next();
 });
 
-module.exports = mongoose.model('Produit', produitSchema);
+export default mongoose.model('Produit', produitSchema);
