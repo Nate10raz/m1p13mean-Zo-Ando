@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const avisSchema = new mongoose.Schema({
   produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', required: true, index: true },
@@ -34,9 +34,8 @@ const avisSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-avisSchema.pre('save', function (next) {
+avisSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('Avis', avisSchema);
+export default mongoose.model('Avis', avisSchema);

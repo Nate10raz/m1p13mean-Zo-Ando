@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const rapportSchema = new mongoose.Schema({
   type: {
@@ -23,4 +23,4 @@ const rapportSchema = new mongoose.Schema({
   termineAt: Date,
 });
 
-module.exports = mongoose.model('Rapport', rapportSchema);
+export default mongoose.model('Rapport', rapportSchema);

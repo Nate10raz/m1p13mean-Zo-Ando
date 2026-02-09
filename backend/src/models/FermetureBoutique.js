@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const fermetureBoutiqueSchema = new mongoose.Schema({
   typeFermeture: {
@@ -60,9 +60,8 @@ fermetureBoutiqueSchema.path('dateFin').validate(function (value) {
   return value >= this.dateDebut;
 }, 'La date de fin doit être après la date de début');
 
-fermetureBoutiqueSchema.pre('save', function (next) {
+fermetureBoutiqueSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('FermetureBoutique', fermetureBoutiqueSchema);
+export default mongoose.model('FermetureBoutique', fermetureBoutiqueSchema);

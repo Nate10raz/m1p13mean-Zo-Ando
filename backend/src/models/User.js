@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true, index: true },
@@ -21,9 +21,8 @@ const userSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-userSchema.pre('save', function (next) {
+userSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);

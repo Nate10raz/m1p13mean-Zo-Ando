@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const variationProduitSchema = new mongoose.Schema({
   produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', required: true, index: true },
@@ -19,9 +19,8 @@ const variationProduitSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-variationProduitSchema.pre('save', function (next) {
+variationProduitSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('VariationProduit', variationProduitSchema);
+export default mongoose.model('VariationProduit', variationProduitSchema);

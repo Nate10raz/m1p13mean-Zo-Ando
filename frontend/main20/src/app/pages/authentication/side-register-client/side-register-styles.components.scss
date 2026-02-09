@@ -1,0 +1,33 @@
+$text-dark: #2a3547;
+$white: #ffffff;
+$border-color: #e5eaef;
+
+.blank-layout-container {
+  min-height: 120vh !important;
+}
+
+.or-border {
+  position: relative;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: $text-dark;
+  padding: 0 20px;
+
+  span {
+    background: $white;
+    padding: 0 15px;
+    position: relative;
+    z-index: 1;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $border-color 20%, $border-color 80%, transparent);
+  }
+}

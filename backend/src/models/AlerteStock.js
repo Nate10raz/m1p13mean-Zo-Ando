@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const alerteStockSchema = new mongoose.Schema({
   boutiqueId: {
@@ -15,4 +15,4 @@ const alerteStockSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('AlerteStock', alerteStockSchema);
+export default mongoose.model('AlerteStock', alerteStockSchema);

@@ -1,6 +1,6 @@
 export const helloService = () => {
   return {
-    text: 'Hello 👋',
+    text: 'Hello👋',
     serverTime: new Date(),
   };
 };

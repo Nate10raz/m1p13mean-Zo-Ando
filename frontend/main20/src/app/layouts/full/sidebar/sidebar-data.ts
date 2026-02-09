@@ -85,6 +85,16 @@ export const navItems: NavItem[] = [
         iconName: 'point',
         route: '/authentication/register',
       },
+      {
+        displayName: 'Register Client',
+        iconName: 'point',
+        route: '/authentication/register-client',
+      },
+      {
+        displayName: 'Register Boutique',
+        iconName: 'point',
+        route: '/authentication/register-boutique',
+      },
     ],
   },
 ];

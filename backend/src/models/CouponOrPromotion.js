@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const couponOrPromotionSchema = new mongoose.Schema({
   code: { type: String, unique: true, required: true, index: true, uppercase: true },
@@ -22,9 +22,8 @@ const couponOrPromotionSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-couponOrPromotionSchema.pre('save', function (next) {
+couponOrPromotionSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('CouponOrPromotion', couponOrPromotionSchema);
+export default mongoose.model('CouponOrPromotion', couponOrPromotionSchema);

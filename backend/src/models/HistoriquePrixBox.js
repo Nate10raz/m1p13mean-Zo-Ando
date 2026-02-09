@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const historiquePrixBoxSchema = new mongoose.Schema({
   boxId: { type: mongoose.Schema.Types.ObjectId, ref: 'Box', required: true, index: true },
@@ -11,4 +11,4 @@ const historiquePrixBoxSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('HistoriquePrixBox', historiquePrixBoxSchema);
+export default mongoose.model('HistoriquePrixBox', historiquePrixBoxSchema);

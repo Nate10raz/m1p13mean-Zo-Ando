@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const fraisLivraisonSchema = new mongoose.Schema({
   boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique', index: true },
@@ -21,9 +21,8 @@ const fraisLivraisonSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-fraisLivraisonSchema.pre('save', function (next) {
+fraisLivraisonSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('FraisLivraison', fraisLivraisonSchema);
+export default mongoose.model('FraisLivraison', fraisLivraisonSchema);

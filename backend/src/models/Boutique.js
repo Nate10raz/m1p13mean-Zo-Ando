@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const boutiqueSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true, required: true },
@@ -7,7 +7,7 @@ const boutiqueSchema = new mongoose.Schema({
   logo: String,
   banner: String,
   adresse: String,
-  boxId: { type: mongoose.Schema.Types.ObjectId, ref: 'Box', required: true, unique: true },
+  boxId: { type: mongoose.Schema.Types.ObjectId, ref: 'Box' },
 
   horaires: [
     {
@@ -60,9 +60,8 @@ const boutiqueSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-boutiqueSchema.pre('save', function (next) {
+boutiqueSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('Boutique', boutiqueSchema);
+export default mongoose.model('Boutique', boutiqueSchema);

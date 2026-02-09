@@ -1,0 +1,424 @@
+/* ============================================
+   BOUTIQUE REGISTRATION PAGE STYLES
+   ============================================ */
+
+// Transition variable
+$transition: all 0.3s ease-in-out;
+
+.blank-layout-container {
+  min-height: 120vh !important;
+}
+
+// Card Styles
+.boxed-auth {
+  max-width: 1200px;
+  width: 100%;
+  margin: 30px auto;
+  border-radius: 20px !important;
+  transition: $transition;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Padding
+.p-40 {
+  padding: 40px !important;
+}
+
+// Main Title
+.main-title {
+  text-align: center;
+  margin: 30px 0 40px;
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    margin: 0;
+  }
+}
+
+// Logo
+.logo-img {
+  max-width: 180px;
+  height: auto;
+  transition: $transition;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// Spacing
+.m-t-30 { margin-top: 30px !important; }
+.mb-4 { margin-bottom: 24px !important; }
+
+// Form Section
+.form-section {
+  border-radius: 12px;
+  padding: 24px;
+  height: 100%;
+  transition: $transition;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+
+  .section-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.section-content {
+  .row.g-3 {
+    margin-left: -8px;
+    margin-right: -8px;
+
+    > [class*='col-'] {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+}
+
+// Form Group
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+// Main Row Spacing
+.registration-form {
+  .row.g-4 {
+    margin-left: -12px;
+    margin-right: -12px;
+
+    > [class*='col-'] {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+}
+
+// Info Box
+.info-box {
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .info-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Material Form Fields
+::ng-deep {
+  .mat-form-field {
+    &.w-100 {
+      width: 100%;
+    }
+
+    .mat-form-field-wrapper {
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .mat-input-element {
+      font-size: 15px;
+      padding: 12px 14px;
+    }
+
+    .mat-error {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
+  // Icons in fields
+  .field-icon {
+    margin-right: 8px;
+    font-size: 20px;
+  }
+
+  .mat-icon-button.toggle-password {
+    transition: $transition;
+
+    .mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Alert Styles
+.alert {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  animation: slideDown 0.3s ease-out;
+
+  .alert-icon {
+    margin-right: 12px;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Submit Button
+.submit-btn {
+  height: 52px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
+  transition: $transition !important;
+  margin-top: 24px;
+
+  .btn-icon {
+    margin-right: 8px;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  &:not(:disabled) {
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  mat-spinner {
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+}
+
+// Login Link
+.link-primary {
+  text-decoration: none;
+  font-weight: 600;
+  transition: $transition;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    transition: $transition;
+  }
+
+  &:hover {
+    &::after {
+      width: 100%;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 991px) {
+  .boxed-auth {
+    margin: 20px;
+  }
+
+  .p-40 {
+    padding: 32px !important;
+  }
+
+  .main-title {
+    h2 {
+      font-size: 24px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .form-section {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .p-40 {
+    padding: 28px !important;
+  }
+
+  .logo-img {
+    max-width: 150px;
+  }
+
+  .main-title {
+    margin: 24px 0 32px;
+
+    h2 {
+      font-size: 22px;
+    }
+  }
+
+  .section-header {
+    h3 {
+      font-size: 16px;
+    }
+
+    .section-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .form-section {
+    padding: 20px;
+  }
+
+  .submit-btn {
+    height: 48px !important;
+    font-size: 15px !important;
+  }
+
+  .registration-form .row.g-4 {
+    margin-left: -8px;
+    margin-right: -8px;
+
+    > [class*='col-'] {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .p-40 {
+    padding: 24px !important;
+  }
+
+  .main-title {
+    margin: 20px 0 28px;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .section-content {
+    .row.g-3 {
+      > [class*='col-'] {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .info-box {
+    padding: 12px;
+    gap: 10px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .info-content {
+      strong {
+        font-size: 13px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// Accessibility & Print Styles removed - using default theme colors

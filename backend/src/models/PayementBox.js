@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const payementBoxSchema = new mongoose.Schema({
   boxId: { type: mongoose.Schema.Types.ObjectId, ref: 'Box', required: true, index: true },
@@ -12,4 +12,4 @@ const payementBoxSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('PayementBox', payementBoxSchema);
+export default mongoose.model('PayementBox', payementBoxSchema);

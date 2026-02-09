@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema({
   nom: { type: String, unique: true, required: true, index: true },
@@ -14,9 +14,8 @@ const categorySchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-categorySchema.pre('save', function (next) {
+categorySchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model('Category', categorySchema);
+export default mongoose.model('Category', categorySchema);

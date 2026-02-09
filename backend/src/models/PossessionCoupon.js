@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const possessionCouponSchema = new mongoose.Schema({
   sku: { type: String, required: true },
@@ -14,4 +14,4 @@ const possessionCouponSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('PossessionCoupon', possessionCouponSchema);
+export default mongoose.model('PossessionCoupon', possessionCouponSchema);
