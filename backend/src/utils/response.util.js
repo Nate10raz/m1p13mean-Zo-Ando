@@ -26,6 +26,10 @@ export const badRequestResponse = (req, res, message = 'Bad request', data = nul
   return apiResponse({ req, res, status: 400, message, data });
 };
 
+export const unauthorizedResponse = (req, res, message = 'Unauthorized') => {
+  return apiResponse({ req, res, status: 401, message, data: null });
+};
+
 export const forbiddenResponse = (req, res, message = 'Forbidden') => {
   return apiResponse({ req, res, status: 403, message, data: null });
 };

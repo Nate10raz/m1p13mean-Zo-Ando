@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const demandeLocationBoxSchema = new mongoose.Schema({
   boutiqueId: {
@@ -30,4 +30,4 @@ demandeLocationBoxSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('DemandeLocationBox', demandeLocationBoxSchema);
+export default mongoose.model('DemandeLocationBox', demandeLocationBoxSchema);
