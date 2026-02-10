@@ -32,15 +32,18 @@
 
           <div class="or-border m-t-30">or sign in with</div>
 
-          <form class="m-t-30">
-            <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Username</mat-label>
+          <form class="m-t-30" [formGroup]="form" (ngSubmit)="submit()">
+            <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Email</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <input matInput />
+              <input matInput type="email" formControlName="email" autocomplete="email" />
+              <mat-error *ngIf="f.email.touched && f.email.hasError('required')">Email is required.</mat-error>
+              <mat-error *ngIf="f.email.touched && f.email.hasError('email')">Invalid email format.</mat-error>
             </mat-form-field>
             <!-- password -->
             <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Password</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <input matInput type="password" />
+              <input matInput type="password" formControlName="password" autocomplete="current-password" />
+              <mat-error *ngIf="f.password.touched && f.password.hasError('required')">Password is required.</mat-error>
             </mat-form-field>
 
             <div class="d-flex align-items-center m-b-12">
@@ -48,9 +51,16 @@
               <a [routerLink]="['/']" class="text-primary f-w-600 text-decoration-none m-l-auto f-s-14">Forgot Password
                 ?</a>
             </div>
-            <a [routerLink]="['/']" mat-flat-button color="primary" class="w-100">
-              Sign In
-            </a>
+            <div *ngIf="serverError" class="text-danger f-s-14 m-b-12">{{ serverError }}</div>
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              class="w-100"
+              [disabled]="form.invalid || isSubmitting"
+            >
+              {{ isSubmitting ? 'Signing in...' : 'Sign In' }}
+            </button>
             <!-- input -->
           </form>
           <span class="d-block f-w-500 text-center m-t-24">New to Modernize?

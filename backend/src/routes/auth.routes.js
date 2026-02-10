@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import {
+  loginController,
+  logoutController,
+  refreshController,
   registerBoutiqueController,
   registerClientController,
 } from '../controllers/auth.controller.js';
@@ -34,6 +37,11 @@ const clientValidation = [
   body('telephone').isString().notEmpty().withMessage('Telephone requis'),
 ];
 
+const loginValidation = [
+  body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
+  body('password').isString().notEmpty().withMessage('Mot de passe requis'),
+];
+
 const boutiqueValidation = [
   ...baseUserValidation,
   body('boutique').isObject().withMessage('Champ boutique requis'),
@@ -53,5 +61,8 @@ const boutiqueValidation = [
 
 router.post('/register/client', clientValidation, validateRequest, registerClientController);
 router.post('/register/boutique', boutiqueValidation, validateRequest, registerBoutiqueController);
+router.post('/login', loginValidation, validateRequest, loginController);
+router.post('/refresh', refreshController);
+router.post('/logout', logoutController);
 
 export default router;
