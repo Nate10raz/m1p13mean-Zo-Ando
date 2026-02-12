@@ -158,6 +158,7 @@ export const registerBoutique = async (payload) => {
       { session },
     );
 
+    createdUser.isActive = false;
     createdUser.boutiqueId = boutique[0]._id;
     await createdUser.save({ session });
 

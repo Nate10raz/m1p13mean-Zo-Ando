@@ -59,7 +59,7 @@ export const registerBoutiqueController = async (req, res, next) => {
       req,
       res,
       status: 201,
-      message: 'Inscription boutique reussie',
+      message: 'Inscription boutique reussie, en attente d’approbation admin',
       data: result,
     });
   } catch (error) {
