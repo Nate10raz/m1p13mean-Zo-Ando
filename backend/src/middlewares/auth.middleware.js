@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
-import { unauthorizedResponse } from '../utils/response.util.js';
+import { forbiddenResponse, unauthorizedResponse } from '../utils/response.util.js';
 
 export const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization || '';
@@ -24,3 +24,12 @@ export const requireAuth = (req, res, next) => {
     return unauthorizedResponse(req, res, 'Invalid or expired access token');
   }
 };
+
+export const requireRole =
+  (...roles) =>
+  (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return forbiddenResponse(req, res, 'Forbidden');
+    }
+    return next();
+  };
