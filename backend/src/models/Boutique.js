@@ -65,4 +65,10 @@ boutiqueSchema.pre('save', function () {
   this.updatedAt = Date.now();
 });
 
+// Unique only when boxId is present (allows multiple nulls)
+boutiqueSchema.index(
+  { boxId: 1 },
+  { unique: true, partialFilterExpression: { boxId: { $exists: true, $ne: null } } },
+);
+
 export default mongoose.model('Boutique', boutiqueSchema);

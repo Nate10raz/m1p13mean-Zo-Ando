@@ -83,6 +83,10 @@ export const login = async ({ email, password }) => {
     throw createError('Invalid credentials', 401);
   }
 
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+
   if (user.isActive === false) {
     throw createError('User disabled', 403);
   }
@@ -140,6 +144,9 @@ export const refreshSession = async (refreshToken) => {
   const user = await User.findById(payload.sub);
   if (!user) {
     throw createError('User not found', 401);
+  }
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
   }
   if (user.isActive === false) {
     throw createError('User disabled', 403);

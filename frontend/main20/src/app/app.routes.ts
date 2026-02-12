@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -30,6 +31,18 @@ export const routes: Routes = [
         path: 'extra',
         loadChildren: () =>
           import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
+      },
+      {
+        path: 'access-denied',
+        loadChildren: () =>
+          import('./pages/access-denied/access-denied.routes').then((m) => m.AccessDeniedRoutes),
+      },
+      {
+        path: 'admin',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin'] },
+        loadChildren: () =>
+          import('./pages/admin/admin.routes').then((m) => m.AdminRoutes),
       },
     ],
   },

@@ -20,6 +20,13 @@ const userSchema = new mongoose.Schema({
     },
   },
   isActive: { type: Boolean, default: true },
+  status: {
+    type: String,
+    enum: ['active', 'suspendue', 'en_attente', 'rejetee'],
+    default: 'active',
+    index: true,
+  },
+  motifSuspension: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

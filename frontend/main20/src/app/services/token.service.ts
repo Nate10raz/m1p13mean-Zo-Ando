@@ -1,29 +1,43 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 
 interface JwtPayload {
   exp?: number;
+  role?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class TokenService {
-  private accessToken: string | null = null;
+  private accessTokenSignal = signal<string | null>(null);
+  private roleSignal = computed(() => {
+    const token = this.accessTokenSignal();
+    if (!token) {
+      return null;
+    }
+
+    const payload = this.decodeToken(token);
+    return payload?.role ?? null;
+  });
 
   setAccessToken(token: string): void {
-    this.accessToken = token;
+    this.accessTokenSignal.set(token);
   }
 
   getAccessToken(): string | null {
-    return this.accessToken;
+    return this.accessTokenSignal();
   }
 
   clearAccessToken(): void {
-    this.accessToken = null;
+    this.accessTokenSignal.set(null);
+  }
+
+  getRole(): string | null {
+    return this.roleSignal();
   }
 
   isAccessTokenExpired(token?: string | null): boolean {
-    const value = token ?? this.accessToken;
+    const value = token ?? this.accessTokenSignal();
     if (!value) {
       return true;
     }
