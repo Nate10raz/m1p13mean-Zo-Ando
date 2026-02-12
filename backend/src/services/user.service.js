@@ -149,11 +149,14 @@ export const registerBoutique = async (payload) => {
           email: payload.boutique.email,
           plage_livraison_boutique: payload.boutique.plage_livraison_boutique,
           accepteLivraisonJourJ: payload.boutique.accepteLivraisonJourJ,
+          status: 'en_attente',
+          isActive: false,
         },
       ],
       { session },
     );
 
+    createdUser.isActive = false;
     createdUser.boutiqueId = boutique[0]._id;
     await createdUser.save({ session });
 
