@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { login, logoutSession, refreshSession } from '../services/auth.service.js';
-import { registerBoutique, registerClient } from '../services/user.service.js';
+import { registerAdmin, registerBoutique, registerClient } from '../services/user.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
 const buildRefreshCookieOptions = (refreshToken) => {
@@ -60,6 +60,21 @@ export const registerBoutiqueController = async (req, res, next) => {
       res,
       status: 201,
       message: 'Inscription boutique reussie',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const registerAdminController = async (req, res, next) => {
+  try {
+    const result = await registerAdmin(req.body);
+    apiResponse({
+      req,
+      res,
+      status: 201,
+      message: 'Inscription admin reussie',
       data: result,
     });
   } catch (error) {

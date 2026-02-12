@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import User from '../models/User.js';
 import UserToken from '../models/UserToken.js';
+import Boutique from '../models/Boutique.js';
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -35,9 +36,13 @@ const signAccessToken = (user) =>
   });
 
 const signRefreshToken = (user) =>
-  jwt.sign({ sub: user._id.toString(), type: 'refresh', jti: generateJti() }, ENV.JWT_REFRESH_SECRET, {
-    expiresIn: ENV.JWT_REFRESH_EXPIRES_IN,
-  });
+  jwt.sign(
+    { sub: user._id.toString(), type: 'refresh', jti: generateJti() },
+    ENV.JWT_REFRESH_SECRET,
+    {
+      expiresIn: ENV.JWT_REFRESH_EXPIRES_IN,
+    },
+  );
 
 const getTokenExpiresAt = (token) => {
   const decoded = jwt.decode(token);
@@ -78,8 +83,24 @@ export const login = async ({ email, password }) => {
     throw createError('Invalid credentials', 401);
   }
 
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+
   if (user.isActive === false) {
     throw createError('User disabled', 403);
+  }
+
+  if (user.role === 'boutique') {
+    const boutique = user.boutiqueId
+      ? await Boutique.findById(user.boutiqueId)
+      : await Boutique.findOne({ userId: user._id });
+    if (!boutique) {
+      throw createError('Boutique not found', 403);
+    }
+    if (boutique.isActive === false || boutique.status !== 'active') {
+      throw createError('Boutique not approved', 403);
+    }
   }
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
@@ -124,8 +145,23 @@ export const refreshSession = async (refreshToken) => {
   if (!user) {
     throw createError('User not found', 401);
   }
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
   if (user.isActive === false) {
     throw createError('User disabled', 403);
+  }
+
+  if (user.role === 'boutique') {
+    const boutique = user.boutiqueId
+      ? await Boutique.findById(user.boutiqueId)
+      : await Boutique.findOne({ userId: user._id });
+    if (!boutique) {
+      throw createError('Boutique not found', 403);
+    }
+    if (boutique.isActive === false || boutique.status !== 'active') {
+      throw createError('Boutique not approved', 403);
+    }
   }
 
   const newAccessToken = signAccessToken(user);

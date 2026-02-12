@@ -4,6 +4,7 @@ export interface NavItem {
     navCap?: string;
     route?: string;
     children?: NavItem[];
+    roles?: string[];
     chip?: boolean;
     chipContent?: string;
     chipClass?: string;

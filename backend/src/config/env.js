@@ -10,4 +10,5 @@ export const ENV = {
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'changeme',
+  ADMIN_REGISTRATION_SECRET: process.env.ADMIN_REGISTRATION_SECRET || '',
 };

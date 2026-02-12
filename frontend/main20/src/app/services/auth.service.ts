@@ -130,6 +130,14 @@ export class AuthService {
   logout(): Observable<ApiResponse<null>> {
     return this.http
       .post<ApiResponse<null>>(`${this.apiBaseUrl}/logout`, {}, { withCredentials: true })
-      .pipe(finalize(() => this.tokenService.clearAccessToken()));
+      .pipe(
+        finalize(() => {
+          this.tokenService.clearAccessToken();
+        })
+      );
+  }
+
+  getCurrentRole(): string | null {
+    return this.tokenService.getRole();
   }
 }

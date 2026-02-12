@@ -1,5 +1,5 @@
 import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, effect, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatSidenav, MatSidenavContent } from '@angular/material/sidenav';
 import { CoreService } from 'src/app/services/core.service';
@@ -14,8 +14,10 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { AppNavItemComponent } from './sidebar/nav-item/nav-item.component';
-import { navItems } from './sidebar/sidebar-data';
+import { navItems as defaultNavItems } from './sidebar/sidebar-data';
 import { AppTopstripComponent } from './top-strip/topstrip.component';
+import { AuthService } from 'src/app/services/auth.service';
+import { NavItem } from './sidebar/nav-item/nav-item';
 
 
 const MOBILE_VIEW = 'screen and (max-width: 768px)';
@@ -39,7 +41,7 @@ const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
   encapsulation: ViewEncapsulation.None
 })
 export class FullComponent implements OnInit {
-  navItems = navItems;
+  navItems: NavItem[] = [];
 
   @ViewChild('leftsidenav')
   public sidenav: MatSidenav;
@@ -62,7 +64,12 @@ export class FullComponent implements OnInit {
     private settings: CoreService,
     private router: Router,
     private breakpointObserver: BreakpointObserver,
+    private authService: AuthService,
   ) {
+    effect(() => {
+      this.navItems = this.filterNavItems(defaultNavItems, this.authService.getCurrentRole());
+    });
+
     this.htmlElement = document.querySelector('html')!;
     this.layoutChangesSubscription = this.breakpointObserver
       .observe([MOBILE_VIEW, TABLET_VIEW])
@@ -86,7 +93,7 @@ export class FullComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
   ngOnDestroy() {
     this.layoutChangesSubscription.unsubscribe();
@@ -112,4 +119,18 @@ export class FullComponent implements OnInit {
     //this.settings.setOptions(this.options);
   }
 
+  private filterNavItems(items: NavItem[], role: string | null): NavItem[] {
+    const normalizedRole = role?.toLowerCase().trim() ?? null;
+    return items.reduce<NavItem[]>((acc, item) => {
+      const children = item.children ? this.filterNavItems(item.children, role) : undefined;
+      const allowedRoles = item.roles?.map((value) => value.toLowerCase().trim());
+      const allowed = !allowedRoles || (normalizedRole ? allowedRoles.includes(normalizedRole) : false);
+
+      if (allowed || (children && children.length > 0)) {
+        acc.push(children ? { ...item, children } : { ...item });
+      }
+
+      return acc;
+    }, []);
+  }
 }

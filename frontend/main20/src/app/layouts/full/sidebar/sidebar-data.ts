@@ -48,6 +48,30 @@ export const navItems: NavItem[] = [
     route: '/ui-components/tables',
   },
   {
+    navCap: 'Administration',
+    roles: ['admin'],
+  },
+  {
+    displayName: 'Gestion des utilisateurs',
+    iconName: 'users',
+    route: '/admin',
+    roles: ['admin'],
+    children: [
+      {
+        displayName: 'Acheteur',
+        iconName: 'point',
+        route: '/admin/acheteur',
+        roles: ['admin'],
+      },
+      {
+        displayName: 'Boutique',
+        iconName: 'point',
+        route: '/admin/boutique',
+        roles: ['admin'],
+      },
+    ],
+  },
+  {
     navCap: 'Extra',
   },
   {

@@ -127,6 +127,8 @@ export const registerBoutique = async (payload) => {
           telephone: payload.telephone,
           avatar: payload.avatar,
           isEmailVerified: payload.isEmailVerified,
+          status: 'en_attente',
+          isActive: false,
         },
       ],
       { session },
@@ -149,6 +151,8 @@ export const registerBoutique = async (payload) => {
           email: payload.boutique.email,
           plage_livraison_boutique: payload.boutique.plage_livraison_boutique,
           accepteLivraisonJourJ: payload.boutique.accepteLivraisonJourJ,
+          status: 'en_attente',
+          isActive: false,
         },
       ],
       { session },
@@ -161,6 +165,49 @@ export const registerBoutique = async (payload) => {
     return {
       user: sanitizeUser(createdUser),
       boutique: boutique[0].toObject(),
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+export const registerAdmin = async (payload) => {
+  const email = normalizeEmail(payload.email);
+  requireString(email, 'email');
+  requireString(payload.password, 'password');
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    await ensureUniqueEmail(email, session);
+
+    const passwordHash = await bcrypt.hash(payload.password, SALT_ROUNDS);
+
+    const user = await User.create(
+      [
+        {
+          email,
+          passwordHash,
+          role: 'admin',
+          nom: payload.nom,
+          prenom: payload.prenom,
+          telephone: payload.telephone,
+          isActive: true,
+          status: 'active',
+        },
+      ],
+      { session },
+    );
+
+    const createdUser = user[0];
+
+    await session.commitTransaction();
+    return {
+      user: sanitizeUser(createdUser),
     };
   } catch (error) {
     await session.abortTransaction();
