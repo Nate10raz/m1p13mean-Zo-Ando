@@ -18,4 +18,7 @@ categorySchema.pre('save', function () {
   this.updatedAt = Date.now();
 });
 
+categorySchema.index({ parentId: 1 });
+categorySchema.index({ chemin: 1 });
+
 export default mongoose.model('Category', categorySchema);

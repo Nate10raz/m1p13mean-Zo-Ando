@@ -72,6 +72,12 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    displayName: 'Gestion des categories',
+    iconName: 'list-details',
+    route: '/admin/categorie',
+    roles: ['admin'],
+  },
+  {
     navCap: 'Extra',
   },
   {
