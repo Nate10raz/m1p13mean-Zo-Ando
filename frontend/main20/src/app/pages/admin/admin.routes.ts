@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { AppAdminAcheteurComponent } from './acheteur/acheteur.component';
 import { AppAdminBoutiqueComponent } from './boutique/boutique.component';
+import { AppAdminCategorieComponent } from './categorie/categorie.component';
 
 export const AdminRoutes: Routes = [
   {
@@ -14,6 +15,10 @@ export const AdminRoutes: Routes = [
       {
         path: 'boutique',
         component: AppAdminBoutiqueComponent,
+      },
+      {
+        path: 'categorie',
+        component: AppAdminCategorieComponent,
       },
     ],
   },
