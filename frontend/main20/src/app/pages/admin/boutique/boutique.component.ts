@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialModule } from '../../../material.module';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { debounceTime, distinctUntilChanged, finalize, merge, Subscription } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  merge,
+  of,
+  shareReplay,
+  startWith,
+  Subject,
+  Subscription,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
@@ -48,6 +64,7 @@ interface SuspendBoutiqueDialogData {
     MatPaginatorModule,
   ],
   templateUrl: './boutique.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['boutique', 'contact', 'statut', 'actions'];
@@ -66,28 +83,98 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
   });
   sortDirControl = new FormControl<'asc' | 'desc'>('desc', { nonNullable: true });
   private subscriptions = new Subscription();
+  private pageChange$ = new Subject<{ page: number; limit: number }>();
 
   constructor(
     private adminService: AdminService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadBoutiques();
+    const search$ = this.searchControl.valueChanges.pipe(
+      map((value) => this.normalizeSearch(value)),
+      debounceTime(400),
+      distinctUntilChanged(),
+      startWith(this.normalizeSearch(this.searchControl.value))
+    );
+    const status$ = this.statusControl.valueChanges.pipe(startWith(this.statusControl.value));
+    const sortBy$ = this.sortByControl.valueChanges.pipe(startWith(this.sortByControl.value));
+    const sortDir$ = this.sortDirControl.valueChanges.pipe(startWith(this.sortDirControl.value));
 
-    const search$ = this.searchControl.valueChanges.pipe(debounceTime(400), distinctUntilChanged());
-    const filters$ = merge(
-      search$,
-      this.statusControl.valueChanges,
-      this.sortByControl.valueChanges,
-      this.sortDirControl.valueChanges
+    const filters$ = combineLatest([search$, status$, sortBy$, sortDir$]).pipe(
+      map(([search, status, sortBy, sortDir]) => ({ search, status, sortBy, sortDir })),
+      distinctUntilChanged(
+        (prev, curr) =>
+          prev.search === curr.search &&
+          prev.status === curr.status &&
+          prev.sortBy === curr.sortBy &&
+          prev.sortDir === curr.sortDir
+      ),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    const filterRequests$ = filters$.pipe(
+      tap(() => {
+        this.page = 1;
+      }),
+      map((filters) => ({
+        ...filters,
+        page: 1,
+        limit: this.limit,
+      }))
+    );
+
+    const pageRequests$ = this.pageChange$.pipe(
+      withLatestFrom(filters$),
+      map(([pageState, filters]) => ({
+        ...filters,
+        ...pageState,
+      }))
+    );
+
+    const requests$ = merge(filterRequests$, pageRequests$).pipe(
+      tap(() => {
+        this.isLoading = true;
+        this.errorMessage = '';
+        this.cdr.markForCheck();
+      }),
+      switchMap((query) =>
+        this.adminService
+          .getBoutiques({
+            page: query.page,
+            limit: query.limit,
+            includeUser: true,
+            search: query.search.length ? query.search : undefined,
+            status: query.status === 'all' ? undefined : query.status,
+            sortBy: query.sortBy,
+            sortDir: query.sortDir,
+          })
+          .pipe(
+            map((response) => ({ response, error: null as unknown })),
+            catchError((error) => of({ response: null, error }))
+          )
+      )
     );
 
     this.subscriptions.add(
-      filters$.subscribe(() => {
-        this.page = 1;
-        this.loadBoutiques();
+      requests$.subscribe(({ response, error }) => {
+        this.isLoading = false;
+
+        if (!response || error) {
+          this.errorMessage =
+            error?.error?.message ?? 'Impossible de charger la liste des boutiques.';
+          this.dataSource = [];
+          this.total = 0;
+          this.cdr.markForCheck();
+          return;
+        }
+
+        const items = response?.data?.items ?? [];
+        this.total = response?.data?.total ?? items.length;
+        this.dataSource = items.map((item, index) => this.mapBoutique(item, index));
+        this.cdr.markForCheck();
       })
     );
   }
@@ -99,39 +186,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
   onPageChange(event: PageEvent): void {
     this.page = event.pageIndex + 1;
     this.limit = event.pageSize;
-    this.loadBoutiques();
-  }
-
-  private loadBoutiques(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    const search = this.searchControl.value.trim();
-    const statusValue = this.statusControl.value;
-
-    this.adminService
-      .getBoutiques({
-        page: this.page,
-        limit: this.limit,
-        includeUser: true,
-        search: search.length ? search : undefined,
-        status: statusValue === 'all' ? undefined : statusValue,
-        sortBy: this.sortByControl.value,
-        sortDir: this.sortDirControl.value,
-      })
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (response) => {
-          const items = response?.data?.items ?? [];
-          this.total = response?.data?.total ?? items.length;
-          this.dataSource = items.map((item, index) => this.mapBoutique(item, index));
-        },
-        error: (error) => {
-          this.errorMessage = error?.error?.message ?? 'Impossible de charger la liste des boutiques.';
-          this.dataSource = [];
-          this.total = 0;
-        },
-      });
+    this.pageChange$.next({ page: this.page, limit: this.limit });
   }
 
   private mapBoutique(item: AdminBoutique, index: number): BoutiqueRow {
@@ -149,6 +204,10 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
       statut,
       motifSuspension: item.motifSuspension,
     };
+  }
+
+  trackByBoutiqueId(index: number, row: BoutiqueRow): string {
+    return row.boutiqueId || String(index);
   }
 
   private mapStatus(
@@ -172,7 +231,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
   }
 
   private getOwnerName(item: AdminBoutique): string {
-    const owner = item.user ?? (typeof item.userId === 'object' ? item.userId : undefined);
+    const owner = item.user;
     if (!owner) {
       return 'Inconnu';
     }
@@ -243,12 +302,17 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
     this.actionInProgress = true;
     this.adminService
       .reactivateBoutique(boutique.boutiqueId)
-      .pipe(finalize(() => (this.actionInProgress = false)))
+      .pipe(
+        finalize(() => {
+          this.actionInProgress = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe({
         next: (response) => {
           const message = response?.message ?? 'Boutique reactivee';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          this.loadBoutiques();
+          this.triggerReload();
         },
         error: (error) => {
           const message = error?.error?.message ?? 'Reactivation impossible.';
@@ -265,12 +329,17 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
     this.actionInProgress = true;
     this.adminService
       .approveBoutique(boutique.boutiqueId)
-      .pipe(finalize(() => (this.actionInProgress = false)))
+      .pipe(
+        finalize(() => {
+          this.actionInProgress = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe({
         next: (response) => {
           const message = response?.message ?? 'Boutique approuvee';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          this.loadBoutiques();
+          this.triggerReload();
         },
         error: (error) => {
           const message = error?.error?.message ?? 'Approbation impossible.';
@@ -284,18 +353,31 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
 
     this.adminService
       .suspendBoutique(boutiqueId, payload)
-      .pipe(finalize(() => (this.actionInProgress = false)))
+      .pipe(
+        finalize(() => {
+          this.actionInProgress = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe({
         next: (response) => {
           const message = response?.message ?? 'Boutique suspendue';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          this.loadBoutiques();
+          this.triggerReload();
         },
         error: (error) => {
           const message = error?.error?.message ?? 'Suspension impossible.';
           this.snackBar.open(message, 'Fermer', { duration: 4000 });
         },
       });
+  }
+
+  private triggerReload(): void {
+    this.pageChange$.next({ page: this.page, limit: this.limit });
+  }
+
+  private normalizeSearch(value: string): string {
+    return value.trim().toLocaleLowerCase().replace(/\s+/g, ' ');
   }
 }
 
