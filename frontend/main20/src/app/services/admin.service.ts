@@ -75,7 +75,7 @@ export interface AdminBoutiqueUser {
 
 export interface AdminBoutique {
   _id: string;
-  userId: string | AdminBoutiqueUser;
+  userId: string;
   nom: string;
   adresse: string;
   horaires: unknown[];

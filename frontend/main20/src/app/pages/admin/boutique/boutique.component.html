@@ -51,7 +51,7 @@
     <div class="p-16 text-muted">Aucune boutique trouvée.</div>
     } @else {
     <div class="table-responsive">
-      <table mat-table [dataSource]="dataSource" class="w-100">
+      <table mat-table [dataSource]="dataSource" [trackBy]="trackByBoutiqueId" class="w-100">
         <ng-container matColumnDef="boutique">
           <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-14 p-l-0">
             Boutique

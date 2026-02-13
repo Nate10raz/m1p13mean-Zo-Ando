@@ -210,10 +210,16 @@ export const listPendingBoutiques = async ({
   let items = itemsRaw;
 
   if (includeUser) {
-    items = items.map((boutique) => ({
-      ...boutique,
-      user: boutique.userId || null,
-    }));
+    items = items.map((boutique) => {
+      const hasPopulatedUser = boutique.userId && boutique.userId._id;
+      const user = hasPopulatedUser ? boutique.userId : null;
+      const userId = hasPopulatedUser ? boutique.userId._id : boutique.userId || null;
+      return {
+        ...boutique,
+        userId,
+        user,
+      };
+    });
   }
 
   return {
@@ -266,10 +272,16 @@ export const listBoutiques = async ({
   let items = itemsRaw;
 
   if (includeUser) {
-    items = items.map((boutique) => ({
-      ...boutique,
-      user: boutique.userId || null,
-    }));
+    items = items.map((boutique) => {
+      const hasPopulatedUser = boutique.userId && boutique.userId._id;
+      const user = hasPopulatedUser ? boutique.userId : null;
+      const userId = hasPopulatedUser ? boutique.userId._id : boutique.userId || null;
+      return {
+        ...boutique,
+        userId,
+        user,
+      };
+    });
   }
 
   return {
