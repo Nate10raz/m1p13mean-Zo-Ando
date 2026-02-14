@@ -1,11 +1,10 @@
 <mat-card class="cardWithShadow">
   <mat-card-content>
     <mat-card-title>Arborescence des categories</mat-card-title>
-    <mat-card-subtitle>Donnees chargees depuis /categories/tree</mat-card-subtitle>
 
     <div class="d-flex flex-wrap gap-16 m-b-16 align-items-end">
       <mat-form-field appearance="outline" class="flex-grow-1">
-        <mat-label>Rechercher une categorie</mat-label>
+        <mat-label>Rechercher une catégorie</mat-label>
         <input
           matInput
           [formControl]="searchControl"
@@ -98,11 +97,15 @@
                 <mat-icon>add</mat-icon>
                 <span>Ajouter enfant</span>
               </button>
-              <button mat-menu-item>
+              <button mat-menu-item (click)="openEditDialog(node)">
                 <mat-icon>edit</mat-icon>
-                <span>Renommer</span>
+                <span>Modifier</span>
               </button>
-              <button mat-menu-item>
+              <button mat-menu-item disabled matTooltip="A venir">
+                <mat-icon>drive_file_move</mat-icon>
+                <span>Deplacer</span>
+              </button>
+              <button mat-menu-item (click)="openDeleteDialog(node)" [disabled]="node.childrenCount > 0">
                 <mat-icon>delete</mat-icon>
                 <span>Supprimer</span>
               </button>
@@ -155,11 +158,15 @@
                 <mat-icon>add</mat-icon>
                 <span>Ajouter enfant</span>
               </button>
-              <button mat-menu-item>
+              <button mat-menu-item (click)="openEditDialog(node)">
                 <mat-icon>edit</mat-icon>
-                <span>Renommer</span>
+                <span>Modifier</span>
               </button>
-              <button mat-menu-item>
+              <button mat-menu-item disabled matTooltip="A venir">
+                <mat-icon>drive_file_move</mat-icon>
+                <span>Deplacer</span>
+              </button>
+              <button mat-menu-item (click)="openDeleteDialog(node)" [disabled]="node.childrenCount > 0">
                 <mat-icon>delete</mat-icon>
                 <span>Supprimer</span>
               </button>

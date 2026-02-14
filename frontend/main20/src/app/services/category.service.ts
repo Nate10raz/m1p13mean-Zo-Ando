@@ -15,6 +15,9 @@ export interface CategoryNode {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  description?: string;
+  image?: string;
+  icon?: string;
   __v?: number;
   children?: CategoryNode[];
   isLeaf?: boolean;
@@ -32,6 +35,16 @@ export interface CategoryTreeQuery {
 export interface CategoryCreatePayload {
   nom: string;
   slug: string;
+  description?: string;
+  image?: string;
+  icon?: string;
+  isActive?: boolean;
+  parentId?: string | null;
+}
+
+export interface CategoryUpdatePayload {
+  nom?: string;
+  slug?: string;
   description?: string;
   image?: string;
   icon?: string;
@@ -58,6 +71,24 @@ export class CategoryService {
     payload: CategoryCreatePayload
   ): Observable<ApiResponse<CategoryNode>> {
     return this.http.post<ApiResponse<CategoryNode>>(`${this.apiRootUrl}/categories`, payload);
+  }
+
+  updateCategory(
+    id: string,
+    payload: CategoryUpdatePayload
+  ): Observable<ApiResponse<CategoryNode>> {
+    return this.http.patch<ApiResponse<CategoryNode>>(`${this.apiRootUrl}/categories/${id}`, payload);
+  }
+
+  getCategoryById(id: string): Observable<ApiResponse<CategoryNode>> {
+    return this.http.get<ApiResponse<CategoryNode>>(`${this.apiRootUrl}/categories/${id}`);
+  }
+
+  deleteCategory(id: string, force = true): Observable<ApiResponse<null>> {
+    const forceParam = force ? 'true' : 'false';
+    return this.http.delete<ApiResponse<null>>(
+      `${this.apiRootUrl}/categories/${id}?force=${forceParam}`
+    );
   }
 
   private buildParams(params: CategoryTreeQuery): HttpParams {

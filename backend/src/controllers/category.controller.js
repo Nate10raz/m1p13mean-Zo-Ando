@@ -94,8 +94,13 @@ export const updateCategoryController = async (req, res, next) => {
 
 export const deleteCategoryController = async (req, res, next) => {
   try {
+    const force =
+      req.query.force === true ||
+      req.query.force === 'true' ||
+      req.query.force === 1 ||
+      req.query.force === '1';
     const result = await deleteCategory(req.params.id, {
-      force: req.query.force === true,
+      force,
     });
     apiResponse({
       req,
