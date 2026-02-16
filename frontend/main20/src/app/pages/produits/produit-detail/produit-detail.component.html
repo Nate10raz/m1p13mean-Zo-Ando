@@ -11,6 +11,13 @@
           {{ product.estActif ? 'Actif' : 'Inactif' }}
         </span>
         <button mat-stroked-button type="button" (click)="goBack()">Retour</button>
+        <button
+          mat-stroked-button
+          type="button"
+          [routerLink]="['/produits', product._id, 'medias']"
+        >
+          Medias
+        </button>
         <button mat-flat-button color="primary" type="button" (click)="onEdit()">Modifier</button>
         <button mat-flat-button color="warn" type="button" (click)="onDelete()">Supprimer</button>
       </div>
