@@ -1,4 +1,10 @@
-import { createProduit, getProduitById, listProduits, updateProduit } from '../services/produit.service.js';
+import {
+  createProduit,
+  getProduitById,
+  listProduits,
+  updateProduit,
+  removeProduitImage,
+} from '../services/produit.service.js';
 import cloudinary from '../config/cloudinary.js';
 import { ENV } from '../config/env.js';
 
@@ -139,6 +145,25 @@ export const updateProduitController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Produit mis a jour',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduitImageController = async (req, res, next) => {
+  try {
+    const result = await removeProduitImage(req.params.id, req.params.imageId, {
+      userId: req.user?.id,
+      role: req.user?.role,
+    });
+
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Image supprimee',
       data: result,
     });
   } catch (error) {

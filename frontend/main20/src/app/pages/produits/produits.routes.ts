@@ -4,6 +4,7 @@ import { AppProduitCreateComponent } from './produit-create/produit-create.compo
 import { AppProduitDetailComponent } from './produit-detail/produit-detail.component';
 import { AppProduitEditComponent } from './produit-edit/produit-edit.component';
 import { AppProduitListComponent } from './produit-list/produit-list.component';
+import { AppProduitMediaComponent } from './produit-media/produit-media.component';
 
 export const ProduitsRoutes: Routes = [
   {
@@ -16,6 +17,10 @@ export const ProduitsRoutes: Routes = [
       {
         path: 'liste',
         component: AppProduitListComponent,
+      },
+      {
+        path: ':id/medias',
+        component: AppProduitMediaComponent,
       },
       {
         path: ':id/modifier',

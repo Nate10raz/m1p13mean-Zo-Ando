@@ -80,6 +80,15 @@ export class ProductService {
     );
   }
 
+  deleteProductImage(
+    productId: string,
+    imageId: string
+  ): Observable<ApiResponse<ProductCreateResponse>> {
+    return this.http.delete<ApiResponse<ProductCreateResponse>>(
+      `${this.apiRootUrl}/produits/${productId}/images/${imageId}`
+    );
+  }
+
   listProducts(params: ProductListQuery = {}): Observable<ApiResponse<ProductListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));

@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import Produit from '../models/Produit.js';
 import Boutique from '../models/Boutique.js';
 import User from '../models/User.js';
+import cloudinary from '../config/cloudinary.js';
+import { ENV } from '../config/env.js';
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -77,8 +79,8 @@ const resolveBoutiqueId = async (payload, auth) => {
       throw createError('Boutique utilisateur introuvable', 404);
     }
     if (boutiqueId && user.boutiqueId.toString() !== boutiqueId.toString()) {
-      console.log("boutiqueId : ",boutiqueId);
-      console.log("user boutiqueId : ",user.boutiqueId.toString());
+      console.log('boutiqueId : ', boutiqueId);
+      console.log('user boutiqueId : ', user.boutiqueId.toString());
       throw createError('Boutique invalide pour cet utilisateur', 403);
     }
     boutiqueId = user.boutiqueId;
@@ -223,6 +225,61 @@ export const listProduits = async (auth, { page = 1, limit = 20, search, estActi
     total,
     totalPages: Math.max(1, Math.ceil(total / parsedLimit)),
   };
+};
+
+export const removeProduitImage = async (productId, imageId, auth) => {
+  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+    throw createError('Forbidden', 403);
+  }
+
+  const produit = await Produit.findById(productId);
+  if (!produit) {
+    throw createError('Produit introuvable', 404);
+  }
+
+  if (auth.role === 'boutique') {
+    const user = await User.findById(auth.userId).lean();
+    if (!user || !user.boutiqueId) {
+      throw createError('Boutique utilisateur introuvable', 404);
+    }
+    if (produit.boutiqueId.toString() !== user.boutiqueId.toString()) {
+      throw createError('Forbidden', 403);
+    }
+  }
+
+  const imageIndex = produit.images.findIndex(
+    (image) => image?._id?.toString() === imageId.toString(),
+  );
+  if (imageIndex === -1) {
+    throw createError('Image introuvable', 404);
+  }
+
+  const targetImage = produit.images[imageIndex];
+  if (targetImage?.publicId) {
+    if (!ENV.CLOUDINARY_CLOUD_NAME || !ENV.CLOUDINARY_API_KEY || !ENV.CLOUDINARY_API_SECRET) {
+      throw createError('Cloudinary configuration is missing', 500);
+    }
+    try {
+      await cloudinary.uploader.destroy(targetImage.publicId, { resource_type: 'image' });
+    } catch (error) {
+      throw createError('Echec suppression image Cloudinary', 500);
+    }
+  }
+
+  const [removed] = produit.images.splice(imageIndex, 1);
+
+  if (removed?.isMain && produit.images.length > 0) {
+    produit.images.forEach((image, index) => {
+      image.isMain = index === 0;
+    });
+  }
+
+  produit.images.forEach((image, index) => {
+    image.ordre = index + 1;
+  });
+
+  await produit.save();
+  return produit.toObject();
 };
 
 export const updateProduit = async (productId, payload, auth) => {

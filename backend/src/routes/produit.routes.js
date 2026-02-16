@@ -5,6 +5,7 @@ import {
   getProduitController,
   listProduitsController,
   updateProduitController,
+  deleteProduitImageController,
 } from '../controllers/produit.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -116,6 +117,18 @@ router.patch(
   ],
   validateRequest,
   updateProduitController,
+);
+
+router.delete(
+  '/:id/images/:imageId',
+  requireAuth,
+  requireRole('admin', 'boutique'),
+  [
+    param('id').isMongoId().withMessage('Id produit invalide'),
+    param('imageId').isMongoId().withMessage('Id image invalide'),
+  ],
+  validateRequest,
+  deleteProduitImageController,
 );
 
 /**
@@ -267,6 +280,30 @@ router.patch(
  *       403: { description: Forbidden }
  *       404: { description: Produit introuvable }
  *       500: { description: Cloudinary non configure }
+ */
+
+/**
+ * @openapi
+ * /produits/{id}/images/{imageId}:
+ *   delete:
+ *     tags: [Produits]
+ *     summary: Supprimer une image d'un produit
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: imageId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Image supprimee }
+ *       403: { description: Forbidden }
+ *       404: { description: Produit ou image introuvable }
+ *       500: { description: Erreur Cloudinary }
  */
 
 export default router;
