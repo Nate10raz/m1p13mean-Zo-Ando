@@ -27,6 +27,7 @@ app.use(
   }),
 );
 
+
 app.get('/api-docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.status(200).send(swaggerSpec);

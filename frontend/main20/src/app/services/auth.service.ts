@@ -40,6 +40,7 @@ export interface UserEntity {
   createdAt: string;
   updatedAt: string;
   panierId?: string;
+  boutiqueId?: string;
 }
 
 export interface ClientRegisterData {
@@ -73,6 +74,27 @@ export interface BoutiqueRegisterData {
   };
 }
 
+export interface BoutiqueMeData {
+  _id: string;
+  userId: string;
+  nom: string;
+  adresse?: string;
+  horaires?: unknown[];
+  clickCollectActif?: boolean;
+  telephone?: string;
+  plage_livraison_boutique?: unknown[];
+  status?: string;
+  statusLivreur?: string;
+  accepteLivraisonJourJ?: boolean;
+  isActive?: boolean;
+  noteMoyenne?: number;
+  nombreAvis?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+  dateValidation?: string;
+}
+
 export interface LoginData {
   user: UserEntity;
   accessToken: string;
@@ -93,6 +115,11 @@ export class AuthService {
     private tokenService: TokenService
   ) {}
 
+  getBoutiqueMe(): Observable<ApiResponse<BoutiqueMeData>> {
+    const apiRoot = this.apiBaseUrl.replace(/\/auth\/?$/, '');
+    return this.http.get<ApiResponse<BoutiqueMeData>>(`${apiRoot}/boutiques/me`);
+  }
+
   registerClient(payload: ClientRegisterPayload): Observable<ApiResponse<ClientRegisterData>> {
     return this.http.post<ApiResponse<ClientRegisterData>>(`${this.apiBaseUrl}/register/client`, payload);
   }
@@ -109,6 +136,10 @@ export class AuthService {
           const accessToken = response?.data?.accessToken;
           if (accessToken) {
             this.tokenService.setAccessToken(accessToken);
+          }
+          const user = response?.data?.user;
+          if (user) {
+            this.tokenService.setUser(user);
           }
         })
       );
@@ -133,11 +164,20 @@ export class AuthService {
       .pipe(
         finalize(() => {
           this.tokenService.clearAccessToken();
+          this.tokenService.clearUser();
         })
       );
   }
 
   getCurrentRole(): string | null {
     return this.tokenService.getRole();
+  }
+
+  getCurrentUserId(): string | null {
+    return this.tokenService.getUserId();
+  }
+
+  getCurrentBoutiqueId(): string | null {
+    return this.tokenService.getUser()?.boutiqueId ?? null;
   }
 }

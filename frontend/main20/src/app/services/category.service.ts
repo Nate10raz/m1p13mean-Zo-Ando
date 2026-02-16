@@ -32,6 +32,11 @@ export interface CategoryTreeQuery {
   limit?: number;
 }
 
+export interface CategoryListQuery {
+  parentId?: string | null;
+  search?: string;
+}
+
 export interface CategoryCreatePayload {
   nom: string;
   slug: string;
@@ -67,6 +72,13 @@ export class CategoryService {
     });
   }
 
+  listCategories(params: CategoryListQuery = {}): Observable<ApiResponse<CategoryNode[]>> {
+    const queryParams = this.buildParams(params);
+    return this.http.get<ApiResponse<CategoryNode[]>>(`${this.apiRootUrl}/categories`, {
+      params: queryParams,
+    });
+  }
+
   createCategory(
     payload: CategoryCreatePayload
   ): Observable<ApiResponse<CategoryNode>> {
@@ -95,7 +107,7 @@ export class CategoryService {
     let httpParams = new HttpParams();
 
     Object.entries(params).forEach(([key, value]) => {
-      if (!value) {
+      if (value === undefined || value === null || value === '') {
         return;
       }
       httpParams = httpParams.set(key, String(value));

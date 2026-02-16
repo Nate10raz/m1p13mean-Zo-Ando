@@ -8,7 +8,15 @@ const produitSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
-  sku: { type: String, unique: true, sparse: true },
+  sku: {
+    type: String,
+    unique: true,
+    sparse: true,
+    set: (value) => {
+      if (typeof value === 'string' && value.trim() === '') return undefined;
+      return value;
+    },
+  },
   titre: { type: String, required: true, index: true },
   slug: { type: String, required: true, index: true },
   description: String,
@@ -27,6 +35,7 @@ const produitSchema = new mongoose.Schema({
       url: String,
       ordre: Number,
       isMain: Boolean,
+      publicId: String,
     },
   ],
 
@@ -73,25 +82,20 @@ const ensureLeafCategories = async (ids) => {
   }
 };
 
-produitSchema.pre('validate', async function (next) {
-  try {
-    const ids = [];
-    if (this.isNew || this.isModified('categorieId')) {
-      if (this.categorieId) ids.push(this.categorieId);
-    }
-    if (this.isNew || this.isModified('sousCategoriesIds')) {
-      if (Array.isArray(this.sousCategoriesIds)) {
-        ids.push(...this.sousCategoriesIds);
-      }
-    }
-    const uniqueIds = [...new Set(ids.map((id) => id.toString()))].map(
-      (id) => new mongoose.Types.ObjectId(id),
-    );
-    await ensureLeafCategories(uniqueIds);
-    next();
-  } catch (error) {
-    next(error);
+produitSchema.pre('validate', async function () {
+  const ids = [];
+  if (this.isNew || this.isModified('categorieId')) {
+    if (this.categorieId) ids.push(this.categorieId);
   }
+  if (this.isNew || this.isModified('sousCategoriesIds')) {
+    if (Array.isArray(this.sousCategoriesIds)) {
+      ids.push(...this.sousCategoriesIds);
+    }
+  }
+  const uniqueIds = [...new Set(ids.map((id) => id.toString()))].map(
+    (id) => new mongoose.Types.ObjectId(id),
+  );
+  await ensureLeafCategories(uniqueIds);
 });
 
 export default mongoose.model('Produit', produitSchema);
