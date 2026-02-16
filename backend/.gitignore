@@ -20,6 +20,9 @@ pnpm-debug.log*
 # Coverage / tests
 coverage/
 
+# Uploads
+uploads/
+
 # IDEs
 .idea/
 .vscode/

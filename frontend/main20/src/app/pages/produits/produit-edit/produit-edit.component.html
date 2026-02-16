@@ -1,0 +1,225 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between">
+      <div>
+        <mat-card-title>Modifier le produit</mat-card-title>
+        <mat-card-subtitle>Admin et Boutique</mat-card-subtitle>
+      </div>
+      @if(productId) {
+      <button mat-stroked-button type="button" [routerLink]="['/produits', productId]">
+        Voir la fiche
+      </button>
+      }
+    </div>
+
+    @if(serverError) {
+    <div class="p-12 text-error">{{ serverError }}</div>
+    }
+
+    @if(isLoading) {
+    <div class="p-16">Chargement en cours...</div>
+    } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Boutique ID</mat-label>
+          <input matInput formControlName="boutiqueId" placeholder="ID boutique" />
+          @if(form.get('boutiqueId')?.hasError('required')) {
+          <mat-error>La boutique est obligatoire.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Titre</mat-label>
+          <input matInput formControlName="titre" placeholder="Ex: Chemise" />
+          @if(form.get('titre')?.hasError('required')) {
+          <mat-error>Le titre est obligatoire.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Slug</mat-label>
+          <input matInput formControlName="slug" placeholder="Ex: chemise" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Categorie</mat-label>
+          <input
+            matInput
+            [value]="selectedCategoryLabel"
+            placeholder="Selectionner une categorie"
+            readonly
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="openCategoryDialog()"
+            [disabled]="isLoadingCategories"
+            aria-label="Choisir une categorie"
+          >
+            <mat-icon>account_tree</mat-icon>
+          </button>
+          @if(isLoadingCategories) {
+          <mat-hint>Chargement des categories...</mat-hint>
+          }
+          @if(form.get('categorieId')?.hasError('required')) {
+          <mat-error>La categorie est obligatoire.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="4"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Description courte</mat-label>
+        <textarea matInput formControlName="descriptionCourte" rows="2"></textarea>
+      </mat-form-field>
+
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Sous-categories IDs</mat-label>
+          <input
+            matInput
+            formControlName="sousCategoriesIds"
+            placeholder="JSON array ou liste separee par des virgules"
+          />
+          <mat-hint>Ex: ["id1","id2"] ou id1,id2</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Tags</mat-label>
+          <input
+            matInput
+            formControlName="tags"
+            placeholder="JSON array ou liste separee par des virgules"
+          />
+          <mat-hint>Ex: ["promo","new"] ou promo,new</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Attributs</mat-label>
+        <textarea
+          matInput
+          formControlName="attributs"
+          rows="3"
+          placeholder="JSON array d'attributs"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Prix base actuel</mat-label>
+          <input matInput type="number" formControlName="prixBaseActuel" />
+          @if(form.get('prixBaseActuel')?.hasError('required')) {
+          <mat-error>Le prix est obligatoire.</mat-error>
+          }
+          @if(form.get('prixBaseActuel')?.hasError('min')) {
+          <mat-error>Le prix doit etre positif.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>SKU</mat-label>
+          <input matInput formControlName="sku" />
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Stock quantite</mat-label>
+          <input matInput type="number" formControlName="stockQuantite" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Seuil alerte</mat-label>
+          <input matInput type="number" formControlName="stockSeuilAlerte" />
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex flex-wrap gap-16 m-b-16 align-items-center">
+        <mat-slide-toggle formControlName="hasVariations">Variations</mat-slide-toggle>
+        <mat-slide-toggle formControlName="estActif">Actif</mat-slide-toggle>
+      </div>
+
+      @if(existingImages.length) {
+      <div class="m-b-16">
+        <label class="f-w-600 d-block m-b-8">Images existantes</label>
+        <div class="d-flex flex-wrap gap-12">
+          @for(img of existingImages; track img._id) {
+          <div class="d-flex flex-column align-items-center gap-6">
+            <img [src]="img.url" [alt]="form.get('titre')?.value" width="72" height="72" class="rounded" />
+            @if(img.isMain) {
+            <span class="f-s-12 text-success">Principale</span>
+            } @else {
+            <span class="f-s-12 text-muted">#{{ img.ordre }}</span>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <div class="m-b-16">
+        <label class="f-w-600 d-block m-b-8">Nouvelles images</label>
+        <input
+          type="file"
+          multiple
+          (change)="onFilesSelected($event)"
+          [disabled]="isSubmitting"
+        />
+
+        @if(selectedImages.length) {
+        <div class="m-t-8 d-flex flex-column gap-6">
+          @for(file of selectedImages; track file.name; let i = $index) {
+          <div class="d-flex align-items-center gap-8">
+            <span class="f-s-13">{{ file.name }}</span>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="removeFile(i)"
+              aria-label="Retirer"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          }
+        </div>
+        }
+
+        <div class="d-flex flex-wrap gap-16 align-items-center m-t-8">
+          <mat-slide-toggle formControlName="replaceImages" [disabled]="!selectedImages.length">
+            Remplacer les images existantes
+          </mat-slide-toggle>
+          <button mat-stroked-button type="button" (click)="resetImages()" [disabled]="!selectedImages.length">
+            Vider la selection
+          </button>
+        </div>
+        <div class="f-s-12 text-muted m-t-4">
+          Si "Remplacer" est active, les nouvelles images remplacent la galerie actuelle.
+        </div>
+      </div>
+
+      <div class="d-flex gap-12">
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+          Enregistrer
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          [routerLink]="['/produits', productId]"
+          [disabled]="isSubmitting || !productId"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+    }
+  </mat-card-content>
+</mat-card>

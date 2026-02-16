@@ -10,44 +10,6 @@ export const navItems: NavItem[] = [
     route: '/dashboard',
   },
   {
-    navCap: 'Ui Components',
-  },
-  {
-    displayName: 'Badge',
-    iconName: 'archive',
-    route: '/ui-components/badge',
-  },
-  {
-    displayName: 'Chips',
-    iconName: 'info-circle',
-    route: '/ui-components/chips',
-  },
-  {
-    displayName: 'Lists',
-    iconName: 'list-details',
-    route: '/ui-components/lists',
-  },
-  {
-    displayName: 'Menu',
-    iconName: 'file-text',
-    route: '/ui-components/menu',
-  },
-  {
-    displayName: 'Tooltips',
-    iconName: 'file-text-ai',
-    route: '/ui-components/tooltips',
-  },
-  {
-    displayName: 'Forms',
-    iconName: 'clipboard-text',
-    route: '/ui-components/forms',
-  },
-  {
-    displayName: 'Tables',
-    iconName: 'table',
-    route: '/ui-components/tables',
-  },
-  {
     navCap: 'Administration',
     roles: ['admin'],
   },
@@ -78,17 +40,20 @@ export const navItems: NavItem[] = [
     roles: ['admin'],
   },
   {
-    navCap: 'Extra',
+    navCap: 'Produits',
+    roles: ['admin', 'boutique'],
   },
   {
-    displayName: 'Icons',
-    iconName: 'mood-smile',
-    route: '/extra/icons',
+    displayName: 'Liste des produits',
+    iconName: 'list-details',
+    route: '/produits/liste',
+    roles: ['admin', 'boutique'],
   },
   {
-    displayName: 'Sample Page',
-    iconName: 'brand-dribbble',
-    route: '/extra/sample-page',
+    displayName: 'Creer un produit',
+    iconName: 'package',
+    route: '/produits/nouveau',
+    roles: ['admin', 'boutique'],
   },
   {
     navCap: 'Auth',
