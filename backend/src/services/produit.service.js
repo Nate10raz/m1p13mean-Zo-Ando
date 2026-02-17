@@ -282,6 +282,85 @@ export const removeProduitImage = async (productId, imageId, auth) => {
   return produit.toObject();
 };
 
+export const setProduitMainImage = async (productId, imageId, auth) => {
+  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+    throw createError('Forbidden', 403);
+  }
+
+  const produit = await Produit.findById(productId);
+  if (!produit) {
+    throw createError('Produit introuvable', 404);
+  }
+
+  if (auth.role === 'boutique') {
+    const user = await User.findById(auth.userId).lean();
+    if (!user || !user.boutiqueId) {
+      throw createError('Boutique utilisateur introuvable', 404);
+    }
+    if (produit.boutiqueId.toString() !== user.boutiqueId.toString()) {
+      throw createError('Forbidden', 403);
+    }
+  }
+
+  const imageIndex = produit.images.findIndex(
+    (image) => image?._id?.toString() === imageId.toString(),
+  );
+  if (imageIndex === -1) {
+    throw createError('Image introuvable', 404);
+  }
+
+  const targetImage = produit.images[imageIndex];
+  const remaining = produit.images.filter((_, index) => index !== imageIndex);
+  const reordered = [targetImage, ...remaining];
+
+  reordered.forEach((image, index) => {
+    image.isMain = index === 0;
+    image.ordre = index + 1;
+  });
+
+  produit.images = reordered;
+  await produit.save();
+  return produit.toObject();
+};
+
+export const updateProduitStockAlert = async (productId, payload, auth) => {
+  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+    throw createError('Forbidden', 403);
+  }
+
+  const produit = await Produit.findById(productId);
+  if (!produit) {
+    throw createError('Produit introuvable', 404);
+  }
+
+  if (auth.role === 'boutique') {
+    const user = await User.findById(auth.userId).lean();
+    if (!user || !user.boutiqueId) {
+      throw createError('Boutique utilisateur introuvable', 404);
+    }
+    if (produit.boutiqueId.toString() !== user.boutiqueId.toString()) {
+      throw createError('Forbidden', 403);
+    }
+  }
+
+  const seuilAlerte = normalizeNumber(payload?.seuilAlerte);
+  if (seuilAlerte === undefined || seuilAlerte === null) {
+    throw createError('seuilAlerte invalide', 400);
+  }
+  if (seuilAlerte < 0) {
+    throw createError('seuilAlerte invalide', 400);
+  }
+
+  const stock = produit.stock && typeof produit.stock === 'object' ? produit.stock : {};
+  produit.stock = {
+    ...stock,
+    seuilAlerte,
+  };
+
+  await produit.save();
+  return produit.toObject();
+};
+
 export const updateProduit = async (productId, payload, auth) => {
   if (!auth || !['admin', 'boutique'].includes(auth.role)) {
     throw createError('Forbidden', 403);

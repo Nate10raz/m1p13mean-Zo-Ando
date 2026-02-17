@@ -56,6 +56,12 @@ export const navItems: NavItem[] = [
     roles: ['admin', 'boutique'],
   },
   {
+    displayName: "Seuil d'alerte stock",
+    iconName: 'alert-triangle',
+    route: '/produits/stock-alert',
+    roles: ['admin', 'boutique'],
+  },
+  {
     navCap: 'Auth',
   },
   {

@@ -89,6 +89,26 @@ export class ProductService {
     );
   }
 
+  setProductMainImage(
+    productId: string,
+    imageId: string
+  ): Observable<ApiResponse<ProductCreateResponse>> {
+    return this.http.patch<ApiResponse<ProductCreateResponse>>(
+      `${this.apiRootUrl}/produits/${productId}/images/${imageId}/main`,
+      {}
+    );
+  }
+
+  updateStockAlert(
+    productId: string,
+    seuilAlerte: number
+  ): Observable<ApiResponse<ProductCreateResponse>> {
+    return this.http.patch<ApiResponse<ProductCreateResponse>>(
+      `${this.apiRootUrl}/produits/${productId}/stock-alert`,
+      { seuilAlerte }
+    );
+  }
+
   listProducts(params: ProductListQuery = {}): Observable<ApiResponse<ProductListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));

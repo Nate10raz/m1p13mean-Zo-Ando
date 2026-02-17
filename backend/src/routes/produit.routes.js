@@ -6,6 +6,8 @@ import {
   listProduitsController,
   updateProduitController,
   deleteProduitImageController,
+  setProduitMainImageController,
+  updateProduitStockAlertController,
 } from '../controllers/produit.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -119,6 +121,18 @@ router.patch(
   updateProduitController,
 );
 
+router.patch(
+  '/:id/stock-alert',
+  requireAuth,
+  requireRole('admin', 'boutique'),
+  [
+    param('id').isMongoId().withMessage('Id produit invalide'),
+    body('seuilAlerte').isFloat({ min: 0 }).withMessage('seuilAlerte invalide'),
+  ],
+  validateRequest,
+  updateProduitStockAlertController,
+);
+
 router.delete(
   '/:id/images/:imageId',
   requireAuth,
@@ -129,6 +143,18 @@ router.delete(
   ],
   validateRequest,
   deleteProduitImageController,
+);
+
+router.patch(
+  '/:id/images/:imageId/main',
+  requireAuth,
+  requireRole('admin', 'boutique'),
+  [
+    param('id').isMongoId().withMessage('Id produit invalide'),
+    param('imageId').isMongoId().withMessage('Id image invalide'),
+  ],
+  validateRequest,
+  setProduitMainImageController,
 );
 
 /**
@@ -304,6 +330,58 @@ router.delete(
  *       403: { description: Forbidden }
  *       404: { description: Produit ou image introuvable }
  *       500: { description: Erreur Cloudinary }
+ */
+
+/**
+ * @openapi
+ * /produits/{id}/images/{imageId}/main:
+ *   patch:
+ *     tags: [Produits]
+ *     summary: Definir l'image principale d'un produit
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: imageId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Image principale mise a jour }
+ *       403: { description: Forbidden }
+ *       404: { description: Produit ou image introuvable }
+ */
+
+/**
+ * @openapi
+ * /produits/{id}/stock-alert:
+ *   patch:
+ *     tags: [Produits]
+ *     summary: Mettre a jour le seuil d'alerte du stock
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [seuilAlerte]
+ *             properties:
+ *               seuilAlerte: { type: number }
+ *     responses:
+ *       200: { description: Seuil d'alerte mis a jour }
+ *       400: { description: Donnees invalides }
+ *       403: { description: Forbidden }
+ *       404: { description: Produit introuvable }
  */
 
 export default router;
