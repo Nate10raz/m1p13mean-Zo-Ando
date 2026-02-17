@@ -1,12 +1,18 @@
 <div class="blank-layout-container justify-content-center align-items-center bg-light">
-  <div class="position-relative row w-100 h-100 bg-gradient justify-content-center align-items-center">
+  <div
+    class="position-relative row w-100 h-100 bg-gradient justify-content-center align-items-center"
+  >
     <div class="col-lg-10 col-xl-9 d-flex align-items-center">
       <mat-card class="cardWithShadow boxed-auth w-100">
         <mat-card-content class="p-40">
           <!-- Logo Section -->
           <div class="text-center mb-4">
             <a [routerLink]="['/dashboard']">
-              <img src="./assets/images/logos/dark-logo.svg" class="align-middle logo-img" alt="logo" />
+              <img
+                src="./assets/images/logos/dark-logo.svg"
+                class="align-middle logo-img"
+                alt="logo"
+              />
             </a>
           </div>
 
@@ -78,7 +84,13 @@
                     <div class="form-group">
                       <mat-label class="form-label">Téléphone</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput type="tel" formControlName="telephone" placeholder="+261320000000" autocomplete="tel" />
+                        <input
+                          matInput
+                          type="tel"
+                          formControlName="telephone"
+                          placeholder="+261320000000"
+                          autocomplete="tel"
+                        />
                         <mat-icon matPrefix class="field-icon">phone</mat-icon>
                         <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('required')">
                           Le téléphone est requis.
@@ -93,10 +105,21 @@
                     <div class="form-group">
                       <mat-label class="form-label">Mot de passe</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" />
+                        <input
+                          matInput
+                          [type]="hidePassword ? 'password' : 'text'"
+                          formControlName="password"
+                          autocomplete="new-password"
+                        />
                         <mat-icon matPrefix class="field-icon">lock</mat-icon>
-                        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" class="toggle-password">
-                          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                        <button
+                          mat-icon-button
+                          matSuffix
+                          (click)="hidePassword = !hidePassword"
+                          type="button"
+                          class="toggle-password"
+                        >
+                          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                         </button>
                         <mat-error *ngIf="f.password.touched && f.password.hasError('required')">
                           Le mot de passe est requis.
@@ -111,15 +134,37 @@
                     <div class="form-group">
                       <mat-label class="form-label">Confirmer le mot de passe</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" />
+                        <input
+                          matInput
+                          [type]="hideConfirmPassword ? 'password' : 'text'"
+                          formControlName="confirmPassword"
+                          autocomplete="new-password"
+                        />
                         <mat-icon matPrefix class="field-icon">lock</mat-icon>
-                        <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button" class="toggle-password">
-                          <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                        <button
+                          mat-icon-button
+                          matSuffix
+                          (click)="hideConfirmPassword = !hideConfirmPassword"
+                          type="button"
+                          class="toggle-password"
+                        >
+                          <mat-icon>{{
+                            hideConfirmPassword ? 'visibility_off' : 'visibility'
+                          }}</mat-icon>
                         </button>
-                        <mat-error *ngIf="f.confirmPassword.touched && f.confirmPassword.hasError('required')">
+                        <mat-error
+                          *ngIf="
+                            f.confirmPassword.touched && f.confirmPassword.hasError('required')
+                          "
+                        >
                           Confirmez le mot de passe.
                         </mat-error>
-                        <mat-error *ngIf="form.hasError('passwordsMismatch') && (f.confirmPassword.touched || f.password.touched)">
+                        <mat-error
+                          *ngIf="
+                            form.hasError('passwordsMismatch') &&
+                            (f.confirmPassword.touched || f.password.touched)
+                          "
+                        >
                           Les mots de passe doivent être identiques.
                         </mat-error>
                       </mat-form-field>
@@ -158,10 +203,14 @@
                       <mat-form-field appearance="outline" class="w-100" color="primary">
                         <input matInput formControlName="adresse" autocomplete="street-address" />
                         <mat-icon matPrefix class="field-icon">location_on</mat-icon>
-                        <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('required')">
+                        <mat-error
+                          *ngIf="b['adresse'].touched && b['adresse'].hasError('required')"
+                        >
                           L'adresse est requise.
                         </mat-error>
-                        <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('minlength')">
+                        <mat-error
+                          *ngIf="b['adresse'].touched && b['adresse'].hasError('minlength')"
+                        >
                           3 caractères minimum.
                         </mat-error>
                       </mat-form-field>
@@ -171,12 +220,22 @@
                     <div class="form-group">
                       <mat-label class="form-label">Téléphone de la boutique</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput type="tel" formControlName="telephone" placeholder="+261320000000" autocomplete="tel" />
+                        <input
+                          matInput
+                          type="tel"
+                          formControlName="telephone"
+                          placeholder="+261320000000"
+                          autocomplete="tel"
+                        />
                         <mat-icon matPrefix class="field-icon">phone_in_talk</mat-icon>
-                        <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('required')">
+                        <mat-error
+                          *ngIf="b['telephone'].touched && b['telephone'].hasError('required')"
+                        >
                           Le téléphone est requis.
                         </mat-error>
-                        <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('pattern')">
+                        <mat-error
+                          *ngIf="b['telephone'].touched && b['telephone'].hasError('pattern')"
+                        >
                           Format attendu : +261320000000 ou 0320000000.
                         </mat-error>
                       </mat-form-field>
@@ -187,7 +246,10 @@
                       <mat-icon>info</mat-icon>
                       <div class="info-content">
                         <strong>Information importante</strong>
-                        <p>Ces informations seront visibles par vos clients et pourront être modifiées plus tard.</p>
+                        <p>
+                          Ces informations seront visibles par vos clients et pourront être
+                          modifiées plus tard.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -223,9 +285,7 @@
           <!-- Login Link -->
           <div class="text-center m-t-30">
             <span class="text-muted">Déjà un compte ?</span>
-            <a [routerLink]="['/authentication/login']" class="link-primary ms-1">
-              Se connecter
-            </a>
+            <a [routerLink]="['/authentication/login']" class="link-primary ms-1"> Se connecter </a>
           </div>
         </mat-card-content>
       </mat-card>

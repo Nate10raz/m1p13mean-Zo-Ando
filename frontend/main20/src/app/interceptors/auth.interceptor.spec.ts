@@ -57,7 +57,7 @@ describe('AuthInterceptor', () => {
         data: {
           accessToken: 'new-token',
         },
-      })
+      }),
     );
 
     http.get('/api/protected').subscribe();

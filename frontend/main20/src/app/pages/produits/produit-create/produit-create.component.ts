@@ -67,7 +67,7 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -85,14 +85,14 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
         .valueChanges.pipe(
           debounceTime(200),
           map((value) => (value ?? '').trim()),
-          distinctUntilChanged()
+          distinctUntilChanged(),
         )
         .subscribe((value) => {
           const slugControl = this.form.get('slug') as FormControl<string>;
           if (!slugControl.value || !slugControl.dirty) {
             slugControl.setValue(this.slugify(value), { emitEvent: false });
           }
-        })
+        }),
     );
   }
 
@@ -108,7 +108,7 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoadingCategories = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -157,8 +157,7 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
         return;
       }
       this.form.patchValue({ categorieId: selected._id });
-      this.selectedCategoryLabel =
-        this.categoryPathMap.get(selected._id) ?? `${selected.nom}`;
+      this.selectedCategoryLabel = this.categoryPathMap.get(selected._id) ?? `${selected.nom}`;
       this.cdr.markForCheck();
     });
   }
@@ -226,7 +225,7 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isSubmitting = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -323,7 +322,10 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
     return roots;
   }
 
-  private buildCategoryPathMap(nodes: CategoryNode[], parentPath: string[] = []): Map<string, string> {
+  private buildCategoryPathMap(
+    nodes: CategoryNode[],
+    parentPath: string[] = [],
+  ): Map<string, string> {
     const map = new Map<string, string>();
     const traverse = (items: CategoryNode[], path: string[]) => {
       items.forEach((node) => {
@@ -346,42 +348,42 @@ export class AppProduitCreateComponent implements OnInit, OnDestroy {
   template: `
     <h2 mat-dialog-title>Choisir une categorie</h2>
     <div mat-dialog-content>
-      @if(!data.categories.length) {
-      <div class="p-12 text-muted">Aucune categorie disponible.</div>
+      @if (!data.categories.length) {
+        <div class="p-12 text-muted">Aucune categorie disponible.</div>
       } @else {
-      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="picker-tree">
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-          <div
-            class="picker-node"
-            [class.selected]="selected?._id === node._id"
-            (click)="select(node)"
-          >
-            <span class="name">{{ node.nom }}</span>
-            <span class="slug">/{{ node.slug }}</span>
-          </div>
-        </mat-tree-node>
-
-        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-          <div class="picker-node">
-            <button mat-icon-button matTreeNodeToggle>
-              <mat-icon>
-                {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-              </mat-icon>
-            </button>
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="picker-tree">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
             <div
-              class="picker-node-content"
+              class="picker-node"
               [class.selected]="selected?._id === node._id"
               (click)="select(node)"
             >
               <span class="name">{{ node.nom }}</span>
               <span class="slug">/{{ node.slug }}</span>
             </div>
-          </div>
-          <div class="tree-children">
-            <ng-container matTreeNodeOutlet></ng-container>
-          </div>
-        </mat-nested-tree-node>
-      </mat-tree>
+          </mat-tree-node>
+
+          <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <div class="picker-node">
+              <button mat-icon-button matTreeNodeToggle>
+                <mat-icon>
+                  {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+                </mat-icon>
+              </button>
+              <div
+                class="picker-node-content"
+                [class.selected]="selected?._id === node._id"
+                (click)="select(node)"
+              >
+                <span class="name">{{ node.nom }}</span>
+                <span class="slug">/{{ node.slug }}</span>
+              </div>
+            </div>
+            <div class="tree-children">
+              <ng-container matTreeNodeOutlet></ng-container>
+            </div>
+          </mat-nested-tree-node>
+        </mat-tree>
       }
     </div>
     <div mat-dialog-actions align="end">
@@ -442,7 +444,7 @@ export class CategoryPickerDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<CategoryPickerDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CategoryPickerDialogData
+    @Inject(MAT_DIALOG_DATA) public data: CategoryPickerDialogData,
   ) {
     this.dataSource.data = data.categories ?? [];
   }

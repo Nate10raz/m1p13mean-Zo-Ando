@@ -19,10 +19,8 @@ import { AppTopstripComponent } from './top-strip/topstrip.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavItem } from './sidebar/nav-item/nav-item';
 
-
 const MOBILE_VIEW = 'screen and (max-width: 768px)';
 const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
-
 
 @Component({
   selector: 'app-full',
@@ -34,11 +32,11 @@ const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
     SidebarComponent,
     NgScrollbarModule,
     TablerIconsModule,
-    HeaderComponent
+    HeaderComponent,
   ],
   templateUrl: './full.component.html',
   styleUrls: [],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class FullComponent implements OnInit {
   navItems: NavItem[] = [];
@@ -58,7 +56,6 @@ export class FullComponent implements OnInit {
   get isOver(): boolean {
     return this.isMobileScreen;
   }
-
 
   constructor(
     private settings: CoreService,
@@ -84,13 +81,10 @@ export class FullComponent implements OnInit {
 
     // Initialize project theme with options
 
-
     // This is for scroll to top
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((e) => {
-        this.content.scrollTo({ top: 0 });
-      });
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((e) => {
+      this.content.scrollTo({ top: 0 });
+    });
   }
 
   ngOnInit(): void {}
@@ -124,7 +118,8 @@ export class FullComponent implements OnInit {
     return items.reduce<NavItem[]>((acc, item) => {
       const children = item.children ? this.filterNavItems(item.children, role) : undefined;
       const allowedRoles = item.roles?.map((value) => value.toLowerCase().trim());
-      const allowed = !allowedRoles || (normalizedRole ? allowedRoles.includes(normalizedRole) : false);
+      const allowed =
+        !allowedRoles || (normalizedRole ? allowedRoles.includes(normalizedRole) : false);
 
       if (allowed || (children && children.length > 0)) {
         acc.push(children ? { ...item, children } : { ...item });

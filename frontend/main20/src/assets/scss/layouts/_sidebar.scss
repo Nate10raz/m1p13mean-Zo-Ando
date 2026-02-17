@@ -1,4 +1,4 @@
-@use "../variables" as *;
+@use '../variables' as *;
 
 .mat-drawer.sidebarNav {
   width: $sidenav-desktop;
@@ -35,7 +35,6 @@
       &:focus {
         z-index: -1;
       }
-
 
       .item-chip {
         height: 18px;

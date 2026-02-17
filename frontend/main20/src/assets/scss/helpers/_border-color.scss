@@ -1,5 +1,5 @@
-@use "../variables" as *;
-@use "sass:meta"; // Import meta module for working with keyword arguments
+@use '../variables' as *;
+@use 'sass:meta'; // Import meta module for working with keyword arguments
 
 // Mixin to dynamically generate classes based on provided colors
 @mixin syntax-colors2($args2...) {
@@ -11,8 +11,10 @@
 }
 
 // Including the mixin with variables and CSS variables
-@include syntax-colors2($primary: var(--mat-sys-primary),
+@include syntax-colors2(
+  $primary: var(--mat-sys-primary),
   $secondary: var(--mat-sys-secondary),
   $success: $success,
   $warning: $warning,
-  $error: var(--mat-sys-error));
+  $error: var(--mat-sys-error)
+);

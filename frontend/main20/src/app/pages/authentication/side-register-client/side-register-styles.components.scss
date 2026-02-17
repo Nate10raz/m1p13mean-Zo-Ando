@@ -28,6 +28,12 @@ $border-color: #e5eaef;
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, $border-color 20%, $border-color 80%, transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      $border-color 20%,
+      $border-color 80%,
+      transparent
+    );
   }
 }

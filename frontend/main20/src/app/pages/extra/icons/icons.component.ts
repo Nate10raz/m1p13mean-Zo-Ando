@@ -6,4 +6,4 @@ import { MaterialModule } from '../../../material.module';
   imports: [MaterialModule],
   templateUrl: './icons.component.html',
 })
-export class AppIconsComponent { }
+export class AppIconsComponent {}

@@ -79,17 +79,18 @@ export class CategoryService {
     });
   }
 
-  createCategory(
-    payload: CategoryCreatePayload
-  ): Observable<ApiResponse<CategoryNode>> {
+  createCategory(payload: CategoryCreatePayload): Observable<ApiResponse<CategoryNode>> {
     return this.http.post<ApiResponse<CategoryNode>>(`${this.apiRootUrl}/categories`, payload);
   }
 
   updateCategory(
     id: string,
-    payload: CategoryUpdatePayload
+    payload: CategoryUpdatePayload,
   ): Observable<ApiResponse<CategoryNode>> {
-    return this.http.patch<ApiResponse<CategoryNode>>(`${this.apiRootUrl}/categories/${id}`, payload);
+    return this.http.patch<ApiResponse<CategoryNode>>(
+      `${this.apiRootUrl}/categories/${id}`,
+      payload,
+    );
   }
 
   getCategoryById(id: string): Observable<ApiResponse<CategoryNode>> {
@@ -99,7 +100,7 @@ export class CategoryService {
   deleteCategory(id: string, force = true): Observable<ApiResponse<null>> {
     const forceParam = force ? 'true' : 'false';
     return this.http.delete<ApiResponse<null>>(
-      `${this.apiRootUrl}/categories/${id}?force=${forceParam}`
+      `${this.apiRootUrl}/categories/${id}?force=${forceParam}`,
     );
   }
 

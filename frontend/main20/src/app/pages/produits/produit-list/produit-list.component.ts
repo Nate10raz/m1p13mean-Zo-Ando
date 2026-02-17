@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -71,7 +77,7 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private categoryService: CategoryService,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -80,27 +86,29 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
       map((value) => this.normalizeSearch(value)),
       debounceTime(350),
       distinctUntilChanged(),
-      startWith(this.normalizeSearch(this.searchControl.value))
+      startWith(this.normalizeSearch(this.searchControl.value)),
     );
 
     const status$ = this.statusControl.valueChanges.pipe(startWith(this.statusControl.value));
 
     const filters$ = combineLatest([search$, status$]).pipe(
       map(([search, status]) => ({ search, status })),
-      distinctUntilChanged((prev, curr) => prev.search === curr.search && prev.status === curr.status),
-      shareReplay({ bufferSize: 1, refCount: true })
+      distinctUntilChanged(
+        (prev, curr) => prev.search === curr.search && prev.status === curr.status,
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     const filterRequests$ = filters$.pipe(
       tap(() => {
         this.page = 1;
       }),
-      map((filters) => ({ ...filters, page: 1, limit: this.limit }))
+      map((filters) => ({ ...filters, page: 1, limit: this.limit })),
     );
 
     const pageRequests$ = this.pageChange$.pipe(
       withLatestFrom(filters$),
-      map(([pageState, filters]) => ({ ...filters, ...pageState }))
+      map(([pageState, filters]) => ({ ...filters, ...pageState })),
     );
 
     const requests$ = merge(filterRequests$, pageRequests$).pipe(
@@ -119,9 +127,9 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
           })
           .pipe(
             map((response) => ({ response, error: null as unknown })),
-            catchError((error) => of({ response: null, error }))
-          )
-      )
+            catchError((error) => of({ response: null, error })),
+          ),
+      ),
     );
 
     this.subscriptions.add(
@@ -140,7 +148,7 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
         this.total = response?.data?.total ?? items.length;
         this.dataSource = items.map((item, index) => this.mapProduct(item, index));
         this.cdr.markForCheck();
-      })
+      }),
     );
   }
 

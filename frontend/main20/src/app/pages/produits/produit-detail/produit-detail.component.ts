@@ -1,5 +1,11 @@
 import { CommonModule, Location } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Subscription } from 'rxjs';
@@ -185,7 +191,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private location: Location,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -201,7 +207,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
           return;
         }
         this.loadProduct(id);
-      })
+      }),
     );
   }
 
@@ -240,7 +246,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {

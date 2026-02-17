@@ -3,8 +3,8 @@
     <mat-card-title>Creer un produit</mat-card-title>
     <mat-card-subtitle>Admin et Boutique</mat-card-subtitle>
 
-    @if(serverError) {
-    <div class="p-12 text-error">{{ serverError }}</div>
+    @if (serverError) {
+      <div class="p-12 text-error">{{ serverError }}</div>
     }
 
     <form [formGroup]="form" (ngSubmit)="submit()">
@@ -12,16 +12,16 @@
         <mat-form-field appearance="outline" class="flex-grow-1">
           <mat-label>Boutique ID</mat-label>
           <input matInput formControlName="boutiqueId" placeholder="ID boutique" />
-          @if(form.get('boutiqueId')?.hasError('required')) {
-          <mat-error>La boutique est obligatoire.</mat-error>
+          @if (form.get('boutiqueId')?.hasError('required')) {
+            <mat-error>La boutique est obligatoire.</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="flex-grow-1">
           <mat-label>Titre</mat-label>
           <input matInput formControlName="titre" placeholder="Ex: Chemise" />
-          @if(form.get('titre')?.hasError('required')) {
-          <mat-error>Le titre est obligatoire.</mat-error>
+          @if (form.get('titre')?.hasError('required')) {
+            <mat-error>Le titre est obligatoire.</mat-error>
           }
         </mat-form-field>
       </div>
@@ -50,11 +50,11 @@
           >
             <mat-icon>account_tree</mat-icon>
           </button>
-          @if(isLoadingCategories) {
-          <mat-hint>Chargement des categories...</mat-hint>
+          @if (isLoadingCategories) {
+            <mat-hint>Chargement des categories...</mat-hint>
           }
-          @if(form.get('categorieId')?.hasError('required')) {
-          <mat-error>La categorie est obligatoire.</mat-error>
+          @if (form.get('categorieId')?.hasError('required')) {
+            <mat-error>La categorie est obligatoire.</mat-error>
           }
         </mat-form-field>
       </div>
@@ -105,11 +105,11 @@
         <mat-form-field appearance="outline" class="flex-grow-1">
           <mat-label>Prix base actuel</mat-label>
           <input matInput type="number" formControlName="prixBaseActuel" />
-          @if(form.get('prixBaseActuel')?.hasError('required')) {
-          <mat-error>Le prix est obligatoire.</mat-error>
+          @if (form.get('prixBaseActuel')?.hasError('required')) {
+            <mat-error>Le prix est obligatoire.</mat-error>
           }
-          @if(form.get('prixBaseActuel')?.hasError('min')) {
-          <mat-error>Le prix doit etre positif.</mat-error>
+          @if (form.get('prixBaseActuel')?.hasError('min')) {
+            <mat-error>Le prix doit etre positif.</mat-error>
           }
         </mat-form-field>
 
@@ -140,22 +140,17 @@
         <label class="f-w-600 d-block m-b-8">Images</label>
         <input type="file" multiple (change)="onFilesSelected($event)" [disabled]="isSubmitting" />
 
-        @if(selectedImages.length) {
-        <div class="m-t-8 d-flex flex-column gap-6">
-          @for(file of selectedImages; track file.name; let i = $index) {
-          <div class="d-flex align-items-center gap-8">
-            <span class="f-s-13">{{ file.name }}</span>
-            <button
-              mat-icon-button
-              type="button"
-              (click)="removeFile(i)"
-              aria-label="Retirer"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
+        @if (selectedImages.length) {
+          <div class="m-t-8 d-flex flex-column gap-6">
+            @for (file of selectedImages; track file.name; let i = $index) {
+              <div class="d-flex align-items-center gap-8">
+                <span class="f-s-13">{{ file.name }}</span>
+                <button mat-icon-button type="button" (click)="removeFile(i)" aria-label="Retirer">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
           </div>
-          }
-        </div>
         }
       </div>
 

@@ -21,16 +21,19 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   constructor(
     private authService: AuthService,
     private tokenService: TokenService,
-    private router: Router
+    private router: Router,
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | boolean | UrlTree {
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ): Observable<boolean | UrlTree> | boolean | UrlTree {
     return this.checkAuth();
   }
 
   canActivateChild(
     childRoute: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> | boolean | UrlTree {
     return this.checkAuth();
   }
@@ -43,7 +46,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
     return this.refreshAccessToken().pipe(
       map((ok) => (ok ? true : this.router.createUrlTree(['/authentication/login']))),
-      catchError(() => of(this.router.createUrlTree(['/authentication/login'])))
+      catchError(() => of(this.router.createUrlTree(['/authentication/login']))),
     );
   }
 
@@ -55,7 +58,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         finalize(() => {
           this.refreshInFlight$ = null;
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
     }
 

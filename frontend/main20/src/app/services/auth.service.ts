@@ -112,7 +112,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private tokenService: TokenService
+    private tokenService: TokenService,
   ) {}
 
   getBoutiqueMe(): Observable<ApiResponse<BoutiqueMeData>> {
@@ -121,11 +121,19 @@ export class AuthService {
   }
 
   registerClient(payload: ClientRegisterPayload): Observable<ApiResponse<ClientRegisterData>> {
-    return this.http.post<ApiResponse<ClientRegisterData>>(`${this.apiBaseUrl}/register/client`, payload);
+    return this.http.post<ApiResponse<ClientRegisterData>>(
+      `${this.apiBaseUrl}/register/client`,
+      payload,
+    );
   }
 
-  registerBoutique(payload: BoutiqueRegisterPayload): Observable<ApiResponse<BoutiqueRegisterData>> {
-    return this.http.post<ApiResponse<BoutiqueRegisterData>>(`${this.apiBaseUrl}/register/boutique`, payload);
+  registerBoutique(
+    payload: BoutiqueRegisterPayload,
+  ): Observable<ApiResponse<BoutiqueRegisterData>> {
+    return this.http.post<ApiResponse<BoutiqueRegisterData>>(
+      `${this.apiBaseUrl}/register/boutique`,
+      payload,
+    );
   }
 
   login(payload: LoginPayload): Observable<ApiResponse<LoginData>> {
@@ -141,7 +149,7 @@ export class AuthService {
           if (user) {
             this.tokenService.setUser(user);
           }
-        })
+        }),
       );
   }
 
@@ -154,7 +162,7 @@ export class AuthService {
           if (accessToken) {
             this.tokenService.setAccessToken(accessToken);
           }
-        })
+        }),
       );
   }
 
@@ -165,7 +173,7 @@ export class AuthService {
         finalize(() => {
           this.tokenService.clearAccessToken();
           this.tokenService.clearUser();
-        })
+        }),
       );
   }
 

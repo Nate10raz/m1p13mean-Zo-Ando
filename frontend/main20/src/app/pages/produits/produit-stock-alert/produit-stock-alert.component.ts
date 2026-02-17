@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -74,7 +80,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private categoryService: CategoryService,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -87,7 +93,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.page = 1;
           this.fetchProducts();
-        })
+        }),
     );
   }
 
@@ -152,7 +158,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isBulkSaving = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -213,7 +219,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
         finalize(() => {
           row.isSaving = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -247,7 +253,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoadingCategories = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -277,7 +283,7 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {

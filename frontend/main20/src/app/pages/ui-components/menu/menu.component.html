@@ -26,7 +26,11 @@
             <mat-card-title>with Icons</mat-card-title>
           </mat-card-header>
           <mat-card-content class="b-t-1">
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              aria-label="Example icon-button with a menu"
+            >
               <mat-icon>
                 <i-tabler name="dots" class="icon-20"></i-tabler>
               </mat-icon>
@@ -58,22 +62,14 @@
               Animal index
             </button>
             <mat-menu class="cardWithShadow" #animals="matMenu">
-              <button mat-menu-item [matMenuTriggerFor]="vertebrates">
-                Vertebrates
-              </button>
-              <button mat-menu-item [matMenuTriggerFor]="invertebrates">
-                Invertebrates
-              </button>
+              <button mat-menu-item [matMenuTriggerFor]="vertebrates">Vertebrates</button>
+              <button mat-menu-item [matMenuTriggerFor]="invertebrates">Invertebrates</button>
             </mat-menu>
 
             <mat-menu class="cardWithShadow" #vertebrates="matMenu">
               <button mat-menu-item [matMenuTriggerFor]="fish">Fishes</button>
-              <button mat-menu-item [matMenuTriggerFor]="amphibians">
-                Amphibians
-              </button>
-              <button mat-menu-item [matMenuTriggerFor]="reptiles">
-                Reptiles
-              </button>
+              <button mat-menu-item [matMenuTriggerFor]="amphibians">Amphibians</button>
+              <button mat-menu-item [matMenuTriggerFor]="reptiles">Reptiles</button>
               <button mat-menu-item>Birds</button>
               <button mat-menu-item>Mammals</button>
             </mat-menu>
@@ -122,7 +118,12 @@
           <mat-card-content class="b-t-1">
             <div class="row">
               <div class="col-sm-3">
-                <button mat-flat-button color="primary" class="w-100" [matMenuTriggerFor]="aboveMenu">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  class="w-100"
+                  [matMenuTriggerFor]="aboveMenu"
+                >
                   Above
                 </button>
                 <mat-menu class="cardWithShadow" #aboveMenu="matMenu" yPosition="above">
@@ -131,7 +132,12 @@
                 </mat-menu>
               </div>
               <div class="col-sm-3">
-                <button mat-flat-button color="accent" class="w-100" [matMenuTriggerFor]="belowMenu">
+                <button
+                  mat-flat-button
+                  color="accent"
+                  class="w-100"
+                  [matMenuTriggerFor]="belowMenu"
+                >
                   Below
                 </button>
                 <mat-menu class="cardWithShadow" #belowMenu="matMenu" yPosition="below">
@@ -149,7 +155,12 @@
                 </mat-menu>
               </div>
               <div class="col-sm-3">
-                <button mat-flat-button color="primary" class="w-100" [matMenuTriggerFor]="afterMenu">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  class="w-100"
+                  [matMenuTriggerFor]="afterMenu"
+                >
                   After
                 </button>
                 <mat-menu class="cardWithShadow" #afterMenu="matMenu" xPosition="after">

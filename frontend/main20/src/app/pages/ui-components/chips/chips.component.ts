@@ -1,23 +1,9 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ThemePalette } from '@angular/material/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MatChipEditedEvent,
-  MatChipInputEvent,
-  MatChipsModule,
-} from '@angular/material/chips';
+import { MatChipEditedEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -50,7 +36,7 @@ export interface Vegetable {
     CdkDrag,
     FormsModule,
     ReactiveFormsModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -132,7 +118,7 @@ export class AppChipsComponent {
   announcer = inject(LiveAnnouncer);
 
   removeKeyword(keyword: string) {
-    this.keywords.update(keywords => {
+    this.keywords.update((keywords) => {
       const index = keywords.indexOf(keyword);
       if (index < 0) {
         return keywords;
@@ -149,7 +135,7 @@ export class AppChipsComponent {
 
     // Add our keyword
     if (value) {
-      this.keywords.update(keywords => [...keywords, value]);
+      this.keywords.update((keywords) => [...keywords, value]);
     }
 
     // Clear the input value
