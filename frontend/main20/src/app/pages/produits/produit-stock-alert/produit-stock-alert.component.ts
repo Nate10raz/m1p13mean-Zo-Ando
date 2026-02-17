@@ -8,6 +8,7 @@ import { debounceTime, distinctUntilChanged, finalize, Subscription } from 'rxjs
 
 import { MaterialModule } from '../../../material.module';
 import { ProductCreateResponse, ProductService } from 'src/app/services/product.service';
+import { CategoryNode, CategoryService } from 'src/app/services/category.service';
 
 interface StockRow {
   id: number;
@@ -15,11 +16,13 @@ interface StockRow {
   image: string;
   titre: string;
   slug: string;
+  categorieId: string;
   quantite: number;
   seuilAlerte: number;
   draftSeuil: number;
   estActif: boolean;
   isSaving: boolean;
+  selected: boolean;
 }
 
 @Component({
@@ -50,26 +53,33 @@ interface StockRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['produit', 'stock', 'seuil', 'statut', 'actions'];
+  displayedColumns: string[] = ['select', 'produit', 'stock', 'seuil', 'statut', 'actions'];
   dataSource: StockRow[] = [];
   isLoading = false;
+  isBulkSaving = false;
+  isLoadingCategories = false;
   errorMessage = '';
   total = 0;
   page = 1;
   limit = 10;
+  categories: CategoryNode[] = [];
 
   searchControl = new FormControl('', { nonNullable: true });
+  bulkSeuilControl = new FormControl<number | null>(null);
+  bulkCategoryControl = new FormControl<string>('', { nonNullable: true });
 
   private readonly subscriptions = new Subscription();
 
   constructor(
     private productService: ProductService,
+    private categoryService: CategoryService,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.fetchProducts();
+    this.loadCategories();
 
     this.subscriptions.add(
       this.searchControl.valueChanges
@@ -95,6 +105,91 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const value = Number(input.value);
     row.draftSeuil = Number.isNaN(value) ? row.draftSeuil : value;
+  }
+
+  toggleAll(checked: boolean | null | undefined): void {
+    const value = Boolean(checked);
+    this.dataSource = this.dataSource.map((row) => ({ ...row, selected: value }));
+    this.cdr.markForCheck();
+  }
+
+  toggleRow(row: StockRow, checked: boolean | null | undefined): void {
+    row.selected = Boolean(checked);
+    this.cdr.markForCheck();
+  }
+
+  applyBulk(): void {
+    if (this.isBulkSaving) {
+      return;
+    }
+    const value = this.bulkSeuilControl.value;
+    if (value === null || value === undefined || Number.isNaN(Number(value)) || value < 0) {
+      this.snackBar.open('Seuil invalide.', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    this.isBulkSaving = true;
+    this.cdr.markForCheck();
+
+    const categorieId = this.bulkCategoryControl.value?.trim();
+    const ids = this.dataSource.filter((row) => row.selected).map((row) => row.productId);
+
+    if (!categorieId && !ids.length) {
+      this.snackBar.open('Selectionnez au moins un produit ou une categorie.', 'Fermer', {
+        duration: 3000,
+      });
+      this.isBulkSaving = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const bulkRequest$ = categorieId
+      ? this.productService.updateStockAlertBulkByCategory(categorieId, Number(value))
+      : this.productService.updateStockAlertBulk(ids, Number(value));
+
+    bulkRequest$
+      .pipe(
+        finalize(() => {
+          this.isBulkSaving = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const newValue = Number(value);
+          this.dataSource = this.dataSource.map((row) => {
+            if (categorieId) {
+              if (row.categorieId === categorieId) {
+                return { ...row, seuilAlerte: newValue, draftSeuil: newValue, selected: false };
+              }
+              return row;
+            }
+            return row.selected
+              ? { ...row, seuilAlerte: newValue, draftSeuil: newValue, selected: false }
+              : row;
+          });
+          const message =
+            response?.message ??
+            `Seuil mis a jour pour ${response?.data?.modifiedCount ?? ids.length} produit(s)`;
+          this.snackBar.open(message, 'Fermer', { duration: 3000 });
+        },
+        error: (error) => {
+          const message = error?.error?.message ?? 'Mise a jour impossible.';
+          this.snackBar.open(message, 'Fermer', { duration: 4000 });
+        },
+      });
+  }
+
+  get selectedCount(): number {
+    return this.dataSource.filter((row) => row.selected).length;
+  }
+
+  isAllSelected(): boolean {
+    return this.dataSource.length > 0 && this.dataSource.every((row) => row.selected);
+  }
+
+  isIndeterminate(): boolean {
+    return this.dataSource.some((row) => row.selected) && !this.isAllSelected();
   }
 
   saveRow(row: StockRow): void {
@@ -144,6 +239,27 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
     return row.productId || String(index);
   }
 
+  private loadCategories(): void {
+    this.isLoadingCategories = true;
+    this.categoryService
+      .listCategories()
+      .pipe(
+        finalize(() => {
+          this.isLoadingCategories = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const list = Array.isArray(response?.data) ? response?.data : [];
+          this.categories = list.sort((a, b) => (a.nom || '').localeCompare(b.nom || ''));
+        },
+        error: () => {
+          this.categories = [];
+        },
+      });
+  }
+
   private fetchProducts(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -191,11 +307,13 @@ export class AppProduitStockAlertComponent implements OnInit, OnDestroy {
       image: main?.url ?? `assets/images/products/product-${fallbackIndex}.png`,
       titre: item.titre,
       slug: item.slug ?? '',
+      categorieId: item.categorieId,
       quantite,
       seuilAlerte,
       draftSeuil: seuilAlerte,
       estActif: Boolean(item.estActif),
       isSaving: false,
+      selected: false,
     };
   }
 }

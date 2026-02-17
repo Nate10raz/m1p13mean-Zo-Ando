@@ -109,6 +109,26 @@ export class ProductService {
     );
   }
 
+  updateStockAlertBulk(
+    ids: string[],
+    seuilAlerte: number
+  ): Observable<ApiResponse<{ matchedCount: number; modifiedCount: number }>> {
+    return this.http.patch<ApiResponse<{ matchedCount: number; modifiedCount: number }>>(
+      `${this.apiRootUrl}/produits/stock-alert/bulk`,
+      { ids, seuilAlerte }
+    );
+  }
+
+  updateStockAlertBulkByCategory(
+    categorieId: string,
+    seuilAlerte: number
+  ): Observable<ApiResponse<{ matchedCount: number; modifiedCount: number }>> {
+    return this.http.patch<ApiResponse<{ matchedCount: number; modifiedCount: number }>>(
+      `${this.apiRootUrl}/produits/stock-alert/bulk`,
+      { categorieId, seuilAlerte }
+    );
+  }
+
   listProducts(params: ProductListQuery = {}): Observable<ApiResponse<ProductListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));

@@ -14,6 +14,32 @@
       </mat-form-field>
     </div>
 
+    <div class="d-flex flex-wrap gap-12 align-items-center m-t-8">
+      <mat-form-field appearance="outline" class="seuil-field">
+        <mat-label>Seuil en masse</mat-label>
+        <input matInput type="number" min="0" [formControl]="bulkSeuilControl" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex-grow-1">
+        <mat-label>Categorie (optionnel)</mat-label>
+        <mat-select [formControl]="bulkCategoryControl" [disabled]="isLoadingCategories">
+          <mat-option value="">Toutes / selection manuelle</mat-option>
+          @for(cat of categories; track cat._id) {
+            <mat-option [value]="cat._id">{{ cat.nom }}</mat-option>
+          }
+        </mat-select>
+        @if(isLoadingCategories) {
+          <mat-hint>Chargement des categories...</mat-hint>
+        }
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="button" (click)="applyBulk()" [disabled]="isBulkSaving">
+        Appliquer
+      </button>
+      <span class="text-muted f-s-12">Produits selectionnes : {{ selectedCount }}</span>
+    </div>
+    <div class="text-muted f-s-12 m-t-4">
+      Si une categorie est choisie, la mise a jour s'applique a tous ses produits.
+    </div>
+
     @if(isLoading) {
     <div class="p-16">Chargement en cours...</div>
     } @else if(errorMessage) {
@@ -23,6 +49,19 @@
     } @else {
     <div class="table-responsive">
       <table mat-table [dataSource]="dataSource" [trackBy]="trackByProductId" class="w-100">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef class="p-l-0">
+            <mat-checkbox
+              [checked]="isAllSelected()"
+              [indeterminate]="isIndeterminate()"
+              (change)="toggleAll($event.checked)"
+            ></mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let element" class="p-l-0">
+            <mat-checkbox [checked]="element.selected" (change)="toggleRow(element, $event.checked)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
         <ng-container matColumnDef="produit">
           <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-14 p-l-0">Produit</th>
           <td mat-cell *matCellDef="let element" class="p-l-0">

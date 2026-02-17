@@ -8,6 +8,7 @@ import {
   deleteProduitImageController,
   setProduitMainImageController,
   updateProduitStockAlertController,
+  updateProduitStockAlertBulkController,
 } from '../controllers/produit.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -83,6 +84,28 @@ router.get(
   ],
   validateRequest,
   listProduitsController,
+);
+
+router.patch(
+  '/stock-alert/bulk',
+  requireAuth,
+  requireRole('admin', 'boutique'),
+  [
+    body('ids').optional().isArray({ min: 1 }).withMessage('ids invalides'),
+    body('ids.*').optional().isMongoId().withMessage('id invalide'),
+    body('categorieId').optional().isMongoId().withMessage('categorieId invalide'),
+    body('seuilAlerte').isFloat({ min: 0 }).withMessage('seuilAlerte invalide'),
+    body().custom((_, { req }) => {
+      const ids = req.body?.ids;
+      const categorieId = req.body?.categorieId;
+      if ((!ids || ids.length === 0) && !categorieId) {
+        throw new Error('ids ou categorieId requis');
+      }
+      return true;
+    }),
+  ],
+  validateRequest,
+  updateProduitStockAlertBulkController,
 );
 
 router.get(
@@ -382,6 +405,34 @@ router.patch(
  *       400: { description: Donnees invalides }
  *       403: { description: Forbidden }
  *       404: { description: Produit introuvable }
+ */
+
+/**
+ * @openapi
+ * /produits/stock-alert/bulk:
+ *   patch:
+ *     tags: [Produits]
+ *     summary: Mettre a jour le seuil d'alerte en masse
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [seuilAlerte]
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items: { type: string }
+ *               categorieId:
+ *                 type: string
+ *               seuilAlerte: { type: number }
+ *     responses:
+ *       200: { description: Seuils mis a jour }
+ *       400: { description: Donnees invalides }
+ *       403: { description: Forbidden }
  */
 
 export default router;

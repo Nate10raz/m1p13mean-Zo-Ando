@@ -361,6 +361,64 @@ export const updateProduitStockAlert = async (productId, payload, auth) => {
   return produit.toObject();
 };
 
+export const updateProduitStockAlertBulk = async (payload, auth) => {
+  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+    throw createError('Forbidden', 403);
+  }
+
+  const rawIds = payload?.ids;
+  const ids = Array.isArray(rawIds) ? rawIds : normalizeStringArray(rawIds);
+  const categorieId = payload?.categorieId;
+
+  if ((!ids || !ids.length) && !categorieId) {
+    throw createError('ids ou categorieId requis', 400);
+  }
+
+  if (ids && ids.length) {
+    const invalid = ids.filter((id) => !mongoose.Types.ObjectId.isValid(id));
+    if (invalid.length) {
+      throw createError('ids invalides', 400, { invalid });
+    }
+  }
+
+  if (categorieId && !mongoose.Types.ObjectId.isValid(categorieId)) {
+    throw createError('categorieId invalide', 400);
+  }
+
+  const seuilAlerte = normalizeNumber(payload?.seuilAlerte);
+  if (seuilAlerte === undefined || seuilAlerte === null) {
+    throw createError('seuilAlerte invalide', 400);
+  }
+  if (seuilAlerte < 0) {
+    throw createError('seuilAlerte invalide', 400);
+  }
+
+  const filter = {};
+  if (ids && ids.length) {
+    filter._id = { $in: ids };
+  }
+  if (categorieId) {
+    filter.categorieId = categorieId;
+  }
+
+  if (auth.role === 'boutique') {
+    const user = await User.findById(auth.userId).lean();
+    if (!user || !user.boutiqueId) {
+      throw createError('Boutique utilisateur introuvable', 404);
+    }
+    filter.boutiqueId = user.boutiqueId;
+  }
+
+  const result = await Produit.updateMany(filter, {
+    $set: { 'stock.seuilAlerte': seuilAlerte },
+  });
+
+  return {
+    matchedCount: result.matchedCount ?? result.n ?? 0,
+    modifiedCount: result.modifiedCount ?? result.nModified ?? 0,
+  };
+};
+
 export const updateProduit = async (productId, payload, auth) => {
   if (!auth || !['admin', 'boutique'].includes(auth.role)) {
     throw createError('Forbidden', 403);
