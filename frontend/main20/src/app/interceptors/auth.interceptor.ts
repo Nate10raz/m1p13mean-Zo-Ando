@@ -8,7 +8,16 @@ import {
   HTTP_INTERCEPTORS,
 } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, catchError, finalize, map, of, shareReplay, switchMap, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  finalize,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  throwError,
+} from 'rxjs';
 
 import { AuthService } from 'src/app/services/auth.service';
 import { TokenService } from 'src/app/services/token.service';
@@ -20,7 +29,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private authService: AuthService,
     private tokenService: TokenService,
-    private router: Router
+    private router: Router,
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -39,9 +48,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
         return this.refreshAccessToken().pipe(
           switchMap((token) => next.handle(this.addAuthHeader(req, token))),
-          catchError((refreshError) => this.handleAuthFailure(refreshError))
+          catchError((refreshError) => this.handleAuthFailure(refreshError)),
         );
-      })
+      }),
     );
   }
 
@@ -58,7 +67,7 @@ export class AuthInterceptor implements HttpInterceptor {
         shareReplay(1),
         finalize(() => {
           this.refreshRequest$ = null;
-        })
+        }),
       );
     }
 

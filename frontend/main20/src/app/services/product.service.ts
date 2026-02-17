@@ -66,7 +66,10 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   createProduct(payload: FormData): Observable<ApiResponse<ProductCreateResponse>> {
-    return this.http.post<ApiResponse<ProductCreateResponse>>(`${this.apiRootUrl}/produits`, payload);
+    return this.http.post<ApiResponse<ProductCreateResponse>>(
+      `${this.apiRootUrl}/produits`,
+      payload,
+    );
   }
 
   getProductById(id: string): Observable<ApiResponse<ProductCreateResponse>> {
@@ -76,56 +79,56 @@ export class ProductService {
   updateProduct(id: string, payload: FormData): Observable<ApiResponse<ProductCreateResponse>> {
     return this.http.patch<ApiResponse<ProductCreateResponse>>(
       `${this.apiRootUrl}/produits/${id}`,
-      payload
+      payload,
     );
   }
 
   deleteProductImage(
     productId: string,
-    imageId: string
+    imageId: string,
   ): Observable<ApiResponse<ProductCreateResponse>> {
     return this.http.delete<ApiResponse<ProductCreateResponse>>(
-      `${this.apiRootUrl}/produits/${productId}/images/${imageId}`
+      `${this.apiRootUrl}/produits/${productId}/images/${imageId}`,
     );
   }
 
   setProductMainImage(
     productId: string,
-    imageId: string
+    imageId: string,
   ): Observable<ApiResponse<ProductCreateResponse>> {
     return this.http.patch<ApiResponse<ProductCreateResponse>>(
       `${this.apiRootUrl}/produits/${productId}/images/${imageId}/main`,
-      {}
+      {},
     );
   }
 
   updateStockAlert(
     productId: string,
-    seuilAlerte: number
+    seuilAlerte: number,
   ): Observable<ApiResponse<ProductCreateResponse>> {
     return this.http.patch<ApiResponse<ProductCreateResponse>>(
       `${this.apiRootUrl}/produits/${productId}/stock-alert`,
-      { seuilAlerte }
+      { seuilAlerte },
     );
   }
 
   updateStockAlertBulk(
     ids: string[],
-    seuilAlerte: number
+    seuilAlerte: number,
   ): Observable<ApiResponse<{ matchedCount: number; modifiedCount: number }>> {
     return this.http.patch<ApiResponse<{ matchedCount: number; modifiedCount: number }>>(
       `${this.apiRootUrl}/produits/stock-alert/bulk`,
-      { ids, seuilAlerte }
+      { ids, seuilAlerte },
     );
   }
 
   updateStockAlertBulkByCategory(
     categorieId: string,
-    seuilAlerte: number
+    seuilAlerte: number,
   ): Observable<ApiResponse<{ matchedCount: number; modifiedCount: number }>> {
     return this.http.patch<ApiResponse<{ matchedCount: number; modifiedCount: number }>>(
       `${this.apiRootUrl}/produits/stock-alert/bulk`,
-      { categorieId, seuilAlerte }
+      { categorieId, seuilAlerte },
     );
   }
 

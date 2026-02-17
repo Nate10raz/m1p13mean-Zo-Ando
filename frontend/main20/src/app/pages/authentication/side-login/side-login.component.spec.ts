@@ -54,7 +54,7 @@ describe('AppSideLoginComponent', () => {
           },
           accessToken: 'token',
         },
-      })
+      }),
     );
 
     const componentSnackBar = (component as unknown as { snackBar: MatSnackBar }).snackBar;

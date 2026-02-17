@@ -7,10 +7,7 @@ export const PagesRoutes: Routes = [
     component: StarterComponent,
     data: {
       title: 'Starter Page',
-      urls: [
-        { title: 'Dashboard', url: '/dashboards/dashboard1' },
-        { title: 'Starter Page' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/dashboards/dashboard1' }, { title: 'Starter Page' }],
     },
   },
 ];

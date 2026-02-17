@@ -14,7 +14,10 @@ import { MaterialModule } from 'src/app/material.module';
 export class AppSideRegisterComponent {
   options = this.settings.getOptions();
 
-  constructor(private settings: CoreService, private router: Router) {}
+  constructor(
+    private settings: CoreService,
+    private router: Router,
+  ) {}
 
   form = new FormGroup({
     uname: new FormControl('', [Validators.required, Validators.minLength(6)]),

@@ -18,11 +18,7 @@ describe('AuthGuard', () => {
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule],
-      providers: [
-        AuthGuard,
-        TokenService,
-        { provide: AuthService, useValue: authServiceSpy },
-      ],
+      providers: [AuthGuard, TokenService, { provide: AuthService, useValue: authServiceSpy }],
     });
 
     guard = TestBed.inject(AuthGuard);
@@ -49,7 +45,7 @@ describe('AuthGuard', () => {
         data: {
           accessToken: 'new-token',
         },
-      })
+      }),
     );
 
     const result = guard.canActivateChild({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);

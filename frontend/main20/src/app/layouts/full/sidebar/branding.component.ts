@@ -6,11 +6,7 @@ import { CoreService } from 'src/app/services/core.service';
   imports: [],
   template: `
     <a href="/" class="logodark">
-      <img
-        src="./assets/images/logos/dark-logo.svg"
-        class="align-middle m-2"
-        alt="logo"
-      />
+      <img src="./assets/images/logos/dark-logo.svg" class="align-middle m-2" alt="logo" />
     </a>
   `,
 })

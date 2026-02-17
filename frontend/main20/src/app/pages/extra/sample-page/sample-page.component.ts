@@ -6,5 +6,4 @@ import { MaterialModule } from '../../../material.module';
   imports: [MaterialModule],
   templateUrl: './sample-page.component.html',
 })
-
-export class AppSamplePageComponent { }
+export class AppSamplePageComponent {}

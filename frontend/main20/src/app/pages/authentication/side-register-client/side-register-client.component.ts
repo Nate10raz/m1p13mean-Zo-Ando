@@ -20,7 +20,7 @@ import { AuthService, ClientRegisterPayload } from 'src/app/services/auth.servic
   standalone: true,
   imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule],
   templateUrl: './side-register-client.component.html',
-  styleUrls:['./side-register-styles.components.scss']
+  styleUrls: ['./side-register-styles.components.scss'],
 })
 export class AppSideRegisterClientComponent {
   isSubmitting = false;
@@ -39,14 +39,14 @@ export class AppSideRegisterClientComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
     },
-    { validators: this.passwordsMatchValidator }
+    { validators: this.passwordsMatchValidator },
   );
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
   ) {}
 
   get f() {

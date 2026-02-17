@@ -120,7 +120,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -135,7 +135,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
         }
         this.productId = id;
         this.loadProduct(id);
-      })
+      }),
     );
   }
 
@@ -210,7 +210,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
           this.isDeleting = false;
           this.deletingImageId = null;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -223,7 +223,9 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
           } else {
             this.existingImages = this.existingImages.filter((img) => img._id !== imageId);
             if (this.activeImageUrl) {
-              const stillExists = this.existingImages.some((img) => img.url === this.activeImageUrl);
+              const stillExists = this.existingImages.some(
+                (img) => img.url === this.activeImageUrl,
+              );
               if (!stillExists) {
                 this.activeImageUrl = this.existingImages[0]?.url ?? '';
               }
@@ -253,7 +255,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
           this.isSettingMain = false;
           this.settingMainImageId = null;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -305,7 +307,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isSubmitting = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -333,7 +335,7 @@ export class AppProduitMediaComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -378,11 +380,7 @@ interface ConfirmDialogData {
     </div>
     <div mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">{{ data.cancelText || 'Annuler' }}</button>
-      <button
-        mat-flat-button
-        [color]="data.confirmColor || 'primary'"
-        (click)="onConfirm()"
-      >
+      <button mat-flat-button [color]="data.confirmColor || 'primary'" (click)="onConfirm()">
         {{ data.confirmText || 'Confirmer' }}
       </button>
     </div>
@@ -391,7 +389,7 @@ interface ConfirmDialogData {
 export class ConfirmDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
   ) {}
 
   onCancel(): void {

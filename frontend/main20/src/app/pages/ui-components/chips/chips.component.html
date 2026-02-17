@@ -36,15 +36,27 @@
           <mat-card-content class="b-t-1">
             <mat-chip-set aria-label="Dog selection">
               <mat-chip class="f-s-14">
-                <img matChipAvatar src="/assets/images/profile/user-1.jpg" alt="Photo of a Shiba Inu" />
+                <img
+                  matChipAvatar
+                  src="/assets/images/profile/user-1.jpg"
+                  alt="Photo of a Shiba Inu"
+                />
                 Anderson
               </mat-chip>
               <mat-chip class="f-s-14" color="primary">
-                <img matChipAvatar src="/assets/images/profile/user-2.jpg" alt="Photo of a Shiba Inu" />
+                <img
+                  matChipAvatar
+                  src="/assets/images/profile/user-2.jpg"
+                  alt="Photo of a Shiba Inu"
+                />
                 Monty
               </mat-chip>
               <mat-chip class="f-s-14" color="accent">
-                <img matChipAvatar src="/assets/images/profile/user-3.jpg" alt="Photo of a Shiba Inu" />
+                <img
+                  matChipAvatar
+                  src="/assets/images/profile/user-3.jpg"
+                  alt="Photo of a Shiba Inu"
+                />
                 Mathew
               </mat-chip>
             </mat-chip-set>
@@ -62,12 +74,14 @@
             <mat-card-title>Drag n Drop</mat-card-title>
           </mat-card-header>
           <mat-card-content class="b-t-1">
-            <mat-chip-set class="example-chip" cdkDropList cdkDropListOrientation="horizontal"
-              (cdkDropListDropped)="drop($event)">
+            <mat-chip-set
+              class="example-chip"
+              cdkDropList
+              cdkDropListOrientation="horizontal"
+              (cdkDropListDropped)="drop($event)"
+            >
               @for (vegetable of vegetables(); track vegetable.name) {
-              <mat-chip class="example-box" cdkDrag>{{
-                vegetable.name
-                }}</mat-chip>
+                <mat-chip class="example-box" cdkDrag>{{ vegetable.name }}</mat-chip>
               }
             </mat-chip-set>
           </mat-card-content>
@@ -84,10 +98,10 @@
           </mat-card-header>
           <mat-card-content class="b-t-1">
             <mat-chip-listbox class="mat-mdc-chip-set-stacked" aria-label="Color selection">
-              @for(chip of availableColors; track chip.color) {
-              <mat-chip-option selected [color]="chip.color">
-                {{ chip.name }}
-              </mat-chip-option>
+              @for (chip of availableColors; track chip.color) {
+                <mat-chip-option selected [color]="chip.color">
+                  {{ chip.name }}
+                </mat-chip-option>
               }
             </mat-chip-listbox>
           </mat-card-content>
@@ -107,19 +121,28 @@
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Favorite Fruits</mat-label>
               <mat-chip-grid #chipGrid aria-label="Enter fruits">
-                @for(fruit of fruits; track fruit.name) {
-                <mat-chip-row (removed)="remove(fruit)" [editable]="true" (edited)="edit(fruit, $event)"
-                  [aria-description]="'press enter to edit ' + fruit.name" class="f-s-14">
-                  {{ fruit.name }}
-                  <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
-                    <mat-icon>cancel</mat-icon>
-                  </button>
-                </mat-chip-row>
+                @for (fruit of fruits; track fruit.name) {
+                  <mat-chip-row
+                    (removed)="remove(fruit)"
+                    [editable]="true"
+                    (edited)="edit(fruit, $event)"
+                    [aria-description]="'press enter to edit ' + fruit.name"
+                    class="f-s-14"
+                  >
+                    {{ fruit.name }}
+                    <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
                 }
 
-                <input placeholder="New fruit..." [matChipInputFor]="chipGrid"
-                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-                  (matChipInputTokenEnd)="add($event)" />
+                <input
+                  placeholder="New fruit..."
+                  [matChipInputFor]="chipGrid"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  [matChipInputAddOnBlur]="addOnBlur"
+                  (matChipInputTokenEnd)="add($event)"
+                />
               </mat-chip-grid>
             </mat-form-field>
           </mat-card-content>
@@ -148,16 +171,19 @@
               <mat-label>Video keywords</mat-label>
               <mat-chip-grid #formChip aria-label="Enter keywords" [formControl]="formControl">
                 @for (keyword of keywords(); track keyword) {
-                <mat-chip-row (removed)="removeKeyword(keyword)">
-                  {{ keyword }}
-                  <button matChipRemove aria-label="'remove ' + keyword">
-                    <mat-icon>cancel</mat-icon>
-                  </button>
-                </mat-chip-row>
+                  <mat-chip-row (removed)="removeKeyword(keyword)">
+                    {{ keyword }}
+                    <button matChipRemove aria-label="'remove ' + keyword">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
                 }
               </mat-chip-grid>
-              <input placeholder="New keyword..." [matChipInputFor]="formChip"
-                (matChipInputTokenEnd)="addForm($event)" />
+              <input
+                placeholder="New keyword..."
+                [matChipInputFor]="formChip"
+                (matChipInputTokenEnd)="addForm($event)"
+              />
             </mat-form-field>
 
             <p>

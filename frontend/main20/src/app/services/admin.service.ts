@@ -146,51 +146,53 @@ export class AdminService {
     });
   }
 
-  suspendUser(userId: string, payload: AdminSuspendUserPayload): Observable<ApiResponse<AdminSuspendUserResponse>> {
+  suspendUser(
+    userId: string,
+    payload: AdminSuspendUserPayload,
+  ): Observable<ApiResponse<AdminSuspendUserResponse>> {
     return this.http.patch<ApiResponse<AdminSuspendUserResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/suspend`,
-      payload
+      payload,
     );
   }
 
   reactivateUser(userId: string): Observable<ApiResponse<AdminReactivateUserResponse>> {
     return this.http.patch<ApiResponse<AdminReactivateUserResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/reactivate`,
-      {}
+      {},
     );
   }
 
   getBoutiques(params: AdminBoutiquesQuery = {}): Observable<ApiResponse<AdminBoutiquesResponse>> {
-    return this.http.get<ApiResponse<AdminBoutiquesResponse>>(`${this.apiRootUrl}/admin/boutiques`, {
-      params: this.buildParams(params),
-    });
+    return this.http.get<ApiResponse<AdminBoutiquesResponse>>(
+      `${this.apiRootUrl}/admin/boutiques`,
+      {
+        params: this.buildParams(params),
+      },
+    );
   }
 
   suspendBoutique(
     boutiqueId: string,
-    payload: AdminSuspendBoutiquePayload
+    payload: AdminSuspendBoutiquePayload,
   ): Observable<ApiResponse<AdminSuspendBoutiqueResponse>> {
     return this.http.patch<ApiResponse<AdminSuspendBoutiqueResponse>>(
       `${this.apiRootUrl}/admin/boutiques/${boutiqueId}/suspend`,
-      payload
+      payload,
     );
   }
 
-  reactivateBoutique(
-    boutiqueId: string
-  ): Observable<ApiResponse<AdminReactivateBoutiqueResponse>> {
+  reactivateBoutique(boutiqueId: string): Observable<ApiResponse<AdminReactivateBoutiqueResponse>> {
     return this.http.patch<ApiResponse<AdminReactivateBoutiqueResponse>>(
       `${this.apiRootUrl}/admin/boutiques/${boutiqueId}/reactivate`,
-      {}
+      {},
     );
   }
 
-  approveBoutique(
-    boutiqueId: string
-  ): Observable<ApiResponse<AdminApproveBoutiqueResponse>> {
+  approveBoutique(boutiqueId: string): Observable<ApiResponse<AdminApproveBoutiqueResponse>> {
     return this.http.patch<ApiResponse<AdminApproveBoutiqueResponse>>(
       `${this.apiRootUrl}/admin/boutiques/${boutiqueId}/approve`,
-      {}
+      {},
     );
   }
 

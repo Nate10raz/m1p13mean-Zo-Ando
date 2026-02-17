@@ -18,6 +18,4 @@ export class BlankComponent {
   constructor(private settings: CoreService) {
     this.htmlElement = document.querySelector('html')!;
   }
-
-
 }

@@ -5,6 +5,7 @@ import adminRoutes from './admin.routes.js';
 import categoryRoutes from './category.routes.js';
 import produitRoutes from './produit.routes.js';
 import boutiqueRoutes from './boutique.routes.js';
+import notificationRoutes from './notification.routes.js';
 
 const router = Router();
 
@@ -30,6 +31,7 @@ router.use('/admin', adminRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/produits', produitRoutes);
 router.use('/boutiques', boutiqueRoutes);
+router.use('/notification', notificationRoutes);
 
 /**
  * @openapi

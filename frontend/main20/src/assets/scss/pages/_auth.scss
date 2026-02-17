@@ -1,4 +1,4 @@
-@use "../variables" as *;
+@use '../variables' as *;
 
 .blank-layout-container {
   min-height: 100vh;
@@ -14,14 +14,13 @@
 
 .bg-gredient {
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     height: 100%;
     width: 100%;
     opacity: 0.3;
-    background: radial-gradient(rgb(210, 241, 223),
-        rgb(211, 215, 250),
-        rgb(186, 216, 244)) 0% 0% / 400% 400%;
+    background: radial-gradient(rgb(210, 241, 223), rgb(211, 215, 250), rgb(186, 216, 244)) 0% 0% /
+      400% 400%;
     animation: 15s ease 0s infinite normal none running gradient;
     z-index: -1;
   }
@@ -63,7 +62,7 @@
   text-align: center;
 
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     width: 120px;
@@ -73,7 +72,7 @@
   }
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     right: 0;
     width: 120px;
@@ -94,7 +93,6 @@
 }
 
 .mat-mdc-form-field.mat-form-field-invalid {
-
   .mdc-notched-outline__leading,
   .mdc-notched-outline__notch,
   .mdc-notched-outline__trailing {

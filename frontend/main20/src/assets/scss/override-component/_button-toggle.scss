@@ -1,6 +1,6 @@
-@use "sass:map";
-@use "@angular/material" as mat;
-@use "../variables" as *;
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../variables' as *;
 
 @include mat.button-toggle-overrides(
   (

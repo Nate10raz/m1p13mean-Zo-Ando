@@ -14,7 +14,10 @@ import { AuthService } from 'src/app/services/auth.service';
   providedIn: 'root',
 })
 export class RoleGuard implements CanActivate, CanActivateChild {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
     return this.checkRole(route);
@@ -22,14 +25,14 @@ export class RoleGuard implements CanActivate, CanActivateChild {
 
   canActivateChild(
     childRoute: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    state: RouterStateSnapshot,
   ): boolean | UrlTree {
     return this.checkRole(childRoute);
   }
 
   private checkRole(route: ActivatedRouteSnapshot): boolean | UrlTree {
     const allowedRoles = ((route.data?.['roles'] as string[] | undefined) ?? []).map((value) =>
-      value.toLowerCase().trim()
+      value.toLowerCase().trim(),
     );
     if (!allowedRoles.length) {
       return true;

@@ -17,20 +17,16 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        loadChildren: () =>
-          import('./pages/pages.routes').then((m) => m.PagesRoutes),
+        loadChildren: () => import('./pages/pages.routes').then((m) => m.PagesRoutes),
       },
       {
         path: 'ui-components',
         loadChildren: () =>
-          import('./pages/ui-components/ui-components.routes').then(
-            (m) => m.UiComponentsRoutes
-          ),
+          import('./pages/ui-components/ui-components.routes').then((m) => m.UiComponentsRoutes),
       },
       {
         path: 'extra',
-        loadChildren: () =>
-          import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
+        loadChildren: () => import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
       },
       {
         path: 'access-denied',
@@ -38,11 +34,17 @@ export const routes: Routes = [
           import('./pages/access-denied/access-denied.routes').then((m) => m.AccessDeniedRoutes),
       },
       {
+        path: 'notification',
+        loadComponent: () =>
+          import('./pages/notification/notification.component').then(
+            (m) => m.NotificationComponent,
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [RoleGuard],
         data: { roles: ['admin'] },
-        loadChildren: () =>
-          import('./pages/admin/admin.routes').then((m) => m.AdminRoutes),
+        loadChildren: () => import('./pages/admin/admin.routes').then((m) => m.AdminRoutes),
       },
       {
         path: 'produits',
@@ -61,7 +63,7 @@ export const routes: Routes = [
         path: 'authentication',
         loadChildren: () =>
           import('./pages/authentication/authentication.routes').then(
-            (m) => m.AuthenticationRoutes
+            (m) => m.AuthenticationRoutes,
           ),
       },
     ],

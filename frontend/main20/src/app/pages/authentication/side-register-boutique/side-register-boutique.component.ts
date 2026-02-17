@@ -21,7 +21,7 @@ import { AuthService, BoutiqueRegisterPayload } from 'src/app/services/auth.serv
   standalone: true,
   imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule],
   templateUrl: './side-register-boutique.component.html',
-  styleUrls: ['./side-register-boutique.component.scss']
+  styleUrls: ['./side-register-boutique.component.scss'],
 })
 export class AppSideRegisterBoutiqueComponent {
   isSubmitting = false;
@@ -45,14 +45,14 @@ export class AppSideRegisterBoutiqueComponent {
         telephone: ['', [Validators.required, Validators.pattern(/^[+]?\d{7,15}$/)]],
       }),
     },
-    { validators: this.passwordsMatchValidator }
+    { validators: this.passwordsMatchValidator },
   );
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
   ) {}
 
   get f() {

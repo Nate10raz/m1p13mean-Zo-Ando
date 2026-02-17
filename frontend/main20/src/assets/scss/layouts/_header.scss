@@ -1,4 +1,4 @@
-@use "../variables" as *;
+@use '../variables' as *;
 
 html .topbar {
   position: sticky;
@@ -27,9 +27,6 @@ html .topbar {
   margin-left: -5px;
 }
 
-
-
-
 // App Topstrip
 
 .app-topstrip {
@@ -37,7 +34,7 @@ html .topbar {
   top: 0;
   z-index: 12;
   display: flex;
-  background: linear-gradient(90deg, #001138 0%, #001E66 100%);
+  background: linear-gradient(90deg, #001138 0%, #001e66 100%);
 
   @media (max-width: 991px) {
     flex-direction: column;
@@ -70,7 +67,7 @@ html .topbar {
   .text-linear-gradient {
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    background: linear-gradient(90deg, #FFFFFF 0%, #3772FF 100%);
+    background: linear-gradient(90deg, #ffffff 0%, #3772ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -83,17 +80,16 @@ html .topbar {
 
     &:hover,
     &:active {
-      background-color: #3772FF;
+      background-color: #3772ff;
     }
-
   }
 
   .get-pro-btn {
-    background-color: #3772FF;
+    background-color: #3772ff;
     border-radius: 4px;
 
     &:hover {
-      background-color: #5D87FF;
+      background-color: #5d87ff;
     }
   }
 
@@ -102,7 +98,7 @@ html .topbar {
 
     &:hover,
     &:active {
-      color: #5D87FF !important;
+      color: #5d87ff !important;
 
       .mat-mdc-button-persistent-ripple {
         &::before {
@@ -111,5 +107,4 @@ html .topbar {
       }
     }
   }
-
 }

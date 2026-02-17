@@ -13,7 +13,12 @@
             <div class="col-12 col-sm-6">
               <button mat-stroked-button class="w-100">
                 <div class="d-flex align-items-center">
-                  <img src="/assets/images/svgs/google-icon.svg" alt="google" width="16" class="m-r-8" />
+                  <img
+                    src="/assets/images/svgs/google-icon.svg"
+                    alt="google"
+                    width="16"
+                    class="m-r-8"
+                  />
                   Sign in with Google
                 </div>
               </button>
@@ -21,7 +26,12 @@
             <div class="col-12 col-sm-6">
               <button mat-stroked-button class="w-100 d-flex align-items-center">
                 <div class="d-flex align-items-center">
-                  <img src="/assets/images/svgs/facebook-icon.svg" alt="facebook" width="40" class="m-r-4" />
+                  <img
+                    src="/assets/images/svgs/facebook-icon.svg"
+                    alt="facebook"
+                    width="40"
+                    class="m-r-4"
+                  />
                   Sign in with FB
                 </div>
               </button>
@@ -45,15 +55,18 @@
               <input matInput type="password" />
             </mat-form-field>
 
-            <a [routerLink]="['/']" mat-flat-button color="primary" class="w-100">
-              Sign Up
-            </a>
+            <a [routerLink]="['/']" mat-flat-button color="primary" class="w-100"> Sign Up </a>
             <!-- input -->
           </form>
-          <span class="d-block f-w-500 text-center m-t-24">Already have an Account?
+          <span class="d-block f-w-500 text-center m-t-24"
+            >Already have an Account?
 
-            <a [routerLink]="['/authentication/login']" class="text-decoration-none text-primary f-w-500 f-s-14">
-              Sign In</a>
+            <a
+              [routerLink]="['/authentication/login']"
+              class="text-decoration-none text-primary f-w-500 f-s-14"
+            >
+              Sign In</a
+            >
           </span>
         </mat-card-content>
       </mat-card>

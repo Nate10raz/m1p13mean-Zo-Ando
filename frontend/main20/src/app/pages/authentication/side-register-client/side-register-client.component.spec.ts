@@ -18,9 +18,7 @@ describe('AppSideRegisterClientComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [AppSideRegisterClientComponent, RouterTestingModule, NoopAnimationsModule],
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-      ],
+      providers: [{ provide: AuthService, useValue: authServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppSideRegisterClientComponent);
@@ -60,7 +58,7 @@ describe('AppSideRegisterClientComponent', () => {
             expiresAt: new Date().toISOString(),
           },
         },
-      })
+      }),
     );
 
     const componentSnackBar = (component as unknown as { snackBar: MatSnackBar }).snackBar;

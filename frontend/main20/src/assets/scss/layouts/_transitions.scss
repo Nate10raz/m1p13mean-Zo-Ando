@@ -3,8 +3,7 @@ $swift-ease-out-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
 
 @function swift-ease-out($property) {
   // The Material default animation curves.
-  $transition: $property $swift-ease-out-duration
-    $swift-ease-out-timing-function;
+  $transition: $property $swift-ease-out-duration $swift-ease-out-timing-function;
 
   @return $transition;
 }

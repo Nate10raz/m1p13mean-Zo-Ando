@@ -60,12 +60,7 @@ interface month {
 
 @Component({
   selector: 'app-product-performance',
-  imports: [
-    NgApexchartsModule,
-    MaterialModule,
-    TablerIconsModule,
-    CommonModule,
-  ],
+  imports: [NgApexchartsModule, MaterialModule, TablerIconsModule, CommonModule],
   templateUrl: './product-performance.component.html',
 })
 export class AppProductPerformanceComponent {

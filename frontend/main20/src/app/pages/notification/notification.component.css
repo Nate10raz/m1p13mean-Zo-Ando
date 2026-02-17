@@ -1,0 +1,21 @@
+.unread {
+  background-color: #f0f7ff; /* Very light blue for unread */
+}
+
+.notification-item {
+  padding: 16px 0;
+}
+
+.notification-content {
+  width: 100%;
+}
+
+.notification-message {
+  white-space: pre-wrap; /* Preserve line breaks */
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.fw-bold {
+  font-weight: bold;
+}

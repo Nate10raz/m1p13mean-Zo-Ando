@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialModule } from '../../../material.module';
 import { MatButtonModule } from '@angular/material/button';
@@ -89,7 +96,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
     private adminService: AdminService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -97,7 +104,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
       map((value) => this.normalizeSearch(value)),
       debounceTime(400),
       distinctUntilChanged(),
-      startWith(this.normalizeSearch(this.searchControl.value))
+      startWith(this.normalizeSearch(this.searchControl.value)),
     );
     const status$ = this.statusControl.valueChanges.pipe(startWith(this.statusControl.value));
     const sortBy$ = this.sortByControl.valueChanges.pipe(startWith(this.sortByControl.value));
@@ -110,9 +117,9 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
           prev.search === curr.search &&
           prev.status === curr.status &&
           prev.sortBy === curr.sortBy &&
-          prev.sortDir === curr.sortDir
+          prev.sortDir === curr.sortDir,
       ),
-      shareReplay({ bufferSize: 1, refCount: true })
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     const filterRequests$ = filters$.pipe(
@@ -123,7 +130,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
         ...filters,
         page: 1,
         limit: this.limit,
-      }))
+      })),
     );
 
     const pageRequests$ = this.pageChange$.pipe(
@@ -131,7 +138,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
       map(([pageState, filters]) => ({
         ...filters,
         ...pageState,
-      }))
+      })),
     );
 
     const requests$ = merge(filterRequests$, pageRequests$).pipe(
@@ -153,9 +160,9 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
           })
           .pipe(
             map((response) => ({ response, error: null as unknown })),
-            catchError((error) => of({ response: null, error }))
-          )
-      )
+            catchError((error) => of({ response: null, error })),
+          ),
+      ),
     );
 
     this.subscriptions.add(
@@ -175,7 +182,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
         this.total = response?.data?.total ?? items.length;
         this.dataSource = items.map((item, index) => this.mapBoutique(item, index));
         this.cdr.markForCheck();
-      })
+      }),
     );
   }
 
@@ -212,7 +219,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
 
   private mapStatus(
     status: AdminBoutiqueStatus | undefined,
-    isActive: boolean
+    isActive: boolean,
   ): BoutiqueRow['statut'] {
     if (status === 'active') {
       return 'actif';
@@ -306,7 +313,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -333,7 +340,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -357,7 +364,7 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -398,19 +405,14 @@ export class AppAdminBoutiqueComponent implements OnInit, OnDestroy {
           rows="4"
           placeholder="Ex: boutique inactive"
         ></textarea>
-        @if(motifControl.hasError('required')) {
-        <mat-error>Le motif est obligatoire.</mat-error>
+        @if (motifControl.hasError('required')) {
+          <mat-error>Le motif est obligatoire.</mat-error>
         }
       </mat-form-field>
     </div>
     <div mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">Annuler</button>
-      <button
-        mat-flat-button
-        color="warn"
-        [disabled]="motifControl.invalid"
-        (click)="onConfirm()"
-      >
+      <button mat-flat-button color="warn" [disabled]="motifControl.invalid" (click)="onConfirm()">
         Suspendre
       </button>
     </div>
@@ -421,7 +423,7 @@ export class SuspendBoutiqueDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<SuspendBoutiqueDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData
+    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData,
   ) {}
 
   onCancel(): void {
@@ -452,7 +454,7 @@ export class SuspendBoutiqueDialogComponent {
 export class ReactivateBoutiqueDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<ReactivateBoutiqueDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData
+    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData,
   ) {}
 
   onCancel(): void {
@@ -483,7 +485,7 @@ export class ReactivateBoutiqueDialogComponent {
 export class ApproveBoutiqueDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<ApproveBoutiqueDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData
+    @Inject(MAT_DIALOG_DATA) public data: SuspendBoutiqueDialogData,
   ) {}
 
   onCancel(): void {

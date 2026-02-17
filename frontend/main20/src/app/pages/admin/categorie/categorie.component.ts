@@ -1,10 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { catchError, debounceTime, distinctUntilChanged, finalize, map, of, Subscription, switchMap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  of,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MaterialModule } from '../../../material.module';
@@ -156,7 +172,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
   categories: CategoryNode[] = [];
   treeControl = new FlatTreeControl<CategoryFlatNode>(
     (node) => node.level,
-    (node) => node.expandable
+    (node) => node.expandable,
   );
   treeFlattener = new MatTreeFlattener<CategoryNode, CategoryFlatNode>(
     (node, level) => ({
@@ -171,7 +187,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
     }),
     (node) => node.level,
     (node) => node.expandable,
-    (node) => node.children ?? []
+    (node) => node.children ?? [],
   );
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   isLoading = false;
@@ -183,7 +199,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -203,22 +219,20 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
 
             this.isSearching = true;
             this.cdr.markForCheck();
-            return this.categoryService
-              .getCategoryTree({ search: term, page: 1, limit: 20 })
-              .pipe(
-                map((response) => this.flattenSearchOptions(response?.data)),
-                catchError(() => of<CategorySearchOption[]>([])),
-                finalize(() => {
-                  this.isSearching = false;
-                  this.cdr.markForCheck();
-                })
-              );
-          })
+            return this.categoryService.getCategoryTree({ search: term, page: 1, limit: 20 }).pipe(
+              map((response) => this.flattenSearchOptions(response?.data)),
+              catchError(() => of<CategorySearchOption[]>([])),
+              finalize(() => {
+                this.isSearching = false;
+                this.cdr.markForCheck();
+              }),
+            );
+          }),
         )
         .subscribe((options) => {
           this.searchOptions = options;
           this.cdr.markForCheck();
-        })
+        }),
     );
   }
 
@@ -266,7 +280,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
 
   get searchText(): string {
     const value = this.searchControl.value;
-    return typeof value === 'string' ? value : value?.label ?? '';
+    return typeof value === 'string' ? value : (value?.label ?? '');
   }
 
   openAddChildDialog(node: CategoryFlatNode): void {
@@ -304,7 +318,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -349,9 +363,13 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
       return;
     }
     if (node.childrenCount > 0) {
-      this.snackBar.open('Suppression bloquee: la categorie contient des sous-categories.', 'Fermer', {
-        duration: 4000,
-      });
+      this.snackBar.open(
+        'Suppression bloquee: la categorie contient des sous-categories.',
+        'Fermer',
+        {
+          duration: 4000,
+        },
+      );
       return;
     }
     const dialogRef = this.dialog.open(DeleteCategoryDialogComponent, {
@@ -393,7 +411,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -425,7 +443,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -448,7 +466,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -471,7 +489,7 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.actionInProgress = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -486,7 +504,9 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
       });
   }
 
-  private flattenSearchOptions(payload: CategoryTreeData | null | undefined): CategorySearchOption[] {
+  private flattenSearchOptions(
+    payload: CategoryTreeData | null | undefined,
+  ): CategorySearchOption[] {
     const nodes = this.normalizePayload(payload);
     if (!nodes.length) {
       return [];
@@ -536,19 +556,19 @@ export class AppAdminCategorieComponent implements OnInit, OnDestroy {
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Nom</mat-label>
           <input matInput [formControl]="nomControl" placeholder="Ex: Accessoires" />
-          @if(nomControl.hasError('required')) {
-          <mat-error>Le nom est obligatoire.</mat-error>
+          @if (nomControl.hasError('required')) {
+            <mat-error>Le nom est obligatoire.</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Slug</mat-label>
           <input matInput [formControl]="slugControl" placeholder="Ex: accessoires" />
-          @if(slugControl.hasError('required')) {
-          <mat-error>Le slug est obligatoire.</mat-error>
+          @if (slugControl.hasError('required')) {
+            <mat-error>Le slug est obligatoire.</mat-error>
           }
-          @if(slugControl.hasError('pattern')) {
-          <mat-error>Utilise des minuscules, chiffres et tirets.</mat-error>
+          @if (slugControl.hasError('pattern')) {
+            <mat-error>Utilise des minuscules, chiffres et tirets.</mat-error>
           }
         </mat-form-field>
 
@@ -592,7 +612,7 @@ export class AddCategoryDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<AddCategoryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: AddCategoryDialogData
+    @Inject(MAT_DIALOG_DATA) public data: AddCategoryDialogData,
   ) {}
 
   get formInvalid(): boolean {
@@ -638,19 +658,19 @@ export class AddCategoryDialogComponent {
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Nom</mat-label>
           <input matInput [formControl]="nomControl" />
-          @if(nomControl.hasError('required')) {
-          <mat-error>Le nom est obligatoire.</mat-error>
+          @if (nomControl.hasError('required')) {
+            <mat-error>Le nom est obligatoire.</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Slug</mat-label>
           <input matInput [formControl]="slugControl" />
-          @if(slugControl.hasError('required')) {
-          <mat-error>Le slug est obligatoire.</mat-error>
+          @if (slugControl.hasError('required')) {
+            <mat-error>Le slug est obligatoire.</mat-error>
           }
-          @if(slugControl.hasError('pattern')) {
-          <mat-error>Utilise des minuscules, chiffres et tirets.</mat-error>
+          @if (slugControl.hasError('pattern')) {
+            <mat-error>Utilise des minuscules, chiffres et tirets.</mat-error>
           }
         </mat-form-field>
 
@@ -699,7 +719,7 @@ export class EditCategoryDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<EditCategoryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: EditCategoryDialogData
+    @Inject(MAT_DIALOG_DATA) public data: EditCategoryDialogData,
   ) {}
 
   get formInvalid(): boolean {
@@ -741,38 +761,37 @@ export class EditCategoryDialogComponent {
     <h2 mat-dialog-title>Supprimer la categorie</h2>
     <div mat-dialog-content>
       <p class="m-b-12">
-        Tu es sur le point de supprimer <strong>{{ data.category.nom }}</strong>.
+        Tu es sur le point de supprimer <strong>{{ data.category.nom }}</strong
+        >.
       </p>
       <p class="text-error m-b-12">Cette action est irreversible.</p>
-      @if(data.category.childrenCount > 0) {
-      <p class="text-warning m-b-12">
-        Cette categorie contient {{ data.category.childrenCount }} sous-categorie(s).
-      </p>
+      @if (data.category.childrenCount > 0) {
+        <p class="text-warning m-b-12">
+          Cette categorie contient {{ data.category.childrenCount }} sous-categorie(s).
+        </p>
       }
 
-      <mat-checkbox [formControl]="confirmCheck">
-        Je confirme la suppression
-      </mat-checkbox>
+      <mat-checkbox [formControl]="confirmCheck"> Je confirme la suppression </mat-checkbox>
 
       <mat-form-field appearance="outline" class="w-100 m-t-12">
         <mat-label>Slug a confirmer</mat-label>
         <input matInput [formControl]="slugControl" placeholder="{{ data.category.slug }}" />
-        @if(slugControl.hasError('required')) {
-        <mat-error>Le slug est obligatoire.</mat-error>
+        @if (slugControl.hasError('required')) {
+          <mat-error>Le slug est obligatoire.</mat-error>
         }
-        @if(slugControl.hasError('mismatch')) {
-        <mat-error>Le slug ne correspond pas.</mat-error>
+        @if (slugControl.hasError('mismatch')) {
+          <mat-error>Le slug ne correspond pas.</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>Mot-cle de confirmation</mat-label>
         <input matInput [formControl]="keywordControl" placeholder="SUPPRIMER" />
-        @if(keywordControl.hasError('required')) {
-        <mat-error>Le mot-cle est obligatoire.</mat-error>
+        @if (keywordControl.hasError('required')) {
+          <mat-error>Le mot-cle est obligatoire.</mat-error>
         }
-        @if(keywordControl.hasError('mismatch')) {
-        <mat-error>Le mot-cle ne correspond pas.</mat-error>
+        @if (keywordControl.hasError('mismatch')) {
+          <mat-error>Le mot-cle ne correspond pas.</mat-error>
         }
       </mat-form-field>
     </div>
@@ -791,7 +810,7 @@ export class DeleteCategoryDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<DeleteCategoryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DeleteCategoryDialogData
+    @Inject(MAT_DIALOG_DATA) public data: DeleteCategoryDialogData,
   ) {}
 
   get formInvalid(): boolean {

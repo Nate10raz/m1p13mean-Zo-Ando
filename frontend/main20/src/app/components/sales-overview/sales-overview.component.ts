@@ -47,7 +47,6 @@ export interface salesOverviewChart {
   templateUrl: './sales-overview.component.html',
 })
 export class AppSalesOverviewComponent {
-
   @ViewChild('chart') chart: ChartComponent = Object.create(null);
 
   public salesOverviewChart!: Partial<salesOverviewChart> | any;
@@ -58,9 +57,7 @@ export class AppSalesOverviewComponent {
     { value: 'june', viewValue: 'Nov 2025' },
   ];
 
-
   constructor() {
-
     // sales overview chart
     this.salesOverviewChart = {
       series: [
@@ -102,16 +99,7 @@ export class AppSalesOverviewComponent {
       legend: { show: false },
       xaxis: {
         type: 'category',
-        categories: [
-          '16/08',
-          '17/08',
-          '18/08',
-          '19/08',
-          '20/08',
-          '21/08',
-          '22/08',
-          '23/08',
-        ],
+        categories: ['16/08', '17/08', '18/08', '19/08', '20/08', '21/08', '22/08', '23/08'],
         labels: {
           style: { cssClass: 'grey--text lighten-2--text fill-color' },
         },
@@ -148,6 +136,5 @@ export class AppSalesOverviewComponent {
         },
       ],
     };
-
   }
 }

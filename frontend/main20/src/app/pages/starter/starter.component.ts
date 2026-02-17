@@ -7,7 +7,6 @@ import { AppRecentTransactionsComponent } from 'src/app/components/recent-transa
 import { AppProductPerformanceComponent } from 'src/app/components/product-performance/product-performance.component';
 import { AppBlogCardsComponent } from 'src/app/components/blog-card/blog-card.component';
 
-
 @Component({
   selector: 'app-starter',
   imports: [
@@ -17,9 +16,9 @@ import { AppBlogCardsComponent } from 'src/app/components/blog-card/blog-card.co
     AppMonthlyEarningsComponent,
     AppRecentTransactionsComponent,
     AppProductPerformanceComponent,
-    AppBlogCardsComponent
+    AppBlogCardsComponent,
   ],
   templateUrl: './starter.component.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class StarterComponent { }
+export class StarterComponent {}
