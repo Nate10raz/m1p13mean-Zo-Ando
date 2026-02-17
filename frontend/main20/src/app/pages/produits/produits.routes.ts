@@ -5,6 +5,7 @@ import { AppProduitDetailComponent } from './produit-detail/produit-detail.compo
 import { AppProduitEditComponent } from './produit-edit/produit-edit.component';
 import { AppProduitListComponent } from './produit-list/produit-list.component';
 import { AppProduitMediaComponent } from './produit-media/produit-media.component';
+import { AppProduitStockAlertComponent } from './produit-stock-alert/produit-stock-alert.component';
 
 export const ProduitsRoutes: Routes = [
   {
@@ -17,6 +18,10 @@ export const ProduitsRoutes: Routes = [
       {
         path: 'liste',
         component: AppProduitListComponent,
+      },
+      {
+        path: 'stock-alert',
+        component: AppProduitStockAlertComponent,
       },
       {
         path: ':id/medias',
