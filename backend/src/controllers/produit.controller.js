@@ -6,6 +6,7 @@ import {
   removeProduitImage,
   setProduitMainImage,
   updateProduitStockAlert,
+  updateProduitStockAlertBulk,
 } from '../services/produit.service.js';
 import cloudinary from '../config/cloudinary.js';
 import { ENV } from '../config/env.js';
@@ -209,7 +210,33 @@ export const updateProduitStockAlertController = async (req, res, next) => {
       req,
       res,
       status: 200,
-      message: 'Seuil d\'alerte mis a jour',
+      message: "Seuil d'alerte mis a jour",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProduitStockAlertBulkController = async (req, res, next) => {
+  try {
+    const result = await updateProduitStockAlertBulk(
+      {
+        ids: req.body.ids,
+        categorieId: req.body.categorieId,
+        seuilAlerte: req.body.seuilAlerte,
+      },
+      {
+        userId: req.user?.id,
+        role: req.user?.role,
+      },
+    );
+
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: "Seuils d'alerte mis a jour",
       data: result,
     });
   } catch (error) {
