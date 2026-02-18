@@ -1,0 +1,145 @@
+﻿<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="box-header">
+      <div>
+        <mat-card-title>{{ box?.numero || 'Fiche box' }}</mat-card-title>
+        <mat-card-subtitle class="text-muted">Zone {{ box?.zone }} · Etage {{ box?.etage }}</mat-card-subtitle>
+      </div>
+      @if (box) {
+        <div class="d-flex align-items-center gap-8 flex-wrap">
+          <span
+            class="status-pill"
+            [class.free]="!box.estOccupe"
+            [class.occupied]="box.estOccupe"
+          >
+            {{ box.estOccupe ? 'Occupee' : 'Disponible' }}
+          </span>
+          <button mat-flat-button color="primary" [routerLink]="['/boxes', box._id, 'tarif']">
+            Mettre a jour le tarif
+          </button>
+          <button mat-stroked-button type="button" (click)="goBack()">Retour</button>
+        </div>
+      }
+    </div>
+
+    @if (isLoading) {
+      <div class="p-16">Chargement en cours...</div>
+    } @else if (errorMessage) {
+      <div class="p-16 text-error">{{ errorMessage }}</div>
+    } @else if (box) {
+      <div class="box-grid m-t-16">
+        <div>
+          <div class="image-frame">
+            @if (activeImageUrl) {
+              <img [src]="activeImageUrl" [alt]="box.numero" />
+            } @else {
+              <span class="text-muted">Aucune photo</span>
+            }
+          </div>
+          @if (box.photos?.length) {
+            <div class="thumb-list">
+              @for (photo of box.photos; track photo) {
+                <button
+                  type="button"
+                  class="thumb"
+                  [class.active]="activeImageUrl === photo"
+                  (click)="selectImage(photo)"
+                  aria-label="Voir photo"
+                >
+                  <img [src]="photo" [alt]="box.numero" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Type</div>
+              <div class="meta-value">{{ getTypeLabel(box) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Superficie</div>
+              <div class="meta-value">{{ formatSurface(box.superficie) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Tarif actuel</div>
+              <div class="meta-value">{{ formatTarif(box.tarifActuel) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Debut tarif</div>
+              <div class="meta-value">{{ formatDate(box.tarifActuel?.dateDebut) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Zone</div>
+              <div class="meta-value">{{ box.zone }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Etage</div>
+              <div class="meta-value">{{ box.etage }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Allee</div>
+              <div class="meta-value">{{ box.allee || '-' }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Position</div>
+              <div class="meta-value">{{ box.position || '-' }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Boutique</div>
+              <div class="meta-value">{{ getBoutiqueLabel(box) }}</div>
+            </div>
+          </div>
+
+          <div class="section-title">Description</div>
+          <p class="text-muted">{{ box.description || 'Aucune description.' }}</p>
+
+          @if (box.caracteristiques?.length) {
+            <div class="section-title">Caracteristiques</div>
+            <div class="attribute-list">
+              @for (attr of box.caracteristiques; track attr.nom) {
+                <div class="attribute-item">
+                  <div class="attribute-name">{{ attr.nom }}</div>
+                  <div class="attribute-values">{{ attr.valeur }}</div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="section-title">Informations</div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Cree le</div>
+              <div class="meta-value">{{ formatDate(box.createdAt) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Mis a jour</div>
+              <div class="meta-value">{{ formatDate(box.updatedAt) }}</div>
+            </div>
+            @if (box.contrat?.reference) {
+              <div class="meta-item">
+                <div class="meta-label">Contrat</div>
+                <div class="meta-value">{{ box.contrat?.reference }}</div>
+              </div>
+            }
+            @if (box.contrat?.dateDebut) {
+              <div class="meta-item">
+                <div class="meta-label">Debut contrat</div>
+                <div class="meta-value">{{ formatDate(box.contrat?.dateDebut) }}</div>
+              </div>
+            }
+            @if (box.contrat?.dateFin) {
+              <div class="meta-item">
+                <div class="meta-label">Fin contrat</div>
+                <div class="meta-value">{{ formatDate(box.contrat?.dateFin) }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+

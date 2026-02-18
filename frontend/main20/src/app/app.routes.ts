@@ -76,6 +76,21 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./pages/produits/produits.routes').then((m) => m.ProduitsRoutes),
       },
+      {
+        path: 'boxes',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin'] },
+        loadChildren: () => import('./pages/boxes/boxes.routes').then((m) => m.BoxesRoutes),
+      },
+      {
+        path: 'boxes-disponibles',
+        canActivate: [RoleGuard],
+        data: { roles: ['boutique'] },
+        loadComponent: () =>
+          import('./pages/boxes/box-available/box-available.component').then(
+            (m) => m.AppBoxAvailableComponent,
+          ),
+      },
     ],
   },
   {

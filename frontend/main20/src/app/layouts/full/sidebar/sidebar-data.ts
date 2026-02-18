@@ -41,10 +41,36 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    displayName: 'Gestion des categories',
-    iconName: 'list-details',
-    route: '/admin/categorie',
+    navCap: 'Gestion Box',
     roles: ['admin'],
+  },
+  {
+    displayName: 'Liste des boxes',
+    iconName: 'list-details',
+    route: '/boxes/liste',
+    roles: ['admin'],
+  },
+  {
+    displayName: 'Creer une box',
+    iconName: 'package',
+    route: '/boxes/nouveau',
+    roles: ['admin'],
+  },
+  {
+    displayName: 'Creer un type de box',
+    iconName: 'list-details',
+    route: '/boxes/types/nouveau',
+    roles: ['admin'],
+  },
+  {
+    navCap: 'Boxes',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Boxes disponibles',
+    iconName: 'package',
+    route: '/boxes-disponibles',
+    roles: ['boutique'],
   },
   {
     navCap: 'Produits',
@@ -61,6 +87,12 @@ export const navItems: NavItem[] = [
     iconName: 'package',
     route: '/produits/nouveau',
     roles: ['admin', 'boutique'],
+  },
+  {
+    displayName: 'Gestion des categories',
+    iconName: 'list-details',
+    route: '/admin/categorie',
+    roles: ['admin'],
   },
   {
     displayName: "Seuil d'alerte stock",

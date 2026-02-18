@@ -157,6 +157,10 @@ router.patch(
   requireRole('admin', 'boutique'),
   [
     param('id').isMongoId().withMessage('Id produit invalide'),
+    body('variationId')
+      .optional({ nullable: true })
+      .isMongoId()
+      .withMessage('variationId invalide'),
     body('seuilAlerte').isFloat({ min: 0 }).withMessage('seuilAlerte invalide'),
   ],
   validateRequest,
@@ -427,6 +431,7 @@ router.patch(
  *             required: [seuilAlerte]
  *             properties:
  *               seuilAlerte: { type: number }
+ *               variationId: { type: string }
  *     responses:
  *       200: { description: Seuil d'alerte mis a jour }
  *       400: { description: Donnees invalides }

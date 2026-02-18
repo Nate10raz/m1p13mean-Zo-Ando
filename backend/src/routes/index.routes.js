@@ -5,7 +5,10 @@ import adminRoutes from './admin.routes.js';
 import categoryRoutes from './category.routes.js';
 import produitRoutes from './produit.routes.js';
 import boutiqueRoutes from './boutique.routes.js';
+import alerteStockRoutes from './alerte-stock.routes.js';
 import notificationRoutes from './notification.routes.js';
+import boxTypeRoutes from './box-type.routes.js';
+import boxRoutes from './box.routes.js';
 
 const router = Router();
 
@@ -31,7 +34,10 @@ router.use('/admin', adminRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/produits', produitRoutes);
 router.use('/boutiques', boutiqueRoutes);
+router.use('/alertes-stock', alerteStockRoutes);
 router.use('/notification', notificationRoutes);
+router.use('/box-types', boxTypeRoutes);
+router.use('/boxes', boxRoutes);
 
 /**
  * @openapi
