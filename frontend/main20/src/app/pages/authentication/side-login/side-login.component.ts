@@ -55,7 +55,10 @@ export class AppSideLoginComponent {
         next: (response) => {
           const message = response?.message ?? 'Connexion reussie';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          this.router.navigate(['/dashboard']);
+          const role = response?.data?.user?.role ?? this.authService.getCurrentRole();
+          const normalizedRole = role?.toLowerCase().trim();
+          const target = normalizedRole === 'client' ? '/accueil' : '/dashboard';
+          this.router.navigate([target]);
         },
         error: (error) => {
           this.serverError = error?.error?.message ?? 'Connexion impossible. Veuillez reessayer.';

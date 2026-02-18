@@ -1,0 +1,116 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="product-header">
+      <div>
+        <mat-card-title>{{ product?.titre || 'Fiche produit' }}</mat-card-title>
+        <mat-card-subtitle class="text-muted">
+          {{ product?.descriptionCourte || product?.slug || '' }}
+        </mat-card-subtitle>
+      </div>
+      @if (product) {
+        <div class="d-flex align-items-center gap-8 flex-wrap">
+          <button mat-stroked-button type="button" (click)="goBack()">Retour</button>
+          <button mat-flat-button color="primary" type="button" (click)="onAddToCart()">
+            Ajouter au panier
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (isLoading) {
+      <div class="p-16">Chargement en cours...</div>
+    } @else if (errorMessage) {
+      <div class="p-16 text-error">{{ errorMessage }}</div>
+    } @else if (product) {
+      <div class="product-grid m-t-16">
+        <div>
+          <div class="image-frame">
+            @if (activeImageUrl) {
+              <img [src]="activeImageUrl" [alt]="product.titre" />
+            } @else {
+              <span class="text-muted">Aucune image</span>
+            }
+          </div>
+          @if (product.images?.length) {
+            <div class="thumb-list">
+              @for (img of product.images; track img.url) {
+                <button
+                  type="button"
+                  class="thumb"
+                  [class.active]="activeImageUrl === img.url"
+                  (click)="selectImage(img.url)"
+                  aria-label="Voir image"
+                >
+                  <img [src]="img.url" [alt]="product.titre" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Prix</div>
+              <div class="meta-value">{{ formatPrice(product.prixBaseActuel) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Boutique</div>
+              <div class="meta-value">{{ product.boutique?.nom || '-' }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Note</div>
+              <div class="meta-value">{{ formatRating(product.noteMoyenne) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Avis</div>
+              <div class="meta-value">{{ product.nombreAvis ?? 0 }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Categorie</div>
+              <div class="meta-value">{{ getCategoryLabel(product.categorieId) }}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Variations</div>
+              <div class="meta-value">{{ product.hasVariations ? 'Oui' : 'Non' }}</div>
+            </div>
+          </div>
+
+          <div class="section-title">Descriptions</div>
+          <p class="text-muted">{{ product.descriptionCourte || 'Aucune description courte.' }}</p>
+          <p>{{ product.description || 'Aucune description.' }}</p>
+
+          @if (product.sousCategoriesIds?.length) {
+            <div class="section-title">Sous-categories</div>
+            <div class="chip-list">
+              @for (id of product.sousCategoriesIds; track id) {
+                <mat-chip>{{ getCategoryLabel(id) }}</mat-chip>
+              }
+            </div>
+          }
+
+          @if (product.tags?.length) {
+            <div class="section-title">Tags</div>
+            <div class="chip-list">
+              @for (tag of product.tags; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </div>
+          }
+
+          @if (product.attributs?.length) {
+            <div class="section-title">Attributs</div>
+            <div class="attribute-list">
+              @for (attr of product.attributs; track attr.nom) {
+                <div class="attribute-item">
+                  <div class="attribute-name">{{ attr.nom }}</div>
+                  <div class="attribute-values">{{ attr.valeurs.join(', ') || '-' }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

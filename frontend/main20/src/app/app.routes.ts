@@ -12,11 +12,34 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/dashboard',
+        loadComponent: () =>
+          import('./pages/home-redirect/home-redirect.component').then(
+            (m) => m.HomeRedirectComponent,
+          ),
         pathMatch: 'full',
       },
       {
+        path: 'accueil',
+        canActivate: [RoleGuard],
+        data: { roles: ['client'] },
+        loadComponent: () =>
+          import('./pages/accueil-client/accueil-client.component').then(
+            (m) => m.AccueilClientComponent,
+          ),
+      },
+      {
+        path: 'produit/:id',
+        canActivate: [RoleGuard],
+        data: { roles: ['client'] },
+        loadComponent: () =>
+          import('./pages/produit-fiche/produit-fiche.component').then(
+            (m) => m.AppProduitFicheComponent,
+          ),
+      },
+      {
         path: 'dashboard',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin', 'boutique'] },
         loadChildren: () => import('./pages/pages.routes').then((m) => m.PagesRoutes),
       },
       {

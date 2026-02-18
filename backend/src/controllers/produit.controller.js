@@ -96,6 +96,10 @@ export const listProduitsController = async (req, res, next) => {
         limit: req.query.limit,
         search: req.query.search,
         estActif: req.query.estActif,
+        categorieId: req.query.categorieId,
+        minPrix: req.query.minPrix,
+        maxPrix: req.query.maxPrix,
+        sort: req.query.sort,
       },
     );
 

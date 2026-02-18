@@ -1,10 +1,14 @@
 <div class="row">
-  @for (productcard of productcards; track productcards) {
+  @for (productcard of cards; track productcard.id) {
     <div class="col-sm-6 col-lg-3">
       <mat-card class="cardWithShadow productcard overflow-hidden">
-        <a routerLink="/widgets/cards">
+        @if (detailRouteBase && productcard.id !== undefined && productcard.id !== null) {
+          <a [routerLink]="[detailRouteBase, productcard.id]">
+            <img src="{{ productcard.imgSrc }}" alt="imgSrc" class="w-100" mat-card-image />
+          </a>
+        } @else {
           <img src="{{ productcard.imgSrc }}" alt="imgSrc" class="w-100" mat-card-image />
-        </a>
+        }
         <mat-card-content class="p-b-24 p-t-12 position-relative">
           <button
             mat-mini-fab
@@ -18,18 +22,20 @@
           }}</mat-card-title>
           <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-              <h6 class="f-w-600 f-s-16">${{ productcard.price }}</h6>
-              <span class="f-s-14 m-l-4 text-decoration-line-through"
-                >${{ productcard.rprice }}</span
-              >
+              <h6 class="f-w-600 f-s-16">{{ formatPrice(productcard.price) }}</h6>
+              @if (productcard.rprice) {
+                <span class="f-s-14 m-l-4 text-decoration-line-through">{{
+                  formatPrice(productcard.rprice)
+                }}</span>
+              }
             </div>
-            <div class="m-l-auto d-flex gap-4">
-              <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-              <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-              <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-              <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-              <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-            </div>
+          </div>
+          <div class="m-t-8 d-flex gap-4">
+            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
+            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
+            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
+            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
+            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
           </div>
         </mat-card-content>
       </mat-card>
