@@ -9,6 +9,7 @@ import alerteStockRoutes from './alerte-stock.routes.js';
 import notificationRoutes from './notification.routes.js';
 import boxTypeRoutes from './box-type.routes.js';
 import boxRoutes from './box.routes.js';
+import demandeLocationBoxRoutes from './demande-location-box.routes.js';
 
 const router = Router();
 
@@ -38,6 +39,7 @@ router.use('/alertes-stock', alerteStockRoutes);
 router.use('/notification', notificationRoutes);
 router.use('/box-types', boxTypeRoutes);
 router.use('/boxes', boxRoutes);
+router.use('/demandes-location-box', demandeLocationBoxRoutes);
 
 /**
  * @openapi

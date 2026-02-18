@@ -123,6 +123,21 @@ export class BoxService {
     return this.http.get<ApiResponse<BoxListResponse>>(url);
   }
 
+  listMyBoxes(params: BoxListQuery = {}): Observable<ApiResponse<BoxListResponse>> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.set('page', String(params.page));
+    if (params.limit) queryParams.set('limit', String(params.limit));
+    if (params.search) queryParams.set('search', params.search);
+    if (params.zone) queryParams.set('zone', params.zone);
+    if (params.etage !== undefined) queryParams.set('etage', String(params.etage));
+    if (params.typeId) queryParams.set('typeId', params.typeId);
+    if (params.estOccupe !== undefined) queryParams.set('estOccupe', String(params.estOccupe));
+
+    const suffix = queryParams.toString();
+    const url = suffix ? `${this.apiRootUrl}/boxes/me?${suffix}` : `${this.apiRootUrl}/boxes/me`;
+    return this.http.get<ApiResponse<BoxListResponse>>(url);
+  }
+
   getBoxById(id: string): Observable<ApiResponse<BoxEntity>> {
     return this.http.get<ApiResponse<BoxEntity>>(`${this.apiRootUrl}/boxes/${id}`);
   }

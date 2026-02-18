@@ -91,6 +91,24 @@ export const routes: Routes = [
             (m) => m.AppBoxAvailableComponent,
           ),
       },
+      {
+        path: 'boxes-demandes',
+        canActivate: [RoleGuard],
+        data: { roles: ['boutique'] },
+        loadComponent: () =>
+          import('./pages/boxes/box-demand-my-list/box-demand-my-list.component').then(
+            (m) => m.AppBoxDemandMyListComponent,
+          ),
+      },
+      {
+        path: 'boxes-mes',
+        canActivate: [RoleGuard],
+        data: { roles: ['boutique'] },
+        loadComponent: () =>
+          import('./pages/boxes/box-my-list/box-my-list.component').then(
+            (m) => m.AppBoxMyListComponent,
+          ),
+      },
     ],
   },
   {

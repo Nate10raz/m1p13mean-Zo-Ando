@@ -2,8 +2,8 @@
   <mat-card-content>
     <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between">
       <div>
-        <mat-card-title>Boxes disponibles</mat-card-title>
-        <mat-card-subtitle>Selectionnez une box disponible.</mat-card-subtitle>
+        <mat-card-title>Mes boxes</mat-card-title>
+        <mat-card-subtitle>Boxes associees a votre boutique.</mat-card-subtitle>
       </div>
     </div>
 
@@ -37,6 +37,15 @@
           }
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Statut</mat-label>
+        <mat-select [formControl]="statusControl">
+          <mat-option value="all">Tous</mat-option>
+          <mat-option value="occupied">Occupee</mat-option>
+          <mat-option value="free">Disponible</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
     @if (isLoading) {
@@ -44,7 +53,7 @@
     } @else if (errorMessage) {
       <div class="p-16 text-error">{{ errorMessage }}</div>
     } @else if (!dataSource.length) {
-      <div class="p-16 text-muted">Aucune box disponible.</div>
+      <div class="p-16 text-muted">Aucune box trouvee.</div>
     } @else {
       <div class="table-responsive">
         <table mat-table [dataSource]="dataSource" [trackBy]="trackByBoxId" class="w-100">
@@ -79,21 +88,25 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="statut">
+            <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-14">Statut</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.estOccupe) {
+                <span class="bg-light-error text-error rounded f-w-600 p-6 p-y-4 f-s-12">Occupee</span>
+              } @else {
+                <span class="bg-light-success text-success rounded f-w-600 p-6 p-y-4 f-s-12">
+                  Disponible
+                </span>
+              }
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-14"></th>
             <td mat-cell *matCellDef="let element">
-              <div class="d-flex align-items-center gap-8">
-                <button mat-icon-button aria-label="Voir box" (click)="openDetails(element)">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  aria-label="Demander loyer"
-                  (click)="openRentRequest(element)"
-                >
-                  <mat-icon>request_quote</mat-icon>
-                </button>
-              </div>
+              <button mat-icon-button aria-label="Voir box" (click)="openDetails(element)">
+                <mat-icon>visibility</mat-icon>
+              </button>
             </td>
           </ng-container>
 

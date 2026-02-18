@@ -5,6 +5,7 @@ import {
   updateBoxTarifController,
   listBoxesController,
   listAvailableBoxesController,
+  listMyBoxesController,
   getBoxController,
   updateBoxController,
   deleteBoxController,
@@ -99,6 +100,23 @@ router.get(
   ],
   validateRequest,
   listAvailableBoxesController,
+);
+
+router.get(
+  '/me',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    query('search').optional().isString().trim().isLength({ min: 1 }),
+    query('zone').optional().isString().trim().isLength({ min: 1 }),
+    query('etage').optional().isInt().toInt(),
+    query('typeId').optional().isMongoId().withMessage('typeId invalide'),
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 200 }).toInt(),
+    query('estOccupe').optional().isBoolean().toBoolean(),
+  ],
+  validateRequest,
+  listMyBoxesController,
 );
 
 router.get(
@@ -241,6 +259,37 @@ router.delete(
  *         schema: { type: integer, minimum: 1, maximum: 200 }
  *     responses:
  *       200: { description: Liste des boxes disponibles }
+ *
+ * /boxes/me:
+ *   get:
+ *     tags: [Box]
+ *     summary: Lister les boxes de ma boutique (boutique)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *       - in: query
+ *         name: zone
+ *         schema: { type: string }
+ *       - in: query
+ *         name: etage
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: typeId
+ *         schema: { type: string }
+ *       - in: query
+ *         name: estOccupe
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, minimum: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 200 }
+ *     responses:
+ *       200: { description: Mes boxes }
  *
  * /boxes/{id}:
  *   get:
