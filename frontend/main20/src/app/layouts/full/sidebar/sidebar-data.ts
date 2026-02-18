@@ -51,6 +51,12 @@ export const navItems: NavItem[] = [
     roles: ['admin'],
   },
   {
+    displayName: 'Demandes de location',
+    iconName: 'list-details',
+    route: '/boxes/demandes',
+    roles: ['admin'],
+  },
+  {
     displayName: 'Creer une box',
     iconName: 'package',
     route: '/boxes/nouveau',
@@ -70,6 +76,18 @@ export const navItems: NavItem[] = [
     displayName: 'Boxes disponibles',
     iconName: 'package',
     route: '/boxes-disponibles',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Mes boxes',
+    iconName: 'list-details',
+    route: '/boxes-mes',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Mes demandes',
+    iconName: 'list-details',
+    route: '/boxes-demandes',
     roles: ['boutique'],
   },
   {

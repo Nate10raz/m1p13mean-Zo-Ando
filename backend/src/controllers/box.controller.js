@@ -5,6 +5,7 @@ import {
   updateBox,
   deleteBox,
   listAvailableBoxesForBoutique,
+  listBoxesForBoutique,
 } from '../services/box.service.js';
 import { createBox } from '../services/box-create.service.js';
 import { apiResponse } from '../utils/response.util.js';
@@ -89,6 +90,32 @@ export const listAvailableBoxesController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Liste des boxes disponibles',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listMyBoxesController = async (req, res, next) => {
+  try {
+    const result = await listBoxesForBoutique(
+      { userId: req.user?.id, role: req.user?.role },
+      {
+        page: req.query.page,
+        limit: req.query.limit,
+        search: req.query.search,
+        estOccupe: req.query.estOccupe,
+        zone: req.query.zone,
+        etage: req.query.etage,
+        typeId: req.query.typeId,
+      },
+    );
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Mes boxes',
       data: result,
     });
   } catch (error) {

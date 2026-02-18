@@ -20,14 +20,21 @@ const demandeLocationBoxSchema = new mongoose.Schema({
   adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   dateValidation: Date,
   motif: String,
+  historique: [
+    {
+      status: { type: String, enum: ['validee', 'rejetee'] },
+      commentaire: { type: String, required: true },
+      adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ],
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-demandeLocationBoxSchema.pre('save', function (next) {
+demandeLocationBoxSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
 export default mongoose.model('DemandeLocationBox', demandeLocationBoxSchema);

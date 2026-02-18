@@ -1,23 +1,20 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   catchError,
   combineLatest,
   debounceTime,
   distinctUntilChanged,
-  finalize,
   map,
   merge,
   of,
@@ -33,7 +30,7 @@ import {
 import { MaterialModule } from '../../../material.module';
 import { BoxEntity, BoxService } from 'src/app/services/box.service';
 import { BoxTypeEntity, BoxTypeService } from 'src/app/services/box-type.service';
-import { DemandeLocationBoxService } from 'src/app/services/demande-location-box.service';
+import { Inject } from '@angular/core';
 
 interface BoxRow {
   id: number;
@@ -44,11 +41,12 @@ interface BoxRow {
   superficie: number;
   typeLabel: string;
   tarifLabel: string;
+  estOccupe: boolean;
   raw: BoxEntity;
 }
 
 @Component({
-  selector: 'app-box-available',
+  selector: 'app-box-my-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -57,11 +55,11 @@ interface BoxRow {
     MatTableModule,
     MatPaginatorModule,
   ],
-  templateUrl: './box-available.component.html',
+  templateUrl: './box-my-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppBoxAvailableComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['box', 'type', 'superficie', 'tarif', 'actions'];
+export class AppBoxMyListComponent implements OnInit, OnDestroy {
+  displayedColumns: string[] = ['box', 'type', 'superficie', 'tarif', 'statut', 'actions'];
   dataSource: BoxRow[] = [];
   isLoading = false;
   errorMessage = '';
@@ -76,6 +74,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
   zoneControl = new FormControl('', { nonNullable: true });
   etageControl = new FormControl<number | null>(null);
   typeControl = new FormControl<string>('all', { nonNullable: true });
+  statusControl = new FormControl<'all' | 'occupied' | 'free'>('all', { nonNullable: true });
 
   private readonly subscriptions = new Subscription();
   private readonly pageChange$ = new Subject<{ page: number; limit: number }>();
@@ -111,15 +110,17 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
     );
 
     const type$ = this.typeControl.valueChanges.pipe(startWith(this.typeControl.value));
+    const status$ = this.statusControl.valueChanges.pipe(startWith(this.statusControl.value));
 
-    const filters$ = combineLatest([search$, zone$, etage$, type$]).pipe(
-      map(([search, zone, etage, typeId]) => ({ search, zone, etage, typeId })),
+    const filters$ = combineLatest([search$, zone$, etage$, type$, status$]).pipe(
+      map(([search, zone, etage, typeId, status]) => ({ search, zone, etage, typeId, status })),
       distinctUntilChanged(
         (prev, curr) =>
           prev.search === curr.search &&
           prev.zone === curr.zone &&
           prev.etage === curr.etage &&
-          prev.typeId === curr.typeId,
+          prev.typeId === curr.typeId &&
+          prev.status === curr.status,
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -144,13 +145,15 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
       }),
       switchMap((query) =>
         this.boxService
-          .listAvailableBoxes({
+          .listMyBoxes({
             page: query.page,
             limit: query.limit,
             search: query.search.length ? query.search : undefined,
             zone: query.zone.length ? query.zone : undefined,
             etage: this.parseEtage(query.etage),
             typeId: query.typeId === 'all' ? undefined : query.typeId,
+            estOccupe:
+              query.status === 'all' ? undefined : query.status === 'occupied' ? true : false,
           })
           .pipe(
             map((response) => ({ response, error: null as unknown })),
@@ -164,7 +167,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
         this.isLoading = false;
 
         if (!response || error) {
-          this.errorMessage = error?.error?.message ?? 'Impossible de charger les boxes disponibles.';
+          this.errorMessage = error?.error?.message ?? 'Impossible de charger vos boxes.';
           this.dataSource = [];
           this.total = 0;
           this.cdr.markForCheck();
@@ -190,18 +193,10 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
   }
 
   openDetails(row: BoxRow): void {
-    this.dialog.open(BoxAvailableDetailDialogComponent, {
+    this.dialog.open(BoxMyDetailDialogComponent, {
       width: '900px',
       maxWidth: '98vw',
       data: row.raw,
-    });
-  }
-
-  openRentRequest(row: BoxRow): void {
-    this.dialog.open(BoxRentRequestDialogComponent, {
-      width: '420px',
-      maxWidth: '95vw',
-      data: { box: row.raw },
     });
   }
 
@@ -218,7 +213,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
   }
 
   formatTarif(value: BoxEntity['tarifActuel']): string {
-    if (!value?.montant) {
+    if (value?.montant === null || value?.montant === undefined) {
       return '-';
     }
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(
@@ -265,6 +260,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
       superficie: item.superficie,
       typeLabel,
       tarifLabel: this.formatTarif(item.tarifActuel),
+      estOccupe: Boolean(item.estOccupe),
       raw: item,
     };
   }
@@ -286,7 +282,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
 }
 
 @Component({
-  selector: 'app-box-available-detail-dialog',
+  selector: 'app-box-my-detail-dialog',
   imports: [CommonModule, MaterialModule],
   template: `
     <div mat-dialog-title class="dialog-title">
@@ -372,9 +368,6 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
       </div>
     </div>
     <div mat-dialog-actions align="end">
-      <button mat-flat-button color="primary" (click)="openRentRequest()">
-        Demander loyer
-      </button>
       <button mat-button (click)="onClose()">Fermer</button>
     </div>
   `,
@@ -534,13 +527,12 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
     `,
   ],
 })
-export class BoxAvailableDetailDialogComponent {
+export class BoxMyDetailDialogComponent {
   activeImageUrl = '';
 
   constructor(
-    private dialogRef: MatDialogRef<BoxAvailableDetailDialogComponent>,
+    private dialogRef: MatDialogRef<BoxMyDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: BoxEntity,
-    private dialog: MatDialog,
   ) {
     const photos = data.photos ?? [];
     this.activeImageUrl = photos[0] ?? '';
@@ -548,14 +540,6 @@ export class BoxAvailableDetailDialogComponent {
 
   onClose(): void {
     this.dialogRef.close();
-  }
-
-  openRentRequest(): void {
-    this.dialog.open(BoxRentRequestDialogComponent, {
-      width: '420px',
-      maxWidth: '95vw',
-      data: { box: this.data },
-    });
   }
 
   selectImage(url: string): void {
@@ -571,7 +555,7 @@ export class BoxAvailableDetailDialogComponent {
   }
 
   formatTarif(value: BoxEntity['tarifActuel']): string {
-    if (!value?.montant) {
+    if (value?.montant === null || value?.montant === undefined) {
       return '-';
     }
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(
@@ -597,120 +581,5 @@ export class BoxAvailableDetailDialogComponent {
       dateStyle: 'medium',
       timeStyle: 'short',
     }).format(parsed);
-  }
-}
-
-@Component({
-  selector: 'app-box-rent-request-dialog',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
-  template: `
-    <div mat-dialog-title class="dialog-title">
-      Demande de location
-    </div>
-    <div mat-dialog-content>
-      <div class="text-muted m-b-12">
-        Box {{ data.box.numero }} · Zone {{ data.box.zone }} · Etage {{ data.box.etage }}
-      </div>
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Date debut</mat-label>
-        <input matInput type="datetime-local" [formControl]="dateDebutControl" />
-        @if (dateDebutControl.hasError('required')) {
-          <mat-error>Date debut requise.</mat-error>
-        }
-      </mat-form-field>
-      @if (serverError) {
-        <div class="text-error m-t-8">{{ serverError }}</div>
-      }
-    </div>
-    <div mat-dialog-actions align="end">
-      <button mat-stroked-button type="button" (click)="onClose()" [disabled]="isSubmitting">
-        Annuler
-      </button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        (click)="submit()"
-        [disabled]="isSubmitting || dateDebutControl.invalid"
-      >
-        {{ isSubmitting ? 'Envoi...' : 'Envoyer' }}
-      </button>
-    </div>
-  `,
-  styles: [
-    `
-      .dialog-title {
-        font-weight: 600;
-      }
-
-      .text-muted {
-        color: #6b7280;
-      }
-    `,
-  ],
-})
-export class BoxRentRequestDialogComponent {
-  isSubmitting = false;
-  serverError = '';
-  dateDebutControl = new FormControl('', { nonNullable: true, validators: [Validators.required] });
-
-  constructor(
-    private dialogRef: MatDialogRef<BoxRentRequestDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { box: BoxEntity },
-    private demandeService: DemandeLocationBoxService,
-    private snackBar: MatSnackBar,
-  ) {}
-
-  onClose(): void {
-    this.dialogRef.close();
-  }
-
-  submit(): void {
-    if (this.dateDebutControl.invalid) {
-      this.dateDebutControl.markAsTouched();
-      return;
-    }
-
-    const dateDebut = this.toIsoDate(this.dateDebutControl.value);
-    if (!dateDebut) {
-      this.serverError = 'Date debut requise.';
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.serverError = '';
-
-    this.demandeService
-      .createDemande({
-        boxId: this.data.box._id,
-        dateDebut,
-      })
-      .pipe(
-        finalize(() => {
-          this.isSubmitting = false;
-        }),
-      )
-      .subscribe({
-        next: (response) => {
-          const message = response?.message ?? 'Demande envoyee.';
-          this.snackBar.open(message, 'Fermer', { duration: 4000 });
-          this.dialogRef.close(true);
-        },
-        error: (error) => {
-          this.serverError = error?.error?.message ?? 'Demande impossible.';
-        },
-      });
-  }
-
-  private toIsoDate(value: string | null | undefined): string {
-    const normalized = (value ?? '').toString().trim();
-    if (!normalized) {
-      return '';
-    }
-    const parsed = new Date(normalized);
-    if (Number.isNaN(parsed.getTime())) {
-      return normalized;
-    }
-    return parsed.toISOString();
   }
 }

@@ -95,8 +95,9 @@ const queryBoxes = async ({
   zone,
   etage,
   typeId,
+  baseFilter,
 } = {}) => {
-  const filter = {};
+  const filter = { ...(baseFilter || {}) };
   const normalizedEstOccupe =
     typeof estOccupe === 'boolean'
       ? estOccupe
@@ -190,6 +191,31 @@ export const listAvailableBoxesForBoutique = async (
     etage,
     typeId,
     estOccupe: false,
+  });
+};
+
+export const listBoxesForBoutique = async (
+  auth,
+  { page = 1, limit = 20, search, estOccupe, zone, etage, typeId } = {},
+) => {
+  if (!auth || auth.role !== 'boutique') {
+    throw createError('Forbidden', 403);
+  }
+
+  const user = await User.findById(auth.userId).lean();
+  if (!user || !user.boutiqueId) {
+    throw createError('Boutique utilisateur introuvable', 404);
+  }
+
+  return queryBoxes({
+    page,
+    limit,
+    search,
+    estOccupe,
+    zone,
+    etage,
+    typeId,
+    baseFilter: { boutiqueId: user.boutiqueId },
   });
 };
 
