@@ -30,6 +30,9 @@ export interface ProductCreateResponse {
     quantite: number;
     seuilAlerte: number;
   };
+  noteMoyenne?: number;
+  nombreAvis?: number;
+  publishedAt?: string;
   estActif?: boolean;
   images?: Array<{
     url: string;
@@ -55,6 +58,10 @@ export interface ProductListQuery {
   limit?: number;
   search?: string;
   estActif?: boolean;
+  categorieId?: string;
+  minPrix?: number;
+  maxPrix?: number;
+  sort?: string;
 }
 
 @Injectable({
@@ -138,6 +145,10 @@ export class ProductService {
     if (params.limit) queryParams.set('limit', String(params.limit));
     if (params.search) queryParams.set('search', params.search);
     if (params.estActif !== undefined) queryParams.set('estActif', String(params.estActif));
+    if (params.categorieId) queryParams.set('categorieId', params.categorieId);
+    if (params.minPrix !== undefined) queryParams.set('minPrix', String(params.minPrix));
+    if (params.maxPrix !== undefined) queryParams.set('maxPrix', String(params.maxPrix));
+    if (params.sort) queryParams.set('sort', params.sort);
 
     const suffix = queryParams.toString();
     const url = suffix ? `${this.apiRootUrl}/produits?${suffix}` : `${this.apiRootUrl}/produits`;

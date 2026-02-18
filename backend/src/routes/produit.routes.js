@@ -75,12 +75,19 @@ router.post(
 router.get(
   '/',
   requireAuth,
-  requireRole('admin', 'boutique'),
+  requireRole('admin', 'boutique', 'client'),
   [
     query('search').optional().isString().trim().isLength({ min: 1 }),
     query('page').optional().isInt({ min: 1 }).toInt(),
     query('limit').optional().isInt({ min: 1, max: 200 }).toInt(),
     query('estActif').optional().isBoolean().toBoolean(),
+    query('categorieId').optional().isMongoId().withMessage('categorieId invalide'),
+    query('minPrix').optional().isFloat({ min: 0 }).toFloat(),
+    query('maxPrix').optional().isFloat({ min: 0 }).toFloat(),
+    query('sort')
+      .optional()
+      .isIn(['name-asc', 'name-desc', 'price-asc', 'price-desc', 'created-asc', 'created-desc'])
+      .withMessage('sort invalide'),
   ],
   validateRequest,
   listProduitsController,
@@ -111,7 +118,7 @@ router.patch(
 router.get(
   '/:id',
   requireAuth,
-  requireRole('admin', 'boutique'),
+  requireRole('admin', 'boutique', 'client'),
   [param('id').isMongoId().withMessage('Id produit invalide')],
   validateRequest,
   getProduitController,
@@ -186,6 +193,9 @@ router.patch(
  *   get:
  *     tags: [Produits]
  *     summary: Lister les produits
+ *     description: >
+ *       Pour le role `client`, la reponse est filtree (pas de stock, SKU,
+ *       statut, boutiqueId brut, etc.).
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -195,6 +205,20 @@ router.patch(
  *       - in: query
  *         name: estActif
  *         schema: { type: boolean }
+ *       - in: query
+ *         name: categorieId
+ *         schema: { type: string }
+ *       - in: query
+ *         name: minPrix
+ *         schema: { type: number, minimum: 0 }
+ *       - in: query
+ *         name: maxPrix
+ *         schema: { type: number, minimum: 0 }
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [name-asc, name-desc, price-asc, price-desc, created-asc, created-desc]
  *       - in: query
  *         name: page
  *         schema: { type: integer, minimum: 1 }
@@ -212,6 +236,9 @@ router.patch(
  *   get:
  *     tags: [Produits]
  *     summary: Recuperer un produit
+ *     description: >
+ *       Pour le role `client`, la reponse est filtree (pas de stock, SKU,
+ *       statut, boutiqueId brut, etc.).
  *     security:
  *       - bearerAuth: []
  *     parameters:

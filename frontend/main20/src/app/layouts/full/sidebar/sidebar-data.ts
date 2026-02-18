@@ -5,9 +5,16 @@ export const navItems: NavItem[] = [
     navCap: 'Home',
   },
   {
+    displayName: 'Accueil',
+    iconName: 'home',
+    route: '/accueil',
+    roles: ['client'],
+  },
+  {
     displayName: 'Dashboard',
     iconName: 'layout-grid-add',
     route: '/dashboard',
+    roles: ['admin', 'boutique'],
   },
   {
     navCap: 'Administration',

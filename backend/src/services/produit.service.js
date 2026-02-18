@@ -143,8 +143,33 @@ export const createProduit = async (payload, auth) => {
   return produit.toObject();
 };
 
+const sanitizeProduitForClient = (produit) => {
+  if (!produit) return produit;
+
+  return {
+    _id: produit._id,
+    titre: produit.titre,
+    slug: produit.slug,
+    description: produit.description,
+    descriptionCourte: produit.descriptionCourte,
+    categorieId: produit.categorieId,
+    sousCategoriesIds: produit.sousCategoriesIds,
+    tags: produit.tags,
+    images: produit.images,
+    hasVariations: produit.hasVariations,
+    attributs: produit.attributs,
+    prixBaseActuel: produit.prixBaseActuel,
+    noteMoyenne: produit.noteMoyenne,
+    nombreAvis: produit.nombreAvis,
+    createdAt: produit.createdAt,
+    updatedAt: produit.updatedAt,
+    publishedAt: produit.publishedAt,
+    boutique: produit.boutique,
+  };
+};
+
 export const getProduitById = async (productId, auth) => {
-  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+  if (!auth || !['admin', 'boutique', 'client'].includes(auth.role)) {
     throw createError('Forbidden', 403);
   }
 
@@ -172,7 +197,7 @@ export const getProduitById = async (productId, auth) => {
         }
       : undefined;
 
-  return {
+  const response = {
     ...produit,
     boutiqueId:
       produit.boutiqueId && typeof produit.boutiqueId === 'object'
@@ -180,10 +205,19 @@ export const getProduitById = async (productId, auth) => {
         : produit.boutiqueId,
     boutique,
   };
+
+  if (auth.role === 'client') {
+    return sanitizeProduitForClient(response);
+  }
+
+  return response;
 };
 
-export const listProduits = async (auth, { page = 1, limit = 20, search, estActif } = {}) => {
-  if (!auth || !['admin', 'boutique'].includes(auth.role)) {
+export const listProduits = async (
+  auth,
+  { page = 1, limit = 20, search, estActif, categorieId, minPrix, maxPrix, sort } = {},
+) => {
+  if (!auth || !['admin', 'boutique', 'client'].includes(auth.role)) {
     throw createError('Forbidden', 403);
   }
 
@@ -201,9 +235,56 @@ export const listProduits = async (auth, { page = 1, limit = 20, search, estActi
     filter.estActif = estActif;
   }
 
+  if (categorieId) {
+    filter.categorieId = categorieId;
+  }
+
+  const parsedMinPrix = normalizeNumber(minPrix);
+  const parsedMaxPrix = normalizeNumber(maxPrix);
+  let resolvedMin = parsedMinPrix;
+  let resolvedMax = parsedMaxPrix;
+
+  if (resolvedMin !== undefined && resolvedMax !== undefined && resolvedMax < resolvedMin) {
+    [resolvedMin, resolvedMax] = [resolvedMax, resolvedMin];
+  }
+
+  if (resolvedMin !== undefined || resolvedMax !== undefined) {
+    filter.prixBaseActuel = {};
+    if (resolvedMin !== undefined) {
+      filter.prixBaseActuel.$gte = resolvedMin;
+    }
+    if (resolvedMax !== undefined) {
+      filter.prixBaseActuel.$lte = resolvedMax;
+    }
+  }
+
   if (search) {
     const regex = new RegExp(escapeRegex(search), 'i');
     filter.$or = [{ titre: regex }, { slug: regex }];
+  }
+
+  let sortSpec = { createdAt: -1 };
+  switch (sort) {
+    case 'name-asc':
+      sortSpec = { titre: 1 };
+      break;
+    case 'name-desc':
+      sortSpec = { titre: -1 };
+      break;
+    case 'price-asc':
+      sortSpec = { prixBaseActuel: 1 };
+      break;
+    case 'price-desc':
+      sortSpec = { prixBaseActuel: -1 };
+      break;
+    case 'created-asc':
+      sortSpec = { createdAt: 1 };
+      break;
+    case 'created-desc':
+      sortSpec = { createdAt: -1 };
+      break;
+    default:
+      break;
   }
 
   const parsedPage = Math.max(1, parseInt(page, 10) || 1);
@@ -211,15 +292,18 @@ export const listProduits = async (auth, { page = 1, limit = 20, search, estActi
 
   const [items, total] = await Promise.all([
     Produit.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sortSpec)
       .skip((parsedPage - 1) * parsedLimit)
       .limit(parsedLimit)
       .lean(),
     Produit.countDocuments(filter),
   ]);
 
+  const sanitizedItems =
+    auth.role === 'client' ? items.map((item) => sanitizeProduitForClient(item)) : items;
+
   return {
-    items,
+    items: sanitizedItems,
     page: parsedPage,
     limit: parsedLimit,
     total,

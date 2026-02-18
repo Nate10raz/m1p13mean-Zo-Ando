@@ -28,7 +28,7 @@ describe('AppSideLoginComponent', () => {
     fixture.detectChanges();
   });
 
-  it('submits a valid form and navigates to dashboard', () => {
+  it('submits a valid form and navigates to accueil for clients', () => {
     authServiceSpy.login.and.returnValue(
       of({
         route: '/auth/login',
@@ -73,7 +73,7 @@ describe('AppSideLoginComponent', () => {
       password: 'secret123',
     });
     expect(componentSnackBar.open).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/accueil']);
     expect(component.isSubmitting).toBeFalse();
     expect(component.serverError).toBe('');
   });
