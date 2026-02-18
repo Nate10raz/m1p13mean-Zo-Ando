@@ -1,0 +1,181 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between">
+      <div>
+        <mat-card-title>Creation d'une box</mat-card-title>
+        <mat-card-subtitle>Renseignez les informations de la box a louer.</mat-card-subtitle>
+      </div>
+      <button mat-stroked-button type="button" (click)="resetForm()" [disabled]="isSubmitting">
+        Reinitialiser
+      </button>
+    </div>
+
+    <form class="m-t-16" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="section-title">Champs obligatoires</div>
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Numero</mat-label>
+          <input matInput formControlName="numero" placeholder="Ex: A-12" />
+          @if (form.get('numero')?.hasError('required')) {
+            <mat-error>Numero requis.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Etage</mat-label>
+          <input matInput type="number" step="1" formControlName="etage" />
+          @if (form.get('etage')?.hasError('required')) {
+            <mat-error>Etage requis.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Zone</mat-label>
+          <input matInput formControlName="zone" placeholder="Ex: Zone Est" />
+          @if (form.get('zone')?.hasError('required')) {
+            <mat-error>Zone requise.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex flex-wrap gap-16 m-t-8">
+        <mat-form-field appearance="outline">
+          <mat-label>Superficie (m2)</mat-label>
+          <input matInput type="number" step="0.01" min="0" formControlName="superficie" />
+          @if (form.get('superficie')?.hasError('required')) {
+            <mat-error>Superficie requise.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Type de box</mat-label>
+          <mat-select formControlName="typeId" [disabled]="isLoadingTypes">
+            @for (type of boxTypes; track type._id) {
+              <mat-option [value]="type._id">{{ type.nom }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get('typeId')?.hasError('required')) {
+            <mat-error>Type requis.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="section-title">Tarif (obligatoire)</div>
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline">
+          <mat-label>Montant</mat-label>
+          <input matInput type="number" step="0.01" min="0" formControlName="montant" />
+          @if (form.get('montant')?.hasError('required')) {
+            <mat-error>Montant requis.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Unite</mat-label>
+          <mat-select formControlName="unite">
+            <mat-option value="mois">Mois</mat-option>
+            <mat-option value="annee">Annee</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Date debut</mat-label>
+          <input matInput type="datetime-local" formControlName="dateDebut" />
+          @if (form.get('dateDebut')?.hasError('required')) {
+            <mat-error>Date debut requise.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="section-title">Champs optionnels</div>
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Allee</mat-label>
+          <input matInput formControlName="allee" placeholder="Ex: A" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Position</mat-label>
+          <input matInput formControlName="position" placeholder="Ex: Couloir nord" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100 m-t-8">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 m-t-8">
+        <mat-label>Raison (historique de prix)</mat-label>
+        <textarea
+          matInput
+          rows="2"
+          formControlName="raison"
+          placeholder="Ex: ouverture de la zone"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="section-title">Caracteristiques (optionnel)</div>
+      <div class="inline-actions">
+        <button mat-stroked-button type="button" (click)="addCaracteristique()">
+          Ajouter une caracteristique
+        </button>
+      </div>
+
+      @if (caracteristiques.length === 0) {
+        <div class="empty-state">Aucune caracteristique ajoutee.</div>
+      } @else {
+        @for (item of caracteristiques.controls; track trackByIndex($index)) {
+          <div class="row-item" [formGroup]="asFormGroup(item)">
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="nom" placeholder="Ex: Hauteur" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Valeur</mat-label>
+              <input matInput formControlName="valeur" placeholder="Ex: 2m" />
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removeCaracteristique($index)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      }
+
+      <div class="section-title">Photos (URL, optionnel)</div>
+      <div class="inline-actions">
+        <button mat-stroked-button type="button" (click)="addPhoto()">Ajouter une photo</button>
+      </div>
+
+      @if (photos.length === 0) {
+        <div class="empty-state">Aucune photo ajoutee.</div>
+      } @else {
+        @for (photoCtrl of photos.controls; track trackByIndex($index)) {
+          <div class="row-item">
+            <mat-form-field appearance="outline" class="flex-grow-1">
+              <mat-label>URL</mat-label>
+              <input matInput [formControl]="asFormControl(photoCtrl)" placeholder="https://..." />
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removePhoto($index)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      }
+
+      <div class="d-flex flex-wrap gap-12 m-t-24">
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Creation...' : 'Creer la box' }}
+        </button>
+      </div>
+
+      @if (serverError) {
+        <div class="text-error m-t-12">{{ serverError }}</div>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>

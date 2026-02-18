@@ -203,6 +203,7 @@ export const updateProduitStockAlertController = async (req, res, next) => {
       req.params.id,
       {
         seuilAlerte: req.body.seuilAlerte,
+        variationId: req.body.variationId,
       },
       {
         userId: req.user?.id,

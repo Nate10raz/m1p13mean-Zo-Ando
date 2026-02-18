@@ -2,6 +2,9 @@ import mongoose from 'mongoose';
 import Produit from '../models/Produit.js';
 import Boutique from '../models/Boutique.js';
 import User from '../models/User.js';
+import AlerteStock from '../models/AlerteStock.js';
+import { createNotification } from './notification.service.js';
+import VariationProduit from '../models/VariationProduit.js';
 import cloudinary from '../config/cloudinary.js';
 import { ENV } from '../config/env.js';
 
@@ -69,6 +72,61 @@ const normalizeNumber = (value) => {
 };
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const triggerStockAlertIfNeeded = async ({
+  produitId,
+  boutiqueId,
+  variationId = null,
+  stockBefore,
+  stockAfter,
+  produitTitre,
+}) => {
+  if (stockAfter === undefined || stockAfter === null) {
+    return;
+  }
+
+  const alerte = await AlerteStock.findOne({
+    boutiqueId,
+    produitId,
+    variationId: variationId ?? null,
+    estActif: true,
+  }).lean();
+
+  if (!alerte) {
+    return;
+  }
+
+  if (stockAfter > alerte.seuil) {
+    return;
+  }
+
+  if (stockBefore !== undefined && stockBefore !== null && stockBefore <= alerte.seuil) {
+    return;
+  }
+
+  const boutique = await Boutique.findById(boutiqueId).select('userId nom').lean();
+  if (!boutique || !boutique.userId) {
+    return;
+  }
+
+  const variationSuffix = variationId ? ' (variation)' : '';
+  const message = `Stock bas pour ${produitTitre || 'produit'}${variationSuffix}. Seuil ${alerte.seuil}, stock ${stockAfter}.`;
+
+  await createNotification({
+    userId: boutique.userId,
+    type: 'stock_alert',
+    channel: 'in_app',
+    titre: 'Alerte stock',
+    message,
+    data: {
+      produitId,
+      boutiqueId,
+      variationId,
+    },
+  });
+
+  await AlerteStock.updateOne({ _id: alerte._id }, { $set: { dernierDeclenchement: new Date() } });
+};
 
 const resolveBoutiqueId = async (payload, auth) => {
   let boutiqueId = payload.boutiqueId;
@@ -412,7 +470,7 @@ export const updateProduitStockAlert = async (productId, payload, auth) => {
     throw createError('Forbidden', 403);
   }
 
-  const produit = await Produit.findById(productId);
+  const produit = await Produit.findById(productId).lean();
   if (!produit) {
     throw createError('Produit introuvable', 404);
   }
@@ -435,14 +493,41 @@ export const updateProduitStockAlert = async (productId, payload, auth) => {
     throw createError('seuilAlerte invalide', 400);
   }
 
-  const stock = produit.stock && typeof produit.stock === 'object' ? produit.stock : {};
-  produit.stock = {
-    ...stock,
-    seuilAlerte,
+  let variationId = payload?.variationId ?? null;
+  if (variationId) {
+    if (!mongoose.Types.ObjectId.isValid(variationId)) {
+      throw createError('variationId invalide', 400);
+    }
+    const variation = await VariationProduit.findOne({
+      _id: variationId,
+      produitId: produit._id,
+    })
+      .select('_id')
+      .lean();
+    if (!variation) {
+      throw createError('Variation introuvable', 404);
+    }
+    variationId = variation._id;
+  }
+
+  const filter = {
+    boutiqueId: produit.boutiqueId,
+    produitId: produit._id,
+    variationId: variationId ?? null,
   };
 
-  await produit.save();
-  return produit.toObject();
+  const alerte = await AlerteStock.findOneAndUpdate(
+    filter,
+    {
+      $set: {
+        seuil: seuilAlerte,
+        estActif: true,
+      },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  );
+
+  return alerte.toObject();
 };
 
 export const updateProduitStockAlertBulk = async (payload, auth) => {
@@ -493,13 +578,34 @@ export const updateProduitStockAlertBulk = async (payload, auth) => {
     filter.boutiqueId = user.boutiqueId;
   }
 
-  const result = await Produit.updateMany(filter, {
-    $set: { 'stock.seuilAlerte': seuilAlerte },
-  });
+  const produits = await Produit.find(filter).select('_id boutiqueId').lean();
+  if (!produits.length) {
+    return { matchedCount: 0, modifiedCount: 0, upsertedCount: 0 };
+  }
+
+  const ops = produits.map((produit) => ({
+    updateOne: {
+      filter: {
+        boutiqueId: produit.boutiqueId,
+        produitId: produit._id,
+        variationId: null,
+      },
+      update: {
+        $set: {
+          seuil: seuilAlerte,
+          estActif: true,
+        },
+      },
+      upsert: true,
+    },
+  }));
+
+  const result = await AlerteStock.bulkWrite(ops, { ordered: false });
 
   return {
-    matchedCount: result.matchedCount ?? result.n ?? 0,
+    matchedCount: result.matchedCount ?? result.nMatched ?? 0,
     modifiedCount: result.modifiedCount ?? result.nModified ?? 0,
+    upsertedCount: result.upsertedCount ?? result.nUpserted ?? 0,
   };
 };
 
@@ -579,8 +685,18 @@ export const updateProduit = async (productId, payload, auth) => {
     produit.prixBaseActuel = normalizeNumber(payload.prixBaseActuel);
   }
 
+  const stockBefore =
+    produit.stock && typeof produit.stock === 'object' ? produit.stock.quantite : undefined;
+
   if (payload.stock !== undefined) {
-    produit.stock = normalizeObject(payload.stock) || undefined;
+    const stockInput = normalizeObject(payload.stock);
+    if (!stockInput) {
+      throw createError('stock invalide', 400);
+    }
+    const currentStock = produit.stock && typeof produit.stock === 'object' ? produit.stock : {};
+    const merged = { ...currentStock, ...stockInput };
+    delete merged.seuilAlerte;
+    produit.stock = merged;
   }
 
   if (payload.hasVariations !== undefined) {
@@ -623,5 +739,24 @@ export const updateProduit = async (productId, payload, auth) => {
   }
 
   await produit.save();
+
+  if (payload.stock !== undefined) {
+    const stockAfter =
+      produit.stock && typeof produit.stock === 'object' ? produit.stock.quantite : undefined;
+    if (stockAfter !== stockBefore) {
+      try {
+        await triggerStockAlertIfNeeded({
+          produitId: produit._id,
+          boutiqueId: produit.boutiqueId,
+          stockBefore,
+          stockAfter,
+          produitTitre: produit.titre,
+        });
+      } catch (error) {
+        console.error('Stock alert trigger failed:', error);
+      }
+    }
+  }
+
   return produit.toObject();
 };

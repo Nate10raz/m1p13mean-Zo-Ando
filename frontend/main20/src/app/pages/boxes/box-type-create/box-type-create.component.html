@@ -1,0 +1,74 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between">
+      <div>
+        <mat-card-title>Creation d'un type de box</mat-card-title>
+        <mat-card-subtitle>Definissez les caracteristiques du type de box.</mat-card-subtitle>
+      </div>
+      <button mat-stroked-button type="button" (click)="resetForm()" [disabled]="isSubmitting">
+        Reinitialiser
+      </button>
+    </div>
+
+    <form class="m-t-16" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="nom" placeholder="Ex: Box premium" />
+          @if (form.get('nom')?.hasError('required')) {
+            <mat-error>Nom requis.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="estActif">Actif</mat-slide-toggle>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100 m-t-8">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+
+      <div class="section-title">Caracteristiques</div>
+      <div class="inline-actions">
+        <button mat-stroked-button type="button" (click)="addCaracteristique()">
+          Ajouter une caracteristique
+        </button>
+      </div>
+
+      @if (caracteristiques.length === 0) {
+        <div class="empty-state">Aucune caracteristique ajoutee.</div>
+      } @else {
+        @for (item of caracteristiques.controls; track trackByIndex($index)) {
+          <div class="row-item" [formGroup]="asFormGroup(item)">
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="nom" placeholder="Ex: Materiau" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Valeur</mat-label>
+              <input matInput formControlName="valeur" placeholder="Ex: Metal" />
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removeCaracteristique($index)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      }
+
+      <div class="d-flex flex-wrap gap-12 m-t-24">
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Creation...' : 'Creer le type' }}
+        </button>
+      </div>
+
+      @if (serverError) {
+        <div class="text-error m-t-12">{{ serverError }}</div>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>

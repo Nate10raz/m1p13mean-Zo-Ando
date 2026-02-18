@@ -17,6 +17,7 @@ const boxSchema = new mongoose.Schema({
 
   photos: [String],
   superficie: { type: Number, required: true },
+  typeId: { type: mongoose.Schema.Types.ObjectId, ref: 'BoxType', index: true },
 
   tarifActuel: {
     montant: Number,
