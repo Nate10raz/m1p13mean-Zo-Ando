@@ -1,0 +1,72 @@
+﻿<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between">
+      <div>
+        <mat-card-title>Paiement loyer</mat-card-title>
+        <mat-card-subtitle>Creer un paiement de loyer pour une box.</mat-card-subtitle>
+      </div>
+      <button mat-stroked-button type="button" (click)="resetForm()" [disabled]="isSubmitting">
+        Reinitialiser
+      </button>
+    </div>
+
+    <form class="m-t-16" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="section-title">Champs obligatoires</div>
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label>Box</mat-label>
+          <mat-select formControlName="boxId" [disabled]="isLoadingBoxes">
+            @for (box of boxOptions; track box.id) {
+              <mat-option [value]="box.id">{{ box.label }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get('boxId')?.hasError('required')) {
+            <mat-error>Box requise.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Montant</mat-label>
+          <input matInput type="number" step="0.01" min="0" formControlName="montant" />
+          @if (form.get('montant')?.hasError('required')) {
+            <mat-error>Montant requis.</mat-error>
+          }
+          <mat-hint>Montant calcule a partir du tarif de la box.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="section-title">Champs optionnels</div>
+      <div class="d-flex flex-wrap gap-16">
+        <mat-form-field appearance="outline">
+          <mat-label>Periode</mat-label>
+          <input matInput formControlName="periode" placeholder="2026-02" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100 m-t-8">
+        <mat-label>Date du jour</mat-label>
+        <input matInput [value]="todayLabel" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 m-t-8">
+        <mat-label>Commentaire</mat-label>
+        <textarea matInput rows="2" formControlName="commentaire"></textarea>
+      </mat-form-field>
+
+      <div class="d-flex flex-wrap gap-12 m-t-24">
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Creation...' : 'Creer le paiement' }}
+        </button>
+      </div>
+
+      @if (serverError) {
+        <div class="text-error m-t-12">{{ serverError }}</div>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>

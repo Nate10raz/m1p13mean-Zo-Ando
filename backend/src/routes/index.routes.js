@@ -10,6 +10,7 @@ import notificationRoutes from './notification.routes.js';
 import boxTypeRoutes from './box-type.routes.js';
 import boxRoutes from './box.routes.js';
 import demandeLocationBoxRoutes from './demande-location-box.routes.js';
+import payementBoxRoutes from './payement-box.routes.js';
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.use('/notification', notificationRoutes);
 router.use('/box-types', boxTypeRoutes);
 router.use('/boxes', boxRoutes);
 router.use('/demandes-location-box', demandeLocationBoxRoutes);
+router.use('/payements-box', payementBoxRoutes);
 
 /**
  * @openapi
