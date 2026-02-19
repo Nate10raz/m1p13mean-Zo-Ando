@@ -57,6 +57,12 @@ export const navItems: NavItem[] = [
     roles: ['admin'],
   },
   {
+    displayName: 'Paiements de loyer',
+    iconName: 'list-details',
+    route: '/boxes/payements',
+    roles: ['admin'],
+  },
+  {
     displayName: 'Creer une box',
     iconName: 'package',
     route: '/boxes/nouveau',
@@ -82,6 +88,18 @@ export const navItems: NavItem[] = [
     displayName: 'Mes boxes',
     iconName: 'list-details',
     route: '/boxes-mes',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Paiement loyer',
+    iconName: 'credit-card',
+    route: '/boxes-payements/nouveau',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Historique paiements',
+    iconName: 'list-details',
+    route: '/boxes-payements',
     roles: ['boutique'],
   },
   {

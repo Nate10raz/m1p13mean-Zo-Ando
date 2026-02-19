@@ -109,6 +109,24 @@ export const routes: Routes = [
             (m) => m.AppBoxMyListComponent,
           ),
       },
+      {
+        path: 'boxes-payements/nouveau',
+        canActivate: [RoleGuard],
+        data: { roles: ['boutique'] },
+        loadComponent: () =>
+          import('./pages/boxes/box-payement-create/box-payement-create.component').then(
+            (m) => m.AppBoxPayementCreateComponent,
+          ),
+      },
+      {
+        path: 'boxes-payements',
+        canActivate: [RoleGuard],
+        data: { roles: ['boutique'] },
+        loadComponent: () =>
+          import('./pages/boxes/box-payement-list/box-payement-list.component').then(
+            (m) => m.AppBoxPayementListComponent,
+          ),
+      },
     ],
   },
   {
