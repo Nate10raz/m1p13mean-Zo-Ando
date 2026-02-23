@@ -1,0 +1,447 @@
+// ─────────────────────────────────────────────
+//  side-login.component.scss  –  Dark Elegant
+// ─────────────────────────────────────────────
+
+// Import Google Fonts in your global styles.scss or index.html:
+// @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+// ── CSS Custom Properties ──────────────────────
+:host {
+  --bg:           #0a0c10;
+  --surface:      #111318;
+  --surface2:     #181c23;
+  --border:       rgba(255, 255, 255, 0.07);
+  --border-focus: rgba(139, 92, 246, 0.6);
+  --accent:       #8b5cf6;
+  --accent2:      #6d28d9;
+  --accent-glow:  rgba(139, 92, 246, 0.3);
+  --text:         #e8eaf0;
+  --text-muted:   #6b7280;
+  --text-dim:     #9ca3af;
+  --error:        #f87171;
+}
+
+// ── Layout Container ───────────────────────────
+.blank-layout-container {
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+
+  // Ambient radial glow
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(109, 40, 217, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 90%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 60% 40%, rgba(79, 70, 229, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Subtle grain overlay
+  &::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.bg-gredient {
+  position: relative;
+  z-index: 1;
+}
+
+// ── Card ───────────────────────────────────────
+.boxed-auth {
+  width: 100%;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.06),
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.3) !important;
+  position: relative;
+  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  // Top accent line
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 0 0 4px 4px;
+    z-index: 1;
+  }
+
+  mat-card-content {
+    padding: 40px !important;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ── Logo ───────────────────────────────────────
+.text-center {
+  a img {
+    filter: brightness(0) invert(1);
+    height: 36px;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// ── Page title (add h2 or .login-title to your template) ──
+.login-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: 0.02em;
+  margin: 8px 0 4px;
+}
+
+.login-subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+// ── Social buttons ─────────────────────────────
+.custom-row {
+  gap: 12px;
+
+  .col-12 {
+    padding: 0 6px;
+  }
+
+  button[mat-stroked-button] {
+    height: 44px;
+    border-radius: 10px !important;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease !important;
+
+    // Google button
+    &:first-child {
+      background: var(--surface2) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+      }
+    }
+
+    // Facebook button
+    &:last-child {
+      background: rgba(24, 119, 242, 0.12) !important;
+      border-color: rgba(24, 119, 242, 0.25) !important;
+      color: #5b9bf8 !important;
+
+      &:hover {
+        background: rgba(24, 119, 242, 0.2) !important;
+        border-color: rgba(24, 119, 242, 0.4) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(24, 119, 242, 0.15) !important;
+      }
+    }
+
+    img {
+      filter: none !important;
+    }
+  }
+}
+
+// ── "Or sign in with" divider ──────────────────
+.or-border {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+// ── Form labels ────────────────────────────────
+mat-label {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--text-dim) !important;
+  letter-spacing: 0.03em;
+  font-family: 'DM Sans', sans-serif;
+}
+
+// ── Material form fields ───────────────────────
+mat-form-field {
+  font-family: 'DM Sans', sans-serif;
+
+  // Background
+  .mat-mdc-text-field-wrapper {
+    background: var(--surface2) !important;
+    border-radius: 10px !important;
+  }
+
+  // Outline border
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--border) !important;
+  }
+
+  // Input text
+  input {
+    color: var(--text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 14px !important;
+    caret-color: var(--accent);
+
+    &::placeholder {
+      color: var(--text-muted) !important;
+      opacity: 1;
+    }
+  }
+
+  // Focus state
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--border-focus) !important;
+      border-width: 1.5px !important;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      background: rgba(139, 92, 246, 0.04) !important;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+  }
+
+  // Error state
+  &.mat-form-field-invalid {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(248, 113, 113, 0.5) !important;
+    }
+  }
+
+  // Error messages
+  mat-error {
+    font-size: 12px !important;
+    color: var(--error) !important;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  // Suffix (password toggle icon)
+  .mat-mdc-form-field-icon-suffix,
+  [matSuffix] {
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    padding-right: 8px;
+
+    &:hover {
+      color: var(--accent);
+    }
+
+    mat-icon {
+      color: inherit;
+    }
+  }
+}
+
+// ── Remember / Forgot row ──────────────────────
+.d-flex.align-items-center.m-b-12 {
+  mat-checkbox {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+
+    // Checkbox box
+    .mdc-checkbox__background {
+      border-color: var(--border) !important;
+      background: var(--surface2) !important;
+      border-radius: 4px;
+    }
+
+    // Checked state
+    &.mat-mdc-checkbox-checked .mdc-checkbox__background {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+    }
+
+    // Label text
+    .mdc-label {
+      color: var(--text-dim) !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 12.5px !important;
+    }
+  }
+
+  // Forgot password link
+  a.text-primary {
+    color: var(--accent) !important;
+    text-decoration: none !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// ── Server error ───────────────────────────────
+.text-danger {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--error) !important;
+  animation: fadeUp 0.3s ease;
+}
+
+// ── Submit button ──────────────────────────────
+button[mat-flat-button][color="primary"] {
+  height: 48px;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%) !important;
+  color: #fff !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+
+  // Top shine
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  // Shimmer sweep
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.4s ease;
+    pointer-events: none;
+  }
+
+  &:hover:not([disabled]) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4) !important;
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      left: 150%;
+    }
+  }
+
+  &:active:not([disabled]) {
+    transform: translateY(0);
+  }
+
+  // Disabled / loading state
+  &[disabled] {
+    opacity: 0.65 !important;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%) !important;
+    cursor: not-allowed;
+  }
+}
+
+// ── Footer link ────────────────────────────────
+.d-block.f-w-500.text-center {
+  color: var(--text-muted) !important;
+  font-size: 13px;
+
+  a.text-primary {
+    color: var(--accent) !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// ── Responsive ─────────────────────────────────
+@media (max-width: 768px) {
+  .boxed-auth mat-card-content {
+    padding: 28px 22px 24px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-row {
+    flex-direction: column;
+
+    .col-12.col-sm-6 {
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 0 0 100% !important;
+    }
+  }
+
+  .login-title {
+    font-size: 22px;
+  }
+}

@@ -1,0 +1,46 @@
+// ─────────────────────────────────────────────────────────────
+//  _dark-theme-variables.scss
+//  À placer dans : src/styles/theme-variables/
+//  Usage : html .dark-theme { ... }
+// ─────────────────────────────────────────────────────────────
+
+html .dark-theme {
+  color-scheme: dark;
+
+  // ── Surfaces & Background ──────────────────────────────────
+  --mat-sys-background:              #0f1117;
+  --mat-sys-surface:                 #161920;
+  --mat-sys-surface-bright:          #1e2229;
+  --mat-sys-surface-container:       #1a1e26;
+  --mat-sys-surface-container-low:   #161920;
+
+  // ── Text ──────────────────────────────────────────────────
+  --mat-sys-on-background:           #d0d4de;
+  --mat-sys-on-surface:              #d0d4de;
+
+  // ── Borders / Outline ─────────────────────────────────────
+  --mat-sys-outline:                 rgba(255, 255, 255, 0.1);
+  --mat-sys-outline-variant:         rgba(255, 255, 255, 0.08);
+  --mat-sidenav-container-divider-color: rgba(255, 255, 255, 0.08);
+
+  // ── Form fields ───────────────────────────────────────────
+  --mat-form-field-outlined-hover-outline-color: rgba(255, 255, 255, 0.18);
+
+  // ── Hover / Focus states ──────────────────────────────────
+  --mat-menu-item-hover-state-layer-color:         rgba(255, 255, 255, 0.05);
+  --mat-button-toggle-state-layer-color:           rgba(255, 255, 255, 0.05);
+  --mat-option-focus-state-layer-color:            rgba(255, 255, 255, 0.05);
+  --mat-option-hover-state-layer-color:            rgba(255, 255, 255, 0.05);
+  --mat-checkbox-unselected-hover-state-layer-color: rgba(255, 255, 255, 0.08);
+  --mat-slide-toggle-unselected-track-color:       rgba(255, 255, 255, 0.12);
+  --mat-stepper-header-focus-state-layer-color:    rgba(255, 255, 255, 0.05);
+  --mat-stepper-header-hover-state-layer-color:    rgba(255, 255, 255, 0.05);
+  --mat-expansion-header-hover-state-layer-color:  rgba(255, 255, 255, 0.05);
+
+  // ── Dialog ────────────────────────────────────────────────
+  --mat-dialog-supporting-text-color: var(--mat-sys-on-background);
+
+  // ── Misc ──────────────────────────────────────────────────
+  --mat-sys-corner-small:            7px;
+  --mat-sys-surface-container-dark:  #0f1117;
+}

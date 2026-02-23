@@ -1,0 +1,303 @@
+// ─────────────────────────────────────────────────────────────
+//  _dark-theme-overrides.scss
+//  À placer dans : src/styles/theme-variables/
+//  Contient les overrides de composants Angular Material
+//  et des éléments custom (sidebar, header, cards…)
+// ─────────────────────────────────────────────────────────────
+
+html .dark-theme {
+
+  // ── Body / Root ───────────────────────────────────────────
+  background-color: #0f1117;
+  color: #d0d4de;
+
+  // ── Mat Toolbar (topbar) ──────────────────────────────────
+  .topbar {
+    background-color: #161920 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4) !important;
+
+    .mat-icon-button,
+    button[mat-icon-button] {
+      color: #9ca3af !important;
+
+      &:hover {
+        color: #d0d4de !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+      }
+    }
+  }
+
+  // ── Sidenav / Sidebar ─────────────────────────────────────
+  .mat-drawer.sidebarNav,
+  .mat-sidenav {
+    background-color: #161920 !important;
+    border-right-color: rgba(255, 255, 255, 0.07) !important;
+
+    .branding {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+  }
+
+  // Sidebar subheader labels
+  .sidebar-list .mdc-list-group__subheader {
+    color: #4b5563 !important;
+  }
+
+  // Sidebar nav items
+  .sidebar-list .menu-list-item {
+    color: #9ca3af;
+
+    .mdc-list-item__primary-text {
+      color: #9ca3af !important;
+    }
+
+    .mat-mdc-list-item-icon {
+      color: #6b7280 !important;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04) !important;
+
+      .mdc-list-item__primary-text,
+      .mat-mdc-list-item-icon {
+        color: #d0d4de !important;
+      }
+    }
+
+    // Active menu item — conserve la couleur primaire
+    &.activeMenu {
+      background-color: var(--mat-sys-primary) !important;
+
+      .mdc-list-item__primary-text,
+      .mat-mdc-list-item-icon {
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  // ── Mat Card ──────────────────────────────────────────────
+  mat-card,
+  .mat-mdc-card,
+  .cardWithShadow {
+    background-color: #1a1e26 !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35) !important;
+
+    .mat-mdc-card-title,
+    .mat-card-title {
+      color: #e2e5ee !important;
+    }
+
+    .mat-mdc-card-subtitle,
+    .mat-card-subtitle {
+      color: #6b7280 !important;
+    }
+  }
+
+  // ── Mat Form Field ────────────────────────────────────────
+  mat-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: #1e2229 !important;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    &.mat-focused {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--mat-sys-primary) !important;
+      }
+    }
+
+    input,
+    textarea,
+    .mat-mdc-select-value-text {
+      color: #d0d4de !important;
+    }
+
+    ::placeholder {
+      color: #4b5563 !important;
+    }
+
+    mat-label,
+    .mdc-floating-label {
+      color: #6b7280 !important;
+    }
+  }
+
+  // ── Mat Select ────────────────────────────────────────────
+  .mat-mdc-select-panel,
+  .cdk-overlay-pane .mat-mdc-autocomplete-panel {
+    background-color: #1e2229 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .mat-mdc-option {
+    color: #d0d4de !important;
+
+    &:hover,
+    &.mat-mdc-option-active {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    &.mdc-list-item--selected {
+      background: rgba(93, 135, 255, 0.15) !important;
+    }
+  }
+
+  // ── Mat Menu ──────────────────────────────────────────────
+  .mat-mdc-menu-panel {
+    background-color: #1e2229 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .mat-mdc-menu-item {
+    color: #d0d4de !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .mat-icon {
+      color: #6b7280 !important;
+    }
+  }
+
+  // ── Mat Table ─────────────────────────────────────────────
+  .mat-mdc-table {
+    background-color: #1a1e26 !important;
+
+    .mdc-data-table__header-row {
+      background-color: #1e2229 !important;
+    }
+
+    .mat-mdc-header-cell {
+      color: #6b7280 !important;
+      border-bottom-color: rgba(255, 255, 255, 0.07) !important;
+    }
+
+    .mat-mdc-cell {
+      color: #d0d4de !important;
+      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .mat-mdc-row:hover {
+      background: rgba(255, 255, 255, 0.03) !important;
+    }
+  }
+
+  // ── Mat Tabs ──────────────────────────────────────────────
+  .mat-mdc-tab-group,
+  .mat-mdc-tab-nav-bar {
+    .mat-mdc-tab-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mdc-tab__text-label {
+      color: #6b7280 !important;
+    }
+
+    .mdc-tab--active .mdc-tab__text-label {
+      color: var(--mat-sys-primary) !important;
+    }
+  }
+
+  // ── Mat Dialog ────────────────────────────────────────────
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-color: #1a1e26;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .mat-mdc-dialog-title {
+    color: #e2e5ee !important;
+  }
+
+  // ── Mat Chips ─────────────────────────────────────────────
+  .mat-mdc-chip {
+    background-color: #1e2229 !important;
+    color: #9ca3af !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  // ── Mat Paginator ─────────────────────────────────────────
+  mat-paginator,
+  .mat-mdc-paginator {
+    background-color: #1a1e26 !important;
+    color: #9ca3af !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    .mat-mdc-icon-button {
+      color: #6b7280 !important;
+
+      &:not([disabled]):hover {
+        color: #d0d4de !important;
+      }
+    }
+  }
+
+  // ── Mat Divider ───────────────────────────────────────────
+  .mat-divider {
+    border-top-color: rgba(255, 255, 255, 0.07) !important;
+  }
+
+  // ── Mat Badge ─────────────────────────────────────────────
+  .mat-badge-content {
+    background: var(--mat-sys-primary) !important;
+    color: #fff !important;
+  }
+
+  // ── Mat Tooltip ───────────────────────────────────────────
+  .mdc-tooltip__surface {
+    background-color: #2d3340 !important;
+    color: #e2e5ee !important;
+  }
+
+  // ── Mat Stroked Button ────────────────────────────────────
+  button[mat-stroked-button] {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #d0d4de !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  // ── Scrollbar ─────────────────────────────────────────────
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #161920;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2d3340;
+    border-radius: 3px;
+
+    &:hover {
+      background: #3d4555;
+    }
+  }
+
+  // ── Page background ───────────────────────────────────────
+  .page-wrapper,
+  .mat-drawer-content,
+  .mat-sidenav-content {
+    background-color: #0f1117 !important;
+  }
+
+  // ── Auth pages ────────────────────────────────────────────
+  .blank-layout-container {
+    background-color: #0a0c10 !important;
+  }
+}
