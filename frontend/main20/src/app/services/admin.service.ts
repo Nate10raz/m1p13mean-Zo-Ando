@@ -113,6 +113,144 @@ export interface AdminBoutiquesQuery {
   status?: AdminBoutiqueStatus;
 }
 
+export interface AdminDashboardFinanceQuery {
+  startDate?: string;
+  endDate?: string;
+  topN?: number;
+}
+
+export interface AdminDashboardFinanceBreakdown {
+  amount: number;
+  amountFormatted?: string;
+  count: number;
+}
+
+export interface AdminDashboardFinanceZoneBreakdown extends AdminDashboardFinanceBreakdown {
+  zone: string;
+}
+
+export interface AdminDashboardFinanceEtageBreakdown extends AdminDashboardFinanceBreakdown {
+  etage: number;
+}
+
+export interface AdminDashboardFinanceTypeBreakdown extends AdminDashboardFinanceBreakdown {
+  typeId: string;
+  typeNom: string;
+}
+
+export interface AdminDashboardFinanceBoutiqueBreakdown extends AdminDashboardFinanceBreakdown {
+  boutiqueId: string;
+  boutiqueNom: string;
+}
+
+export interface AdminDashboardFinance {
+  period: {
+    start: string;
+    end: string;
+  };
+  currency: string;
+  topN: number;
+  location: {
+    revenueCollected: number;
+    revenueCollectedCount: number;
+    revenueExpected: number;
+    paymentRate: number;
+    payments: {
+      counts: {
+        valide: number;
+        en_attente: number;
+        rejete: number;
+        total: number;
+      };
+      amounts: {
+        valide: number;
+        en_attente: number;
+        rejete: number;
+        total: number;
+      };
+    };
+    arrears: {
+      asOf: string;
+      amount: number;
+      count: number;
+    };
+    pendingAmount: number;
+    averageRentPerBox: number;
+    revenuePerM2: number;
+    revenueByZone: AdminDashboardFinanceZoneBreakdown[];
+    revenueByEtage: AdminDashboardFinanceEtageBreakdown[];
+    revenueByType: AdminDashboardFinanceTypeBreakdown[];
+    revenueByBoutique: AdminDashboardFinanceBoutiqueBreakdown[];
+  };
+  occupancy: {
+    totalBoxes: number;
+    occupiedBoxes: number;
+    occupancyRate: number;
+    byZone: Array<{
+      zone: string;
+      total: number;
+      occupied: number;
+      occupancyRate: number;
+    }>;
+    byType: Array<{
+      typeId: string;
+      typeNom: string;
+      total: number;
+      occupied: number;
+      occupancyRate: number;
+    }>;
+  };
+  demandesLocation: {
+    counts: {
+      en_attente: number;
+      validee: number;
+      rejetee: number;
+      annulee: number;
+      total: number;
+    };
+    avgDecisionDays: number;
+    minDecisionDays: number;
+    maxDecisionDays: number;
+  };
+  boutiques: {
+    total: number;
+    byStatus: {
+      active: number;
+      suspendue: number;
+      en_attente: number;
+      rejetee: number;
+      total: number;
+    };
+  };
+  users: {
+    total: number;
+    byRole: {
+      admin: number;
+      boutique: number;
+      client: number;
+      total: number;
+    };
+    clientsActifs: number;
+  };
+  satisfaction: {
+    avisCount: number;
+    noteMoyenne: number;
+  };
+  display: {
+    currency: string;
+    revenueCollected: string;
+    revenueExpected: string;
+    pendingAmount: string;
+    arrearsAmount: string;
+    averageRentPerBox: string;
+    revenuePerM2: string;
+    paymentRate: string;
+    occupancyRate: string;
+    satisfactionNote: number;
+    avgDecisionDays: number;
+  };
+}
+
 export interface AdminSuspendBoutiquePayload {
   motif: string;
 }
@@ -196,7 +334,20 @@ export class AdminService {
     );
   }
 
-  private buildParams(params: AdminUsersQuery): HttpParams {
+  getDashboardFinance(
+    params: AdminDashboardFinanceQuery = {},
+  ): Observable<ApiResponse<AdminDashboardFinance>> {
+    return this.http.get<ApiResponse<AdminDashboardFinance>>(
+      `${this.apiRootUrl}/admin/dashboard/finance`,
+      {
+        params: this.buildParams(params),
+      },
+    );
+  }
+
+  private buildParams(
+    params: AdminUsersQuery | AdminBoutiquesQuery | AdminDashboardFinanceQuery,
+  ): HttpParams {
     let httpParams = new HttpParams();
 
     Object.entries(params).forEach(([key, value]) => {

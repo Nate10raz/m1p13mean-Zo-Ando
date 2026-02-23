@@ -8,6 +8,7 @@ import {
   reactivateUser,
   suspendUser,
   listClients,
+  getAdminFinanceDashboard,
 } from '../services/admin.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
@@ -139,6 +140,31 @@ export const listClientsController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Liste clients',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminFinanceDashboardController = async (req, res, next) => {
+  try {
+    const result = await getAdminFinanceDashboard(
+      {
+        startDate: req.query.startDate,
+        endDate: req.query.endDate,
+        topN: req.query.topN,
+      },
+      {
+        userId: req.user?.id,
+        role: req.user?.role,
+      },
+    );
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Dashboard financier admin',
       data: result,
     });
   } catch (error) {

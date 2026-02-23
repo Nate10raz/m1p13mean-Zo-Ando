@@ -1,24 +1,473 @@
-<div class="row">
-  <div class="col-lg-8">
-    <app-sales-overview></app-sales-overview>
-  </div>
-  <div class="col-lg-4">
-    <app-yearly-breakup></app-yearly-breakup>
-    <app-monthly-earnings></app-monthly-earnings>
-  </div>
-</div>
+<div class="dashboard-admin">
+  <div class="row align-items-center m-b-24">
+    <div class="col-12 col-xl-7">
+      <div class="dashboard-title">
+        <div class="dashboard-badge bg-light-primary text-primary">
+          <i-tabler name="chart-bar" class="icon-24 d-flex"></i-tabler>
+        </div>
+        <div>
+          <h2 class="m-0">Dashboard financier</h2>
+          <div class="text-muted f-s-13">
+            Periode:
+            @if (dashboard?.period) {
+              {{ dashboard?.period?.start | date: 'dd/MM/yyyy' }} -
+              {{ dashboard?.period?.end | date: 'dd/MM/yyyy' }}
+            } @else {
+              Periode par defaut
+            }
+          </div>
+          @if (lastUpdated) {
+            <div class="text-muted f-s-12">Mis a jour le {{ lastUpdated | date: 'dd/MM/yyyy HH:mm' }}</div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-xl-5 stacked-col">
+      <mat-card class="cardWithShadow filter-card">
+        <mat-card-content>
+          <form
+            [formGroup]="filterForm"
+            (ngSubmit)="applyFilters()"
+            class="d-flex flex-wrap gap-12 align-items-end"
+          >
+            <mat-form-field appearance="outline" class="flex-grow-1 min-input">
+              <mat-label>Debut</mat-label>
+              <input matInput type="date" formControlName="startDate" />
+            </mat-form-field>
 
-<div class="row">
-  <div class="col-lg-4">
-    <app-recent-transactions></app-recent-transactions>
-  </div>
-  <div class="col-lg-8">
-    <app-product-performance></app-product-performance>
-  </div>
-</div>
+            <mat-form-field appearance="outline" class="flex-grow-1 min-input">
+              <mat-label>Fin</mat-label>
+              <input matInput type="date" formControlName="endDate" />
+            </mat-form-field>
 
-<div class="row">
-  <div class="col-12">
-    <app-blog-card></app-blog-card>
+            <mat-form-field appearance="outline" class="topn-input">
+              <mat-label>Top N</mat-label>
+              <input matInput type="number" min="1" max="50" formControlName="topN" />
+              @if (filterForm.controls.topN.hasError('min') || filterForm.controls.topN.hasError('max')) {
+                <mat-error>1 a 50</mat-error>
+              }
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="submit" [disabled]="filterForm.invalid || isLoading">
+              Appliquer
+            </button>
+            <button mat-stroked-button color="primary" type="button" (click)="resetFilters()" [disabled]="isLoading">
+              Reinitialiser
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
+
+  @if (!isAdmin) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content>
+        <mat-card-title>Dashboard admin</mat-card-title>
+        <mat-card-subtitle>Cette page est reservee aux administrateurs.</mat-card-subtitle>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    @if (isLoading && !dashboard) {
+      <mat-card class="cardWithShadow">
+        <mat-card-content class="d-flex align-items-center gap-16">
+          <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+          <span>Chargement du dashboard...</span>
+        </mat-card-content>
+      </mat-card>
+    } @else if (errorMessage && !dashboard) {
+      <mat-card class="cardWithShadow">
+        <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+      </mat-card>
+    } @else if (!dashboard) {
+      <mat-card class="cardWithShadow">
+        <mat-card-content class="text-muted">Aucune donnee pour la periode selectionnee.</mat-card-content>
+      </mat-card>
+    } @else {
+      @if (isLoading) {
+        <mat-progress-bar mode="indeterminate" class="m-b-16"></mat-progress-bar>
+      }
+      @if (errorMessage) {
+        <mat-card class="cardWithShadow m-b-16">
+          <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+        </mat-card>
+      }
+
+      <div class="row">
+        @for (card of kpiCards; track card.key) {
+          <div class="col-12 col-md-4 m-b-16">
+            <mat-card class="cardWithShadow kpi-card">
+              <mat-card-content>
+                <div class="d-flex align-items-center">
+                  <div class="kpi-icon" [ngClass]="card.toneClass">
+                    <i-tabler [name]="card.icon" class="icon-20 d-flex"></i-tabler>
+                  </div>
+                  <div class="m-l-12">
+                    <div class="text-muted f-s-12">{{ card.label }}</div>
+                    <div class="kpi-value">{{ card.value }}</div>
+                    @if (card.subLabel) {
+                      <div class="text-muted f-s-12">{{ card.subLabel }}</div>
+                    }
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </div>
+
+      <div class="row m-t-16">
+        <div class="col-12 col-xl-6 m-b-16">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Encaissements</mat-card-title>
+                  <mat-card-subtitle>Collecte et repartition des paiements</mat-card-subtitle>
+                </div>
+                <span class="stat-pill bg-light-success text-success">
+                  {{ dashboard.display.paymentRate }}
+                </span>
+              </div>
+
+              <div class="m-t-16">
+                <div class="d-flex justify-content-between f-s-13">
+                  <span>Collecte</span>
+                  <span>
+                    {{ dashboard.display.revenueCollected }} / {{ dashboard.display.revenueExpected }}
+                  </span>
+                </div>
+                <div class="progress-track">
+                  <span class="progress-fill" [style.width.%]="collectionRatePercent"></span>
+                </div>
+              </div>
+
+              <div class="m-t-16">
+                <div class="text-muted f-s-12 m-b-8">Detail des paiements</div>
+                @for (row of paymentRows; track row.key) {
+                  <div class="payment-row">
+                    <div class="payment-label">
+                      <span class="payment-dot" [ngClass]="row.toneClass"></span>
+                      <span>{{ row.label }}</span>
+                    </div>
+                    <div class="payment-values">
+                      <span>{{ row.count }} paiements</span>
+                      <span class="f-w-600">{{ row.amountFormatted }}</span>
+                    </div>
+                    <div class="progress-track payment-track">
+                      <span class="progress-fill" [style.width.%]="row.amountShare * 100"></span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-xl-6 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Arrieres et attente</mat-card-title>
+                  <mat-card-subtitle>Impayes, attente et rendement</mat-card-subtitle>
+                </div>
+              </div>
+
+              <div class="mini-grid m-t-16">
+                <div class="mini-card">
+                  <div class="text-muted f-s-12">En attente</div>
+                  <div class="f-s-20 f-w-600">{{ dashboard.display.pendingAmount }}</div>
+                  <div class="text-muted f-s-12">
+                    {{ dashboard.location.payments.counts.en_attente }} paiement(s)
+                  </div>
+                </div>
+                <div class="mini-card">
+                  <div class="text-muted f-s-12">Impayes</div>
+                  <div class="f-s-20 f-w-600">{{ dashboard.display.arrearsAmount }}</div>
+                  <div class="text-muted f-s-12">
+                    Arrete au {{ dashboard.location.arrears.asOf | date: 'dd/MM/yyyy' }}
+                  </div>
+                </div>
+                <div class="mini-card">
+                  <div class="text-muted f-s-12">Revenu m2</div>
+                  <div class="f-s-20 f-w-600">{{ dashboard.display.revenuePerM2 }}</div>
+                  <div class="text-muted f-s-12">Loyer moyen: {{ dashboard.display.averageRentPerBox }}</div>
+                </div>
+              </div>
+
+              <div class="m-t-16">
+                <div class="d-flex justify-content-between f-s-13">
+                  <span>Taux encaissement</span>
+                  <span>{{ dashboard.display.paymentRate }}</span>
+                </div>
+                <div class="progress-track">
+                  <span class="progress-fill" [style.width.%]="paymentRatePercent"></span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <div class="row m-t-16">
+        <div class="col-12">
+          <div class="section-heading">
+            <h3 class="m-0">Repartition des revenus</h3>
+            <span class="text-muted f-s-12">Top {{ dashboard.topN }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-6 col-xl-3 m-b-16">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <mat-card-title>Par zone</mat-card-title>
+              </div>
+              @if (!revenueByZone.length) {
+                <div class="text-muted p-12">Aucune donnee.</div>
+              } @else {
+                @for (item of revenueByZone; track item.key) {
+                  <div class="metric-row">
+                    <div class="metric-info">
+                      <span class="metric-label">{{ item.label }}</span>
+                      <span class="text-muted f-s-12">{{ item.count }} paiements</span>
+                    </div>
+                    <div class="metric-value">{{ item.amountFormatted }}</div>
+                    <div class="progress-track metric-bar">
+                      <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 m-b-16 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <mat-card-title>Par etage</mat-card-title>
+              </div>
+              @if (!revenueByEtage.length) {
+                <div class="text-muted p-12">Aucune donnee.</div>
+              } @else {
+                @for (item of revenueByEtage; track item.key) {
+                  <div class="metric-row">
+                    <div class="metric-info">
+                      <span class="metric-label">{{ item.label }}</span>
+                      <span class="text-muted f-s-12">{{ item.count }} paiements</span>
+                    </div>
+                    <div class="metric-value">{{ item.amountFormatted }}</div>
+                    <div class="progress-track metric-bar">
+                      <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <mat-card-title>Par type</mat-card-title>
+              </div>
+              @if (!revenueByType.length) {
+                <div class="text-muted p-12">Aucune donnee.</div>
+              } @else {
+                @for (item of revenueByType; track item.key) {
+                  <div class="metric-row">
+                    <div class="metric-info">
+                      <span class="metric-label">{{ item.label }}</span>
+                      <span class="text-muted f-s-12">{{ item.count }} paiements</span>
+                    </div>
+                    <div class="metric-value">{{ item.amountFormatted }}</div>
+                    <div class="progress-track metric-bar">
+                      <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <mat-card-title>Par boutique</mat-card-title>
+              </div>
+              @if (!revenueByBoutique.length) {
+                <div class="text-muted p-12">Aucune donnee.</div>
+              } @else {
+                @for (item of revenueByBoutique; track item.key) {
+                  <div class="metric-row">
+                    <div class="metric-info">
+                      <span class="metric-label">{{ item.label }}</span>
+                      <span class="text-muted f-s-12">{{ item.count }} paiements</span>
+                    </div>
+                    <div class="metric-value">{{ item.amountFormatted }}</div>
+                    <div class="progress-track metric-bar">
+                      <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <div class="row m-t-16">
+        <div class="col-12 col-xl-7 m-b-16">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Occupation</mat-card-title>
+                  <mat-card-subtitle>
+                    {{ dashboard.occupancy.occupiedBoxes }}/{{ dashboard.occupancy.totalBoxes }} boxes occupees
+                  </mat-card-subtitle>
+                </div>
+                <span class="stat-pill bg-light-primary text-primary">{{ dashboard.display.occupancyRate }}</span>
+              </div>
+
+              <div class="m-t-16">
+                <div class="progress-track">
+                  <span class="progress-fill" [style.width.%]="occupancyRatePercent"></span>
+                </div>
+              </div>
+
+              <div class="compact-table m-t-16">
+                <div class="table-title">Par zone</div>
+                @if (!dashboard.occupancy.byZone.length) {
+                  <div class="text-muted f-s-12">Aucune donnee.</div>
+                } @else {
+                  @for (row of dashboard.occupancy.byZone; track row.zone) {
+                    <div class="compact-row">
+                      <span>{{ row.zone }}</span>
+                      <span>{{ row.occupied }}/{{ row.total }}</span>
+                      <span class="text-muted">{{ row.occupancyRate | percent: '1.0-0' }}</span>
+                    </div>
+                  }
+                }
+              </div>
+
+              <div class="compact-table m-t-16">
+                <div class="table-title">Par type</div>
+                @if (!dashboard.occupancy.byType.length) {
+                  <div class="text-muted f-s-12">Aucune donnee.</div>
+                } @else {
+                  @for (row of dashboard.occupancy.byType; track row.typeId) {
+                    <div class="compact-row">
+                      <span>{{ row.typeNom }}</span>
+                      <span>{{ row.occupied }}/{{ row.total }}</span>
+                      <span class="text-muted">{{ row.occupancyRate | percent: '1.0-0' }}</span>
+                    </div>
+                  }
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-xl-5 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Demandes de location</mat-card-title>
+                  <mat-card-subtitle>Suivi des validations</mat-card-subtitle>
+                </div>
+              </div>
+
+              <div class="stat-grid m-t-16">
+                @for (row of demandeStatusRows; track row.key) {
+                  <span class="stat-pill" [ngClass]="row.toneClass">{{ row.label }}: {{ row.value }}</span>
+                }
+              </div>
+
+              <div class="decision-grid m-t-16">
+                <div class="decision-card">
+                  <span class="text-muted f-s-12">Delai moyen</span>
+                  <span class="f-s-18 f-w-600">{{ avgDecisionDays | number: '1.2-2' }} j</span>
+                </div>
+                <div class="decision-card">
+                  <span class="text-muted f-s-12">Min</span>
+                  <span class="f-s-18 f-w-600">{{ minDecisionDays | number: '1.2-2' }} j</span>
+                </div>
+                <div class="decision-card">
+                  <span class="text-muted f-s-12">Max</span>
+                  <span class="f-s-18 f-w-600">{{ maxDecisionDays | number: '1.2-2' }} j</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <div class="row m-t-16">
+        <div class="col-12 col-lg-4">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Boutiques</mat-card-title>
+                  <mat-card-subtitle>Total: {{ dashboard.boutiques.total }}</mat-card-subtitle>
+                </div>
+              </div>
+              <div class="stat-grid m-t-16">
+                @for (row of boutiqueStatusRows; track row.key) {
+                  <span class="stat-pill" [ngClass]="row.toneClass">{{ row.label }}: {{ row.value }}</span>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-lg-4 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Utilisateurs</mat-card-title>
+                  <mat-card-subtitle>Total: {{ dashboard.users.total }}</mat-card-subtitle>
+                </div>
+              </div>
+              <div class="stat-grid m-t-16">
+                @for (row of userRoleRows; track row.key) {
+                  <span class="stat-pill" [ngClass]="row.toneClass">{{ row.label }}: {{ row.value }}</span>
+                }
+              </div>
+              <div class="m-t-12 text-muted f-s-12">Clients actifs: {{ dashboard.users.clientsActifs }}</div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-lg-4 stacked-col">
+          <mat-card class="cardWithShadow h-100">
+            <mat-card-content>
+              <div class="section-header">
+                <div>
+                  <mat-card-title>Satisfaction</mat-card-title>
+                  <mat-card-subtitle>Avis et note moyenne</mat-card-subtitle>
+                </div>
+              </div>
+              <div class="satisfaction-block m-t-16">
+                <div class="satisfaction-score">{{ satisfactionNote | number: '1.1-1' }}/5</div>
+                <div class="text-muted f-s-12">{{ dashboard.satisfaction.avisCount }} avis</div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    }
+  }
 </div>
