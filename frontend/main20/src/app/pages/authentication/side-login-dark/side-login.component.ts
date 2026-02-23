@@ -18,12 +18,20 @@ import { AuthService, LoginPayload } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-side-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+  ],
   templateUrl: './side-login.component.html',
+  styleUrls: ['./side-login.component.scss'],
 })
 export class AppSideLoginComponent {
   isSubmitting = false;
-  serverError = '';
+  serverError  = '';
   hidePassword = true; // ← toggle mot de passe
 
   constructor(
@@ -33,7 +41,7 @@ export class AppSideLoginComponent {
   ) {}
 
   form = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
+    email:    new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
 
@@ -41,14 +49,14 @@ export class AppSideLoginComponent {
     return this.form.controls;
   }
 
-  submit() {
+  submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.isSubmitting = true;
-    this.serverError = '';
+    this.serverError  = '';
 
     this.authService
       .login(this.form.getRawValue() as LoginPayload)
@@ -57,9 +65,11 @@ export class AppSideLoginComponent {
         next: (response) => {
           const message = response?.message ?? 'Connexion reussie';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          const role = response?.data?.user?.role ?? this.authService.getCurrentRole();
+
+          const role           = response?.data?.user?.role ?? this.authService.getCurrentRole();
           const normalizedRole = role?.toLowerCase().trim();
-          const target = normalizedRole === 'client' ? '/accueil' : '/dashboard';
+          const target         = normalizedRole === 'client' ? '/accueil' : '/dashboard';
+
           this.router.navigate([target]);
         },
         error: (error) => {
