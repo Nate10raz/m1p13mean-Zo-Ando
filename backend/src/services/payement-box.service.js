@@ -141,6 +141,10 @@ export const createPayementBox = async (payload, auth) => {
   if (payload?.date && !date) {
     throw createError('date invalide', 400);
   }
+  const dueDate = payload?.dueDate ? parseDate(payload.dueDate) : null;
+  if (payload?.dueDate && !dueDate) {
+    throw createError('dueDate invalide', 400);
+  }
 
   const prixBoxeId = await validatePrixBoxe(payload?.prixBoxeId, box._id);
   const basePeriodeDate = box.contrat?.dateDebut ? new Date(box.contrat.dateDebut) : date;
@@ -159,6 +163,7 @@ export const createPayementBox = async (payload, auth) => {
     periode,
     montant,
     date: date || undefined,
+    dueDate: dueDate || undefined,
     status,
     createdBy: auth.userId,
     commentaire: payload?.commentaire,
@@ -331,6 +336,18 @@ export const updatePayementBox = async (id, payload, auth) => {
       throw createError('date invalide', 400);
     }
     payement.date = date;
+  }
+
+  if (payload?.dueDate !== undefined) {
+    if (payload.dueDate === null || payload.dueDate === '') {
+      payement.dueDate = undefined;
+    } else {
+      const dueDate = parseDate(payload.dueDate);
+      if (!dueDate) {
+        throw createError('dueDate invalide', 400);
+      }
+      payement.dueDate = dueDate;
+    }
   }
 
   if (payload?.periode !== undefined) {
