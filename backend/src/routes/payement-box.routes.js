@@ -39,6 +39,7 @@ router.post(
     body('montant').isFloat({ min: 0 }).withMessage('montant invalide'),
     body('prixBoxeId').optional().isMongoId().withMessage('prixBoxeId invalide'),
     body('date').optional().isISO8601().withMessage('date invalide'),
+    body('dueDate').optional().isISO8601().withMessage('dueDate invalide'),
     body('periode')
       .optional()
       .matches(/^\d{4}-(0[1-9]|1[0-2])$/)
@@ -101,6 +102,7 @@ router.patch(
     body('montant').optional().isFloat({ min: 0 }).withMessage('montant invalide'),
     body('prixBoxeId').optional().isMongoId().withMessage('prixBoxeId invalide'),
     body('date').optional().isISO8601().withMessage('date invalide'),
+    body('dueDate').optional().isISO8601().withMessage('dueDate invalide'),
     body('periode')
       .optional()
       .matches(/^\d{4}-(0[1-9]|1[0-2])$/)
@@ -168,6 +170,7 @@ router.patch(
  *               montant: { type: number, minimum: 0 }
  *               prixBoxeId: { type: string }
  *               date: { type: string, format: date-time }
+ *               dueDate: { type: string, format: date-time }
  *               periode: { type: string, example: "2026-02" }
  *               status: { type: string, enum: [en_attente, valide, rejete] }
  *               commentaire: { type: string }
@@ -251,6 +254,7 @@ router.patch(
  *               montant: { type: number, minimum: 0 }
  *               prixBoxeId: { type: string }
  *               date: { type: string, format: date-time }
+ *               dueDate: { type: string, format: date-time }
  *               periode: { type: string, example: "2026-02" }
  *               status: { type: string, enum: [en_attente, valide, rejete] }
  *               commentaire: { type: string }

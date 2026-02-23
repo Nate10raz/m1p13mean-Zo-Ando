@@ -13,6 +13,7 @@ const payementBoxSchema = new mongoose.Schema({
   periode: { type: String, required: true, index: true },
   montant: { type: Number, required: true, min: 0 },
   date: { type: Date, default: Date.now },
+  dueDate: { type: Date, index: true },
   status: {
     type: String,
     enum: ['en_attente', 'valide', 'rejete'],

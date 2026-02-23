@@ -9,7 +9,7 @@ import {
   ViewEncapsulation,
   OnInit,
 } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe, NgOptimizedImage} from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule } from '@angular/router';
@@ -32,6 +32,7 @@ import { ThemeService } from 'src/app/services/theme.service';
     TablerIconsModule,
     MaterialModule,
     AsyncPipe,
+    NgOptimizedImage,
   ],
   templateUrl: './header.component.html',
   encapsulation: ViewEncapsulation.None,

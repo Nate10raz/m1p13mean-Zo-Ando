@@ -10,6 +10,7 @@ import {
   suspendBoutiqueController,
   suspendUserController,
   listClientsController,
+  getAdminFinanceDashboardController,
 } from '../controllers/admin.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -335,6 +336,40 @@ router.get(
   validateRequest,
   listClientsController,
 );
+
+router.get(
+  '/dashboard/finance',
+  ...adminGuard,
+  [
+    query('startDate').optional().isISO8601().withMessage('startDate invalide'),
+    query('endDate').optional().isISO8601().withMessage('endDate invalide'),
+    query('topN').optional().isInt({ min: 1, max: 50 }).toInt(),
+  ],
+  validateRequest,
+  getAdminFinanceDashboardController,
+);
+
+/**
+ * @openapi
+ * /admin/dashboard/finance:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Dashboard financier et KPI globaux
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: topN
+ *         schema: { type: integer, minimum: 1, maximum: 50 }
+ *     responses:
+ *       200: { description: Dashboard financier admin }
+ */
 
 /**
  * @openapi
