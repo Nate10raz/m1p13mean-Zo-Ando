@@ -8,21 +8,48 @@ const createError = (message, status = 400, data = null) => {
   return err;
 };
 
-export const getMyBoutique = async (userId) => {
-  const user = await User.findById(userId).lean();
-  if (!user) {
-    throw createError('Utilisateur introuvable', 404);
-  }
-  if (user.role !== 'boutique') {
-    throw createError('Only boutique accounts can access this endpoint', 403);
-  }
-  if (!user.boutiqueId) {
-    throw createError('Aucune boutique associee a cet utilisateur', 404);
-  }
-
-  const boutique = await Boutique.findById(user.boutiqueId).lean();
+export const getBoutiqueById = async (id) => {
+  const boutique = await Boutique.findById(id).lean();
   if (!boutique) {
     throw createError('Boutique introuvable', 404);
   }
   return boutique;
 };
+
+export const updateBoutique = async (id, userId, data) => {
+  const boutique = await Boutique.findById(id);
+  if (!boutique) {
+    throw createError('Boutique introuvable', 404);
+  }
+
+  // Ownership check: userId must match boutique.userId
+  if (boutique.userId.toString() !== userId) {
+    throw createError('Accès refusé : vous n\'êtes pas le propriétaire de cette boutique', 403);
+  }
+
+  // Define allowed fields to update
+  const allowedUpdates = [
+    'nom',
+    'description',
+    'logo',
+    'banner',
+    'adresse',
+    'horaires',
+    'telephone',
+    'email',
+    'clickCollectActif',
+    'plage_livraison_boutique',
+    'accepteLivraisonJourJ',
+  ];
+
+  Object.keys(data).forEach((key) => {
+    if (allowedUpdates.includes(key)) {
+      boutique[key] = data[key];
+    }
+  });
+
+  await boutique.save();
+  return boutique;
+};
+
+

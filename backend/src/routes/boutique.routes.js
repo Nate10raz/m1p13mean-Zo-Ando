@@ -1,5 +1,9 @@
-import { Router } from 'express';
-import { getMyBoutiqueController } from '../controllers/boutique.controller.js';
+import {
+    getMyBoutiqueController,
+    updateMyBoutiqueController,
+    getBoutiqueByIdController,
+    updateBoutiqueController,
+} from '../controllers/boutique.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -12,6 +16,12 @@ const router = Router();
  */
 
 router.get('/me', requireAuth, requireRole('boutique'), getMyBoutiqueController);
+router.put('/me', requireAuth, requireRole('boutique'), updateMyBoutiqueController);
+
+router.get('/:id', getBoutiqueByIdController);
+router.put('/:id', requireAuth, updateBoutiqueController);
+
+
 
 /**
  * @openapi
