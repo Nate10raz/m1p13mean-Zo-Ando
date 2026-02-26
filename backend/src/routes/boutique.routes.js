@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { query, validationResult } from 'express-validator';
 import {
-  getMyBoutiqueController,
-  getBoutiqueSalesDashboardController,
+    getMyBoutiqueController,
+    updateMyBoutiqueController,
+    getBoutiqueByIdController,
+    updateBoutiqueController,
+    getBoutiqueSalesDashboardController,
 } from '../controllers/boutique.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -17,6 +20,12 @@ const router = Router();
  */
 
 router.get('/me', requireAuth, requireRole('boutique'), getMyBoutiqueController);
+router.put('/me', requireAuth, requireRole('boutique'), updateMyBoutiqueController);
+
+router.get('/:id', getBoutiqueByIdController);
+router.put('/:id', requireAuth, updateBoutiqueController);
+
+
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
