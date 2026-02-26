@@ -16,6 +16,12 @@ import {
   AdminService,
 } from 'src/app/services/admin.service';
 import { AuthService } from 'src/app/services/auth.service';
+import {
+  BoutiqueDashboardGranularity,
+  BoutiqueDashboardService,
+  BoutiqueDashboardVentes,
+  BoutiqueDashboardVentesQuery,
+} from 'src/app/services/boutique-dashboard.service';
 import { MaterialModule } from '../../material.module';
 
 type Tone = 'primary' | 'success' | 'warning' | 'error' | 'secondary';
@@ -54,6 +60,22 @@ interface StatRow {
   toneClass: string;
 }
 
+interface TrendRow {
+  key: string;
+  label: string;
+  revenueFormatted: string;
+  ordersCount: number;
+  share: number;
+}
+
+interface TopItemRow {
+  key: string;
+  label: string;
+  quantity: number;
+  revenueFormatted: string;
+  share: number;
+}
+
 @Component({
   selector: 'app-starter',
   imports: [CommonModule, ReactiveFormsModule, MaterialModule, TablerIconsModule],
@@ -63,10 +85,15 @@ interface StatRow {
 })
 export class StarterComponent implements OnInit, OnDestroy {
   isAdmin = false;
+  isBoutique = false;
   isLoading = false;
   errorMessage = '';
   dashboard: AdminDashboardFinance | null = null;
   lastUpdated: string | null = null;
+  boutiqueDashboard: BoutiqueDashboardVentes | null = null;
+  boutiqueLastUpdated: string | null = null;
+  private lastAdminQueryKey: string | null = null;
+  private lastBoutiqueQueryKey: string | null = null;
 
   filterForm = new FormGroup({
     startDate: new FormControl<string | null>(null),
@@ -74,6 +101,7 @@ export class StarterComponent implements OnInit, OnDestroy {
     topN: new FormControl<number | null>(5, {
       validators: [Validators.min(1), Validators.max(50)],
     }),
+    granularity: new FormControl<BoutiqueDashboardGranularity>('week', { nonNullable: true }),
   });
 
   kpiCards: KpiCard[] = [];
@@ -85,6 +113,17 @@ export class StarterComponent implements OnInit, OnDestroy {
   demandeStatusRows: StatRow[] = [];
   boutiqueStatusRows: StatRow[] = [];
   userRoleRows: StatRow[] = [];
+  boutiqueKpiCards: KpiCard[] = [];
+  orderStatusRows: StatRow[] = [];
+  orderStatusTotal = 0;
+  trendRows: TrendRow[] = [];
+  topProductRows: TopItemRow[] = [];
+  topCategoryRows: TopItemRow[] = [];
+  cartStatusRows: StatRow[] = [];
+  cartTotal = 0;
+  cartConversionPercent = 0;
+  rentPaymentRows: PaymentRow[] = [];
+  granularityLabel = 'Semaine';
 
   collectionRatePercent = 0;
   paymentRatePercent = 0;
@@ -93,6 +132,7 @@ export class StarterComponent implements OnInit, OnDestroy {
   avgDecisionDays = 0;
   minDecisionDays = 0;
   maxDecisionDays = 0;
+  boutiqueNote = 0;
 
   private readonly subscriptions = new Subscription();
   private readonly numberFormatter = new Intl.NumberFormat('fr-FR');
@@ -106,14 +146,20 @@ export class StarterComponent implements OnInit, OnDestroy {
 
   constructor(
     private adminService: AdminService,
+    private boutiqueDashboardService: BoutiqueDashboardService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.isAdmin = this.authService.getCurrentRole() === 'admin';
+    const role = this.authService.getCurrentRole();
+    this.isAdmin = role === 'admin';
+    this.isBoutique = role === 'boutique';
     if (this.isAdmin) {
-      this.loadDashboard();
+      this.loadAdminDashboard();
+    }
+    if (this.isBoutique) {
+      this.loadBoutiqueDashboard();
     }
   }
 
@@ -122,7 +168,7 @@ export class StarterComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    if (!this.isAdmin) {
+    if (!this.isAdmin && !this.isBoutique) {
       return;
     }
     if (this.filterForm.invalid) {
@@ -135,7 +181,11 @@ export class StarterComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
       return;
     }
-    this.loadDashboard();
+    if (this.isAdmin) {
+      this.loadAdminDashboard();
+    } else if (this.isBoutique) {
+      this.loadBoutiqueDashboard();
+    }
   }
 
   resetFilters(): void {
@@ -143,8 +193,17 @@ export class StarterComponent implements OnInit, OnDestroy {
       startDate: null,
       endDate: null,
       topN: 5,
+      granularity: 'week',
     });
     this.applyFilters();
+  }
+
+  refreshDashboard(): void {
+    if (this.isAdmin) {
+      this.loadAdminDashboard(true);
+    } else if (this.isBoutique) {
+      this.loadBoutiqueDashboard(true);
+    }
   }
 
   private isDateRangeValid(): boolean {
@@ -164,13 +223,13 @@ export class StarterComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private loadDashboard(): void {
-    const { startDate, endDate, topN } = this.filterForm.getRawValue();
-    const query: AdminDashboardFinanceQuery = {
-      startDate: startDate ? this.toStartDateIso(startDate) : undefined,
-      endDate: endDate ? this.toEndDateIso(endDate) : undefined,
-      topN: topN ?? undefined,
-    };
+  private loadAdminDashboard(force = false): void {
+    const query = this.buildAdminQuery();
+    const queryKey = this.buildQueryKey(query);
+    if (!force && this.lastAdminQueryKey === queryKey) {
+      return;
+    }
+    this.lastAdminQueryKey = queryKey;
 
     this.isLoading = true;
     this.errorMessage = '';
@@ -181,9 +240,9 @@ export class StarterComponent implements OnInit, OnDestroy {
         this.dashboard = response?.data ?? null;
         this.lastUpdated = response?.date ?? null;
         if (this.dashboard) {
-          this.mapDashboard(this.dashboard);
+          this.mapAdminDashboard(this.dashboard);
         } else {
-          this.resetDerived();
+          this.resetAdminDerived();
         }
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -192,7 +251,7 @@ export class StarterComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.errorMessage = error?.error?.message ?? 'Impossible de charger le dashboard.';
         this.dashboard = null;
-        this.resetDerived();
+        this.resetAdminDerived();
         this.cdr.markForCheck();
       },
     });
@@ -200,7 +259,7 @@ export class StarterComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  private mapDashboard(data: AdminDashboardFinance): void {
+  private mapAdminDashboard(data: AdminDashboardFinance): void {
     this.collectionRatePercent = this.toPercentNumber(
       data.location.revenueExpected > 0
         ? data.location.revenueCollected / data.location.revenueExpected
@@ -234,7 +293,7 @@ export class StarterComponent implements OnInit, OnDestroy {
     this.kpiCards = this.buildKpiCards(data);
   }
 
-  private resetDerived(): void {
+  private resetAdminDerived(): void {
     this.kpiCards = [];
     this.paymentRows = [];
     this.revenueByZone = [];
@@ -495,8 +554,285 @@ export class StarterComponent implements OnInit, OnDestroy {
     ];
   }
 
+  private loadBoutiqueDashboard(force = false): void {
+    const query = this.buildBoutiqueQuery();
+    const queryKey = this.buildQueryKey(query);
+    if (!force && this.lastBoutiqueQueryKey === queryKey) {
+      return;
+    }
+    this.lastBoutiqueQueryKey = queryKey;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.cdr.markForCheck();
+
+    const sub = this.boutiqueDashboardService.getDashboardVentes(query).subscribe({
+      next: (response) => {
+        this.boutiqueDashboard = response?.data ?? null;
+        this.boutiqueLastUpdated = response?.date ?? null;
+        if (this.boutiqueDashboard) {
+          this.mapBoutiqueDashboard(this.boutiqueDashboard);
+        } else {
+          this.resetBoutiqueDerived();
+        }
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error?.error?.message ?? 'Impossible de charger le dashboard.';
+        this.boutiqueDashboard = null;
+        this.resetBoutiqueDerived();
+        this.cdr.markForCheck();
+      },
+    });
+
+    this.subscriptions.add(sub);
+  }
+
+  private mapBoutiqueDashboard(data: BoutiqueDashboardVentes): void {
+    this.boutiqueKpiCards = this.buildBoutiqueKpiCards(data);
+    this.orderStatusRows = this.buildOrderStatusRows(data);
+    this.orderStatusTotal = this.orderStatusRows.reduce((sum, row) => sum + row.value, 0);
+    this.trendRows = this.buildTrendRows(data);
+    this.topProductRows = this.buildTopProductRows(data);
+    this.topCategoryRows = this.buildTopCategoryRows(data);
+    this.cartStatusRows = this.buildCartStatusRows(data);
+    this.cartTotal = data.carts.total;
+    this.cartConversionPercent = this.toPercentNumber(data.carts.conversionRate);
+    this.rentPaymentRows = this.buildRentPaymentRows(data);
+    this.boutiqueNote = data.display?.noteMoyenne ?? data.customers.noteMoyenne ?? 0;
+    this.granularityLabel = this.resolveGranularityLabel(
+      this.filterForm.controls.granularity.value,
+    );
+  }
+
+  private resetBoutiqueDerived(): void {
+    this.boutiqueKpiCards = [];
+    this.orderStatusRows = [];
+    this.orderStatusTotal = 0;
+    this.trendRows = [];
+    this.topProductRows = [];
+    this.topCategoryRows = [];
+    this.cartStatusRows = [];
+    this.cartTotal = 0;
+    this.cartConversionPercent = 0;
+    this.rentPaymentRows = [];
+    this.boutiqueNote = 0;
+  }
+
+  private buildBoutiqueKpiCards(data: BoutiqueDashboardVentes): KpiCard[] {
+    return [
+      {
+        key: 'revenue',
+        label: 'Chiffre d\'affaires',
+        value: data.display.revenue,
+        subLabel: `${data.sales.ordersValidCount} commandes valides`,
+        icon: 'cash',
+        toneClass: this.toneClassMap.primary,
+      },
+      {
+        key: 'orders',
+        label: 'Commandes',
+        value: String(data.sales.ordersCount),
+        subLabel: `${data.sales.ordersValidCount} valides`,
+        icon: 'shopping-cart',
+        toneClass: this.toneClassMap.secondary,
+      },
+      {
+        key: 'aov',
+        label: 'Panier moyen',
+        value: data.display.aov,
+        subLabel: `${data.sales.ordersCount} commandes`,
+        icon: 'receipt',
+        toneClass: this.toneClassMap.primary,
+      },
+      {
+        key: 'cancel',
+        label: 'Taux annulation',
+        value: data.display.cancelRate,
+        subLabel: `${data.sales.statusCounts.annulee} annulee(s)`,
+        icon: 'ban',
+        toneClass: this.toneClassMap.error,
+      },
+      {
+        key: 'conversion',
+        label: 'Conversion paniers',
+        value: data.display.conversionRate,
+        subLabel: `${data.carts.total} paniers`,
+        icon: 'arrows-right-left',
+        toneClass: this.toneClassMap.success,
+      },
+      {
+        key: 'clients',
+        label: 'Clients actifs',
+        value: String(data.customers.activeCount),
+        subLabel: `${data.customers.avisCount} avis`,
+        icon: 'users',
+        toneClass: this.toneClassMap.secondary,
+      },
+    ];
+  }
+
+  private buildOrderStatusRows(data: BoutiqueDashboardVentes): StatRow[] {
+    const counts = data.sales.statusCounts;
+    return [
+      {
+        key: 'en_preparation',
+        label: 'En preparation',
+        value: counts.en_preparation,
+        toneClass: this.toneClassMap.warning,
+      },
+      {
+        key: 'peut_etre_collecte',
+        label: 'Prete a collecter',
+        value: counts.peut_etre_collecte,
+        toneClass: this.toneClassMap.success,
+      },
+      {
+        key: 'en_attente_validation',
+        label: 'En attente validation',
+        value: counts.en_attente_validation,
+        toneClass: this.toneClassMap.secondary,
+      },
+      {
+        key: 'non_acceptee',
+        label: 'Non acceptee',
+        value: counts.non_acceptee,
+        toneClass: this.toneClassMap.error,
+      },
+      {
+        key: 'annulee',
+        label: 'Annulee',
+        value: counts.annulee,
+        toneClass: this.toneClassMap.error,
+      },
+    ];
+  }
+
+  private buildTrendRows(data: BoutiqueDashboardVentes): TrendRow[] {
+    const items = data.sales.trend ?? [];
+    const maxRevenue = items.reduce((max, item) => Math.max(max, item.revenue || 0), 0);
+    return items.map((item, index) => ({
+      key: `${item.date}-${index}`,
+      label: this.formatTrendLabel(item.date, this.filterForm.controls.granularity.value),
+      revenueFormatted:
+        item.revenueFormatted ?? this.formatAmount(item.revenue || 0, data.currency),
+      ordersCount: item.ordersCount || 0,
+      share: maxRevenue ? (item.revenue || 0) / maxRevenue : 0,
+    }));
+  }
+
+  private buildTopProductRows(data: BoutiqueDashboardVentes): TopItemRow[] {
+    const items = data.sales.topProducts ?? [];
+    const maxRevenue = items.reduce((max, item) => Math.max(max, item.revenue || 0), 0);
+    return items.map((item, index) => ({
+      key: item.produitId ?? `produit-${index}`,
+      label: item.nomProduit || 'Produit',
+      quantity: item.quantite || 0,
+      revenueFormatted:
+        item.revenueFormatted ?? this.formatAmount(item.revenue || 0, data.currency),
+      share: maxRevenue ? (item.revenue || 0) / maxRevenue : 0,
+    }));
+  }
+
+  private buildTopCategoryRows(data: BoutiqueDashboardVentes): TopItemRow[] {
+    const items = data.sales.topCategories ?? [];
+    const maxRevenue = items.reduce((max, item) => Math.max(max, item.revenue || 0), 0);
+    return items.map((item, index) => ({
+      key: item.categorieId ?? `categorie-${index}`,
+      label: item.categorieNom || 'Categorie',
+      quantity: item.quantite || 0,
+      revenueFormatted:
+        item.revenueFormatted ?? this.formatAmount(item.revenue || 0, data.currency),
+      share: maxRevenue ? (item.revenue || 0) / maxRevenue : 0,
+    }));
+  }
+
+  private buildCartStatusRows(data: BoutiqueDashboardVentes): StatRow[] {
+    const counts = data.carts.byStatus;
+    return [
+      {
+        key: 'active',
+        label: 'Actifs',
+        value: counts.active,
+        toneClass: this.toneClassMap.primary,
+      },
+      {
+        key: 'abandoned',
+        label: 'Abandonnes',
+        value: counts.abandoned,
+        toneClass: this.toneClassMap.warning,
+      },
+      {
+        key: 'converted',
+        label: 'Convertis',
+        value: counts.converted,
+        toneClass: this.toneClassMap.success,
+      },
+    ];
+  }
+
+  private buildRentPaymentRows(data: BoutiqueDashboardVentes): PaymentRow[] {
+    const counts = data.rent.payments.counts;
+    const amounts = data.rent.payments.amounts;
+    const totalCount = counts.valide + counts.en_attente + counts.rejete;
+    const totalAmount = amounts.valide + amounts.en_attente + amounts.rejete;
+
+    return [
+      {
+        key: 'valide',
+        label: 'Valides',
+        count: counts.valide,
+        amountFormatted: this.formatAmount(amounts.valide, data.currency),
+        countShare: totalCount ? counts.valide / totalCount : 0,
+        amountShare: totalAmount ? amounts.valide / totalAmount : 0,
+        toneClass: this.toneClassMap.success,
+      },
+      {
+        key: 'en_attente',
+        label: 'En attente',
+        count: counts.en_attente,
+        amountFormatted: this.formatAmount(amounts.en_attente, data.currency),
+        countShare: totalCount ? counts.en_attente / totalCount : 0,
+        amountShare: totalAmount ? amounts.en_attente / totalAmount : 0,
+        toneClass: this.toneClassMap.warning,
+      },
+      {
+        key: 'rejete',
+        label: 'Rejetes',
+        count: counts.rejete,
+        amountFormatted: this.formatAmount(amounts.rejete, data.currency),
+        countShare: totalCount ? counts.rejete / totalCount : 0,
+        amountShare: totalAmount ? amounts.rejete / totalAmount : 0,
+        toneClass: this.toneClassMap.error,
+      },
+    ];
+  }
+
+  private resolveGranularityLabel(value: BoutiqueDashboardGranularity | null): string {
+    if (value === 'day') {
+      return 'Jour';
+    }
+    if (value === 'month') {
+      return 'Mois';
+    }
+    return 'Semaine';
+  }
+
+  private formatTrendLabel(value: string, granularity: BoutiqueDashboardGranularity): string {
+    if (!value) {
+      return '-';
+    }
+    if (granularity === 'week') {
+      return `Semaine ${value.split('-')[1] || value}`;
+    }
+    return value;
+  }
+
   private formatAmount(amount: number, currency?: string | null): string {
-    const resolvedCurrency = currency || this.dashboard?.display?.currency || 'MGA';
+    const resolvedCurrency =
+      currency || this.dashboard?.display?.currency || this.boutiqueDashboard?.display?.currency || 'MGA';
     return `${this.numberFormatter.format(amount)} ${resolvedCurrency}`;
   }
 
@@ -521,5 +857,28 @@ export class StarterComponent implements OnInit, OnDestroy {
     const [year, month, day] = value.split('-').map((part) => Number(part));
     const date = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
     return date.toISOString();
+  }
+
+  private buildAdminQuery(): AdminDashboardFinanceQuery {
+    const { startDate, endDate, topN } = this.filterForm.getRawValue();
+    return {
+      startDate: startDate ? this.toStartDateIso(startDate) : undefined,
+      endDate: endDate ? this.toEndDateIso(endDate) : undefined,
+      topN: topN ?? undefined,
+    };
+  }
+
+  private buildBoutiqueQuery(): BoutiqueDashboardVentesQuery {
+    const { startDate, endDate, topN, granularity } = this.filterForm.getRawValue();
+    return {
+      startDate: startDate ? this.toStartDateIso(startDate) : undefined,
+      endDate: endDate ? this.toEndDateIso(endDate) : undefined,
+      topN: topN ?? undefined,
+      granularity: granularity ?? undefined,
+    };
+  }
+
+  private buildQueryKey(query: object): string {
+    return JSON.stringify(query);
   }
 }

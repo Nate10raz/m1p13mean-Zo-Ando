@@ -6,18 +6,36 @@
           <i-tabler name="chart-bar" class="icon-24 d-flex"></i-tabler>
         </div>
         <div>
-          <h2 class="m-0">Dashboard financier</h2>
+          <h2 class="m-0">
+            @if (isAdmin) {
+              Dashboard financier
+            } @else if (isBoutique) {
+              Dashboard ventes
+            } @else {
+              Dashboard
+            }
+          </h2>
           <div class="text-muted f-s-13">
             Periode:
-            @if (dashboard?.period) {
+            @if (isAdmin && dashboard?.period) {
               {{ dashboard?.period?.start | date: 'dd/MM/yyyy' }} -
               {{ dashboard?.period?.end | date: 'dd/MM/yyyy' }}
+            } @else if (isBoutique && boutiqueDashboard?.period) {
+              {{ boutiqueDashboard?.period?.start | date: 'dd/MM/yyyy' }} -
+              {{ boutiqueDashboard?.period?.end | date: 'dd/MM/yyyy' }}
             } @else {
               Periode par defaut
             }
           </div>
-          @if (lastUpdated) {
-            <div class="text-muted f-s-12">Mis a jour le {{ lastUpdated | date: 'dd/MM/yyyy HH:mm' }}</div>
+          @if (isAdmin && lastUpdated) {
+            <div class="text-muted f-s-12">
+              Mis a jour le {{ lastUpdated | date: 'dd/MM/yyyy HH:mm' }}
+            </div>
+          }
+          @if (isBoutique && boutiqueLastUpdated) {
+            <div class="text-muted f-s-12">
+              Mis a jour le {{ boutiqueLastUpdated | date: 'dd/MM/yyyy HH:mm' }}
+            </div>
           }
         </div>
       </div>
@@ -40,6 +58,17 @@
               <input matInput type="date" formControlName="endDate" />
             </mat-form-field>
 
+            @if (isBoutique) {
+              <mat-form-field appearance="outline" class="granularity-input">
+                <mat-label>Granularite</mat-label>
+                <mat-select formControlName="granularity">
+                  <mat-option value="day">Jour</mat-option>
+                  <mat-option value="week">Semaine</mat-option>
+                  <mat-option value="month">Mois</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
+
             <mat-form-field appearance="outline" class="topn-input">
               <mat-label>Top N</mat-label>
               <input matInput type="number" min="1" max="50" formControlName="topN" />
@@ -54,20 +83,31 @@
             <button mat-stroked-button color="primary" type="button" (click)="resetFilters()" [disabled]="isLoading">
               Reinitialiser
             </button>
+            <button
+              mat-stroked-button
+              color="primary"
+              type="button"
+              (click)="refreshDashboard()"
+              [disabled]="isLoading"
+            >
+              <i-tabler name="refresh" class="icon-18 d-flex"></i-tabler>
+            </button>
           </form>
         </mat-card-content>
       </mat-card>
     </div>
   </div>
 
-  @if (!isAdmin) {
+  @if (!isAdmin && !isBoutique) {
     <mat-card class="cardWithShadow">
       <mat-card-content>
-        <mat-card-title>Dashboard admin</mat-card-title>
-        <mat-card-subtitle>Cette page est reservee aux administrateurs.</mat-card-subtitle>
+        <mat-card-title>Dashboard</mat-card-title>
+        <mat-card-subtitle>Cette page est reservee aux administrateurs et boutiques.</mat-card-subtitle>
       </mat-card-content>
     </mat-card>
-  } @else {
+  }
+
+  @if (isAdmin) {
     @if (isLoading && !dashboard) {
       <mat-card class="cardWithShadow">
         <mat-card-content class="d-flex align-items-center gap-16">
@@ -470,4 +510,342 @@
       </div>
     }
   }
+
+  @if (isBoutique) {
+      @if (isLoading && !boutiqueDashboard) {
+        <mat-card class="cardWithShadow">
+          <mat-card-content class="d-flex align-items-center gap-16">
+            <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+            <span>Chargement du dashboard...</span>
+          </mat-card-content>
+        </mat-card>
+      } @else if (errorMessage && !boutiqueDashboard) {
+        <mat-card class="cardWithShadow">
+          <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+        </mat-card>
+      } @else if (!boutiqueDashboard) {
+        <mat-card class="cardWithShadow">
+          <mat-card-content class="text-muted">Aucune donnee pour la periode selectionnee.</mat-card-content>
+        </mat-card>
+      } @else {
+        @if (isLoading) {
+          <mat-progress-bar mode="indeterminate" class="m-b-16"></mat-progress-bar>
+        }
+        @if (errorMessage) {
+          <mat-card class="cardWithShadow m-b-16">
+            <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+          </mat-card>
+        }
+
+        <div class="row">
+          @for (card of boutiqueKpiCards; track card.key) {
+            <div class="col-12 col-md-4 m-b-16">
+              <mat-card class="cardWithShadow kpi-card">
+                <mat-card-content>
+                  <div class="d-flex align-items-center">
+                    <div class="kpi-icon" [ngClass]="card.toneClass">
+                      <i-tabler [name]="card.icon" class="icon-20 d-flex"></i-tabler>
+                    </div>
+                    <div class="m-l-12">
+                      <div class="text-muted f-s-12">{{ card.label }}</div>
+                      <div class="kpi-value">{{ card.value }}</div>
+                      @if (card.subLabel) {
+                        <div class="text-muted f-s-12">{{ card.subLabel }}</div>
+                      }
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          }
+        </div>
+
+        <div class="row m-t-16">
+          <div class="col-12 col-xl-8 m-b-16">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Tendance des ventes</mat-card-title>
+                    <mat-card-subtitle>
+                      {{ boutiqueDashboard.display.revenue }} -
+                      {{ boutiqueDashboard.sales.ordersValidCount }} commandes valides
+                    </mat-card-subtitle>
+                  </div>
+                  <span class="stat-pill bg-light-primary text-primary">{{ granularityLabel }}</span>
+                </div>
+
+                @if (!trendRows.length) {
+                  <div class="text-muted p-12">Aucune donnee.</div>
+                } @else {
+                  @for (row of trendRows; track row.key) {
+                    <div class="trend-row">
+                      <div class="trend-label">{{ row.label }}</div>
+                      <div class="trend-values">
+                        <span>{{ row.revenueFormatted }}</span>
+                        <span>{{ row.ordersCount }} cmd</span>
+                      </div>
+                      <div class="progress-track trend-bar">
+                        <span class="progress-fill" [style.width.%]="row.share * 100"></span>
+                      </div>
+                    </div>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Statuts commandes</mat-card-title>
+                    <mat-card-subtitle>Total: {{ boutiqueDashboard.sales.ordersCount }}</mat-card-subtitle>
+                  </div>
+                </div>
+
+                @if (!orderStatusRows.length) {
+                  <div class="text-muted p-12">Aucune donnee.</div>
+                } @else {
+                  @for (row of orderStatusRows; track row.key) {
+                    <div class="metric-row">
+                      <div class="metric-info">
+                        <span class="metric-label">{{ row.label }}</span>
+                        <span class="text-muted f-s-12">{{ row.value }} commandes</span>
+                      </div>
+                      <div class="metric-value">
+                        {{ (orderStatusTotal ? (row.value / orderStatusTotal) * 100 : 0) | number: '1.0-0' }}%
+                      </div>
+                      <div class="progress-track metric-bar">
+                        <span
+                          class="progress-fill"
+                          [style.width.%]="orderStatusTotal ? (row.value / orderStatusTotal) * 100 : 0"
+                        ></span>
+                      </div>
+                    </div>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <div class="row m-t-16">
+          <div class="col-12 col-xl-6 m-b-16">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Top produits</mat-card-title>
+                    <mat-card-subtitle>Top {{ boutiqueDashboard.topN }}</mat-card-subtitle>
+                  </div>
+                </div>
+                @if (!topProductRows.length) {
+                  <div class="text-muted p-12">Aucune donnee.</div>
+                } @else {
+                  @for (item of topProductRows; track item.key) {
+                    <div class="metric-row">
+                      <div class="metric-info">
+                        <span class="metric-label">{{ item.label }}</span>
+                        <span class="text-muted f-s-12">{{ item.quantity }} unite(s)</span>
+                      </div>
+                      <div class="metric-value">{{ item.revenueFormatted }}</div>
+                      <div class="progress-track metric-bar">
+                        <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                      </div>
+                    </div>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="col-12 col-xl-6">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Top categories</mat-card-title>
+                    <mat-card-subtitle>Top {{ boutiqueDashboard.topN }}</mat-card-subtitle>
+                  </div>
+                </div>
+                @if (!topCategoryRows.length) {
+                  <div class="text-muted p-12">Aucune donnee.</div>
+                } @else {
+                  @for (item of topCategoryRows; track item.key) {
+                    <div class="metric-row">
+                      <div class="metric-info">
+                        <span class="metric-label">{{ item.label }}</span>
+                        <span class="text-muted f-s-12">{{ item.quantity }} unite(s)</span>
+                      </div>
+                      <div class="metric-value">{{ item.revenueFormatted }}</div>
+                      <div class="progress-track metric-bar">
+                        <span class="progress-fill" [style.width.%]="item.share * 100"></span>
+                      </div>
+                    </div>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <div class="row m-t-16">
+          <div class="col-12 col-lg-4 m-b-16">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Clients & avis</mat-card-title>
+                    <mat-card-subtitle>Fidelisation et satisfaction</mat-card-subtitle>
+                  </div>
+                </div>
+                <div class="mini-grid m-t-16">
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Clients actifs</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.customers.activeCount }}</div>
+                    <div class="text-muted f-s-12">{{ boutiqueDashboard.sales.ordersCount }} commandes</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Note moyenne</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueNote | number: '1.1-1' }}/5</div>
+                    <div class="text-muted f-s-12">{{ boutiqueDashboard.customers.avisCount }} avis</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="col-12 col-lg-4 m-b-16">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Paniers</mat-card-title>
+                    <mat-card-subtitle>Total: {{ cartTotal }}</mat-card-subtitle>
+                  </div>
+                  <span class="stat-pill bg-light-success text-success">
+                    {{ boutiqueDashboard.display.conversionRate }}
+                  </span>
+                </div>
+                <div class="stat-grid m-t-16">
+                  @for (row of cartStatusRows; track row.key) {
+                    <span class="stat-pill" [ngClass]="row.toneClass">{{ row.label }}: {{ row.value }}</span>
+                  }
+                </div>
+                <div class="m-t-16">
+                  <div class="d-flex justify-content-between f-s-13">
+                    <span>Conversion</span>
+                    <span>{{ boutiqueDashboard.display.conversionRate }}</span>
+                  </div>
+                  <div class="progress-track">
+                    <span class="progress-fill" [style.width.%]="cartConversionPercent"></span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <mat-card class="cardWithShadow h-100">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Stock & alertes</mat-card-title>
+                    <mat-card-subtitle>Surveillance des ruptures</mat-card-subtitle>
+                  </div>
+                </div>
+                <div class="mini-grid m-t-16">
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Stock bas</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.stock.lowStockCount }}</div>
+                    <div class="text-muted f-s-12">Produits critiques</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Alertes actives</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.stock.alertsCount }}</div>
+                    <div class="text-muted f-s-12">Notifications</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <div class="row m-t-16">
+          <div class="col-12">
+            <mat-card class="cardWithShadow">
+              <mat-card-content>
+                <div class="section-header">
+                  <div>
+                    <mat-card-title>Loyer & paiements</mat-card-title>
+                    <mat-card-subtitle>Suivi du loyer de box</mat-card-subtitle>
+                  </div>
+                </div>
+
+                <div class="mini-grid m-t-16">
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Loyer paye</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.display.rentPaid }}</div>
+                    <div class="text-muted f-s-12">
+                      {{ boutiqueDashboard.rent.payments.counts.valide }} paiement(s)
+                    </div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Loyer en attente</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.display.rentPending }}</div>
+                    <div class="text-muted f-s-12">
+                      {{ boutiqueDashboard.rent.payments.counts.en_attente }} paiement(s)
+                    </div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="text-muted f-s-12">Impayes</div>
+                    <div class="f-s-20 f-w-600">{{ boutiqueDashboard.display.arrearsAmount }}</div>
+                    <div class="text-muted f-s-12">
+                      {{ boutiqueDashboard.rent.arrears.count }} dossier(s)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="m-t-16">
+                  <div class="text-muted f-s-12 m-b-8">Detail des paiements</div>
+                  @for (row of rentPaymentRows; track row.key) {
+                    <div class="payment-row">
+                      <div class="payment-label">
+                        <span class="payment-dot" [ngClass]="row.toneClass"></span>
+                        <span>{{ row.label }}</span>
+                      </div>
+                      <div class="payment-values">
+                        <span>{{ row.count }} paiements</span>
+                        <span class="f-w-600">{{ row.amountFormatted }}</span>
+                      </div>
+                      <div class="progress-track payment-track">
+                        <span class="progress-fill" [style.width.%]="row.amountShare * 100"></span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="m-t-16">
+                  <div class="text-muted f-s-12 m-b-4">Prochaine echeance</div>
+                  @if (boutiqueDashboard.rent.nextDue) {
+                    <div class="f-s-14 f-w-600">
+                      {{ boutiqueDashboard.rent.nextDue.dueDate | date: 'dd/MM/yyyy' }} -
+                      {{ boutiqueDashboard.rent.nextDue.amount | number: '1.0-0' }}
+                      {{ boutiqueDashboard.display.currency }}
+                    </div>
+                    @if (boutiqueDashboard.rent.nextDue.reference) {
+                      <div class="text-muted f-s-12">Ref: {{ boutiqueDashboard.rent.nextDue.reference }}</div>
+                    }
+                  } @else {
+                    <div class="text-muted f-s-12">Aucune echeance a venir.</div>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      }
+    }
 </div>

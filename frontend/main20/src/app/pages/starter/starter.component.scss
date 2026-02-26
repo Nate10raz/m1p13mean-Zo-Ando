@@ -29,6 +29,10 @@
   width: 110px;
 }
 
+.granularity-input {
+  min-width: 150px;
+}
+
 .stacked-col {
   margin-top: 16px;
 }
@@ -153,6 +157,33 @@
 }
 
 .metric-bar {
+  grid-column: 1 / -1;
+}
+
+.trend-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.trend-row:last-child {
+  border-bottom: none;
+}
+
+.trend-label {
+  font-weight: 600;
+}
+
+.trend-values {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.trend-bar {
   grid-column: 1 / -1;
 }
 

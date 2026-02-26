@@ -522,7 +522,7 @@ export const getAdminFinanceDashboard = async (
     PayementBox.aggregate([
       {
         $match: {
-          status: { $ne: 'valide' },
+          status: 'en_attente',
           dueDate: { $exists: true, $ne: null, $lte: end },
         },
       },
