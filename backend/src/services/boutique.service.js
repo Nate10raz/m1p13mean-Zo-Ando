@@ -100,6 +100,18 @@ const requireBoutiqueUser = async (userId) => {
 
 export const getMyBoutique = async (userId) => {
   const user = await requireBoutiqueUser(userId);
+  const boutique = await Boutique.findById(user.boutiqueId).lean();
+  if (!boutique) {
+    throw createError('Boutique introuvable', 404);
+  }
+  return boutique;
+};
+
+export const updateMyBoutique = async (userId, data) => {
+  const user = await requireBoutiqueUser(userId);
+  return updateBoutique(user.boutiqueId, userId, data);
+};
+
 export const getBoutiqueById = async (id) => {
   const boutique = await Boutique.findById(id).lean();
   if (!boutique) {

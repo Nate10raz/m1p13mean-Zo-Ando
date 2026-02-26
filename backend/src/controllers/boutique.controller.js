@@ -3,7 +3,7 @@ import {
   updateMyBoutique,
   getBoutiqueById,
   updateBoutique,
-  getBoutiqueSalesDashboard
+  getBoutiqueSalesDashboard,
 } from '../services/boutique.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
@@ -36,6 +36,17 @@ export const getBoutiqueSalesDashboardController = async (req, res, next) => {
         role: req.user?.role,
       },
     );
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Dashboard ventes boutique',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const updateMyBoutiqueController = async (req, res, next) => {
   try {
