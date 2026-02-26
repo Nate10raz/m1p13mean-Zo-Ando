@@ -16,7 +16,14 @@ const panierSchema = new mongoose.Schema({
     },
   ],
 
+  createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  status: {
+    type: String,
+    enum: ['active', 'abandoned', 'converted'],
+    default: 'active',
+    index: true,
+  },
   expiresAt: { type: Date },
 });
 

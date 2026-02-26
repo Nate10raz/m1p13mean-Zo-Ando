@@ -3,6 +3,7 @@ import {
   updateMyBoutique,
   getBoutiqueById,
   updateBoutique,
+  getBoutiqueSalesDashboard
 } from '../services/boutique.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
@@ -20,6 +21,21 @@ export const getMyBoutiqueController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getBoutiqueSalesDashboardController = async (req, res, next) => {
+  try {
+    const result = await getBoutiqueSalesDashboard(
+      {
+        startDate: req.query.startDate,
+        endDate: req.query.endDate,
+        topN: req.query.topN,
+        granularity: req.query.granularity,
+      },
+      {
+        userId: req.user?.id,
+        role: req.user?.role,
+      },
+    );
 
 export const updateMyBoutiqueController = async (req, res, next) => {
   try {
