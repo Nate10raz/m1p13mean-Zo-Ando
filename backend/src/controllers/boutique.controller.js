@@ -92,5 +92,3 @@ export const updateBoutiqueController = async (req, res, next) => {
     next(error);
   }
 };
-
-

@@ -35,6 +35,13 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
+const createStatusError = (message, status = 400, data = null) => {
+  const err = new Error(message);
+  err.status = status;
+  err.data = data;
+  return err;
+};
+
 export const registerClient = async (payload) => {
   const email = normalizeEmail(payload.email);
   requireString(email, 'email');
@@ -216,4 +223,92 @@ export const registerAdmin = async (payload) => {
   } finally {
     session.endSession();
   }
+};
+
+export const getMyProfile = async (userId) => {
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+
+  let boutique = null;
+  let panier = null;
+
+  if (user.role === 'boutique') {
+    const boutiqueDoc = user.boutiqueId
+      ? await Boutique.findById(user.boutiqueId).lean()
+      : await Boutique.findOne({ userId: user._id }).lean();
+    if (!boutiqueDoc) {
+      throw createStatusError('Boutique introuvable', 404);
+    }
+    boutique = boutiqueDoc;
+  } else if (user.role === 'client') {
+    if (user.panierId) {
+      panier = await Panier.findById(user.panierId).lean();
+    }
+    if (!panier) {
+      panier = await Panier.findOne({ clientId: user._id }).lean();
+    }
+  }
+
+  return {
+    user: sanitizeUser(user),
+    boutique,
+    panier,
+  };
+};
+
+export const updateMyProfile = async (userId, data = {}) => {
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+
+  const allowedFields = ['nom', 'prenom', 'telephone', 'avatar', 'adresseLivraison'];
+
+  allowedFields.forEach((field) => {
+    if (Object.prototype.hasOwnProperty.call(data, field)) {
+      user[field] = data[field];
+    }
+  });
+
+  if (Object.prototype.hasOwnProperty.call(data, 'preferences')) {
+    const prefInput = data.preferences;
+    if (prefInput && typeof prefInput === 'object') {
+      const currentPrefs = user.preferences
+        ? typeof user.preferences.toObject === 'function'
+          ? user.preferences.toObject()
+          : { ...user.preferences }
+        : {};
+      const mergedPrefs = { ...currentPrefs };
+
+      if (Object.prototype.hasOwnProperty.call(prefInput, 'notifications')) {
+        const notifInput = prefInput.notifications;
+        if (notifInput && typeof notifInput === 'object') {
+          mergedPrefs.notifications = {
+            ...(currentPrefs.notifications || {}),
+            ...notifInput,
+          };
+        }
+      }
+
+      Object.keys(prefInput).forEach((key) => {
+        if (key === 'notifications') return;
+        mergedPrefs[key] = prefInput[key];
+      });
+
+      user.preferences = mergedPrefs;
+    }
+  }
+
+  await user.save();
+  return getMyProfile(userId);
 };

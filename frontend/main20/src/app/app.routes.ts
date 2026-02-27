@@ -28,6 +28,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'profil',
+        loadComponent: () =>
+          import('./pages/profil/profil.component').then((m) => m.ProfilComponent),
+      },
+      {
         path: 'produit/:id',
         canActivate: [RoleGuard],
         data: { roles: ['client'] },

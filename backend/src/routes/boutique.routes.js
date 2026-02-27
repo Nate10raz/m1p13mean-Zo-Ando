@@ -1,16 +1,56 @@
 import { Router } from 'express';
-import { query, validationResult } from 'express-validator';
+import { body, query, validationResult } from 'express-validator';
 import {
-    getMyBoutiqueController,
-    updateMyBoutiqueController,
-    getBoutiqueByIdController,
-    updateBoutiqueController,
-    getBoutiqueSalesDashboardController,
+  getMyBoutiqueController,
+  updateMyBoutiqueController,
+  getBoutiqueByIdController,
+  updateBoutiqueController,
+  getBoutiqueSalesDashboardController,
 } from '../controllers/boutique.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
 
 const router = Router();
+
+const validateRequest = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return badRequestResponse(req, res, 'Validation error', errors.array());
+  }
+  return next();
+};
+
+const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+
+const boutiqueUpdateValidation = [
+  body('nom').optional().isString().notEmpty(),
+  body('description').optional().isString(),
+  body('logo')
+    .optional()
+    .isURL({ require_protocol: true, protocols: ['http', 'https'] })
+    .withMessage('Logo URL invalide'),
+  body('banner')
+    .optional()
+    .isURL({ require_protocol: true, protocols: ['http', 'https'] })
+    .withMessage('Banner URL invalide'),
+  body('adresse').optional().isString(),
+  body('horaires').optional().isArray(),
+  body('horaires.*.jour').optional().isIn(daysOfWeek).withMessage('Jour invalide'),
+  body('horaires.*.ouverture').optional().isString(),
+  body('horaires.*.fermeture').optional().isString(),
+  body('telephone').optional().isMobilePhone('any').withMessage('Telephone invalide'),
+  body('email').optional().isEmail().withMessage('Email invalide'),
+  body('clickCollectActif').optional().isBoolean(),
+  body('plage_livraison_boutique').optional().isArray(),
+  body('plage_livraison_boutique.*.jour').optional().isIn(daysOfWeek).withMessage('Jour invalide'),
+  body('plage_livraison_boutique.*.ouverture').optional().isString(),
+  body('plage_livraison_boutique.*.fermeture').optional().isString(),
+  body('plage_livraison_boutique.*.maxLivraison')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('maxLivraison invalide'),
+  body('accepteLivraisonJourJ').optional().isBoolean(),
+];
 
 /**
  * @openapi
@@ -21,19 +61,17 @@ const router = Router();
 
 router.get('/me', requireAuth, requireRole('boutique'), getMyBoutiqueController);
 router.put('/me', requireAuth, requireRole('boutique'), updateMyBoutiqueController);
+router.patch(
+  '/me',
+  requireAuth,
+  requireRole('boutique'),
+  boutiqueUpdateValidation,
+  validateRequest,
+  updateMyBoutiqueController,
+);
 
 router.get('/:id', getBoutiqueByIdController);
 router.put('/:id', requireAuth, updateBoutiqueController);
-
-
-
-const validateRequest = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return badRequestResponse(req, res, 'Validation error', errors.array());
-  }
-  return next();
-};
 
 router.get(
   '/dashboard/ventes',
@@ -59,6 +97,68 @@ router.get(
  *       - bearerAuth: []
  *     responses:
  *       200: { description: Boutique }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ */
+
+/**
+ * @openapi
+ * /boutiques/me:
+ *   patch:
+ *     tags: [Boutiques]
+ *     summary: Mettre a jour la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               description: { type: string }
+ *               logo: { type: string, format: uri }
+ *               banner: { type: string, format: uri }
+ *               adresse: { type: string }
+ *               horaires: { type: array }
+ *               telephone: { type: string }
+ *               email: { type: string, format: email }
+ *               clickCollectActif: { type: boolean }
+ *               plage_livraison_boutique: { type: array }
+ *               accepteLivraisonJourJ: { type: boolean }
+ *     responses:
+ *       200: { description: Boutique mise a jour }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ *//**
+ * @openapi
+ * /boutiques/me:
+ *   patch:
+ *     tags: [Boutiques]
+ *     summary: Mettre a jour la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               description: { type: string }
+ *               logo: { type: string, format: uri }
+ *               banner: { type: string, format: uri }
+ *               adresse: { type: string }
+ *               horaires: { type: array }
+ *               telephone: { type: string }
+ *               email: { type: string, format: email }
+ *               clickCollectActif: { type: boolean }
+ *               plage_livraison_boutique: { type: array }
+ *               accepteLivraisonJourJ: { type: boolean }
+ *     responses:
+ *       200: { description: Boutique mise a jour }
  *       403: { description: Forbidden }
  *       404: { description: Boutique introuvable }
  */

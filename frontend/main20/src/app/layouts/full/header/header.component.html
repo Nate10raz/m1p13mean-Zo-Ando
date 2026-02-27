@@ -38,11 +38,24 @@
   </button>
 
   <mat-menu #profilemenu="matMenu" class="cardWithShadow topbar-dd">
-    <button mat-menu-item>
+    <div class="profile-menu-header">
+      <div class="profile-menu-avatar">{{ profileInitials }}</div>
+      <div class="profile-menu-meta">
+        <div class="profile-menu-name">{{ profileName }}</div>
+        <div class="profile-menu-sub">
+          <span class="role-pill" [ngClass]="roleToneClass">{{ roleLabel }}</span>
+          @if (isBoutique && boutiqueName) {
+            <span class="boutique-name">{{ boutiqueName }}</span>
+          }
+        </div>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/profil">
       <mat-icon class="d-flex align-items-center">
         <i-tabler name="user" class="icon-18 d-flex"></i-tabler>
       </mat-icon>
-      My Profile
+      Mon profil
     </button>
     <div class="p-x-12 m-t-12">
       <button mat-stroked-button class="w-100" (click)="logout()">Logout</button>

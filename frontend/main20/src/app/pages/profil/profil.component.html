@@ -1,0 +1,527 @@
+<div class="profile-page">
+  <div class="row align-items-center m-b-24">
+    <div class="col-12 col-lg-7">
+      <div class="profile-title">
+        <div class="profile-avatar">
+          <i-tabler name="user" class="icon-24 d-flex"></i-tabler>
+        </div>
+        <div>
+          <h2 class="m-0">{{ displayName }}</h2>
+          <div class="text-muted">{{ user?.email || '-' }}</div>
+          <div class="chip-row m-t-8">
+            <mat-chip class="chip role-chip">{{ roleLabel }}</mat-chip>
+            @if (user?.status || user?.isActive !== undefined) {
+              <mat-chip
+                class="chip"
+                [ngClass]="statusToneClass"
+              >
+                {{ statusLabel }}
+              </mat-chip>
+            }
+            <mat-chip class="chip" [ngClass]="user?.isEmailVerified ? 'chip-success' : 'chip-warn'">
+              {{ emailVerifiedLabel }}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5 profile-actions">
+      @if (!isEditing) {
+        <button mat-stroked-button type="button" (click)="startEdit()">Modifier</button>
+      } @else {
+        <button mat-stroked-button type="button" (click)="cancelEdit()">Annuler</button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="save()"
+          [disabled]="editForm.invalid || isSaving"
+        >
+          Enregistrer
+        </button>
+      }
+      <button mat-flat-button color="primary" type="button">Changer mot de passe</button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="d-flex align-items-center gap-16">
+        <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+        <span>Chargement du profil...</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (errorMessage) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  } @else if (!profile) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-muted">Aucune information de profil.</mat-card-content>
+    </mat-card>
+  } @else {
+    @if (isEditing) {
+      <mat-card class="cardWithShadow m-b-16">
+        <mat-card-content>
+          <div class="section-header">
+            <div>
+              <mat-card-title>Modifier le profil</mat-card-title>
+              <mat-card-subtitle>Mettre a jour vos informations personnelles</mat-card-subtitle>
+            </div>
+          </div>
+
+          <form [formGroup]="editForm" class="profile-form m-t-16">
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Nom</mat-label>
+                <input matInput formControlName="nom" />
+                @if (editForm.get('nom')?.hasError('required')) {
+                  <mat-error>Nom requis</mat-error>
+                }
+                @if (editForm.get('nom')?.hasError('minlength')) {
+                  <mat-error>Minimum 2 caracteres</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Prenom</mat-label>
+                <input matInput formControlName="prenom" />
+                @if (editForm.get('prenom')?.hasError('required')) {
+                  <mat-error>Prenom requis</mat-error>
+                }
+                @if (editForm.get('prenom')?.hasError('minlength')) {
+                  <mat-error>Minimum 2 caracteres</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Telephone</mat-label>
+                <input matInput formControlName="telephone" placeholder="+261340000000" />
+                @if (editForm.get('telephone')?.hasError('pattern')) {
+                  <mat-error>Numero invalide</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Avatar (URL)</mat-label>
+                <input matInput formControlName="avatar" />
+              </mat-form-field>
+
+              @if (isClient) {
+                <mat-form-field appearance="outline" class="form-full">
+                  <mat-label>Adresse de livraison</mat-label>
+                  <input matInput formControlName="adresseLivraison" />
+                </mat-form-field>
+              }
+            </div>
+
+            <div class="form-section">
+              <div class="section-title">Notifications</div>
+              <div formGroupName="preferences" class="m-t-12">
+                <div formGroupName="notifications" class="toggle-grid">
+                  <mat-slide-toggle formControlName="email">Email</mat-slide-toggle>
+                  <mat-slide-toggle formControlName="inApp">In-app</mat-slide-toggle>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <div class="row">
+      <div class="col-12 col-xl-7 m-b-16">
+        <mat-card class="cardWithShadow info-card">
+          <mat-card-content>
+            <div class="section-header">
+              <div>
+                <mat-card-title>Informations personnelles</mat-card-title>
+                <mat-card-subtitle>Identite, contact et statut</mat-card-subtitle>
+              </div>
+            </div>
+            <div class="detail-grid m-t-16">
+              <div class="detail-item">
+                <div class="detail-label">Nom</div>
+                <div class="detail-value">{{ user?.nom || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Prenom</div>
+                <div class="detail-value">{{ user?.prenom || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Telephone</div>
+                <div class="detail-value">{{ user?.telephone || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Role</div>
+                <div class="detail-value">{{ roleLabel }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Statut</div>
+                <div class="detail-value">{{ statusLabel }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email verifie</div>
+                <div class="detail-value">{{ formatBoolean(user?.isEmailVerified) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Compte actif</div>
+                <div class="detail-value">{{ formatBoolean(user?.isActive) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Cree le</div>
+                <div class="detail-value">
+                  {{ user?.createdAt ? (user?.createdAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Mis a jour</div>
+                <div class="detail-value">
+                  {{ user?.updatedAt ? (user?.updatedAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-xl-5 m-b-16">
+        <mat-card class="cardWithShadow info-card">
+          <mat-card-content>
+            <div class="section-header">
+              <div>
+                <mat-card-title>Preferences</mat-card-title>
+                <mat-card-subtitle>Notifications et alertes</mat-card-subtitle>
+              </div>
+            </div>
+            @if (!notificationModes.length) {
+              <div class="text-muted m-t-16">Aucune preference enregistree.</div>
+            } @else {
+              <div class="chip-row m-t-16">
+                @for (mode of notificationModes; track mode.key) {
+                  <mat-chip class="chip" [ngClass]="mode.active ? 'chip-success' : 'chip-muted'">
+                    {{ mode.label }}: {{ mode.active ? 'Oui' : 'Non' }}
+                  </mat-chip>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    @if (boutiqueView) {
+      <mat-card class="cardWithShadow m-b-16">
+        <mat-card-content>
+          <div class="section-header">
+            <div>
+              <mat-card-title>Boutique associee</mat-card-title>
+              <mat-card-subtitle>Informations boutique et activite</mat-card-subtitle>
+            </div>
+            @if (isBoutiqueUser) {
+              <div class="section-actions">
+                @if (!isEditingBoutique) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="startEditBoutique()"
+                    [disabled]="isLoadingBoutique"
+                  >
+                    Modifier boutique
+                  </button>
+                } @else {
+                  <button mat-stroked-button type="button" (click)="cancelEditBoutique()">Annuler</button>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    (click)="saveBoutique()"
+                    [disabled]="boutiqueForm.invalid || isSavingBoutique"
+                  >
+                    Enregistrer
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          @if (isLoadingBoutique) {
+            <div class="d-flex align-items-center gap-16 m-t-16">
+              <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+              <span>Chargement de la boutique...</span>
+            </div>
+          } @else if (boutiqueErrorMessage) {
+            <div class="text-error m-t-16">{{ boutiqueErrorMessage }}</div>
+          } @else if (isEditingBoutique) {
+            <form [formGroup]="boutiqueForm" class="profile-form m-t-16">
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nom de la boutique</mat-label>
+                  <input matInput formControlName="nom" />
+                  @if (boutiqueForm.get('nom')?.hasError('required')) {
+                    <mat-error>Nom requis</mat-error>
+                  }
+                  @if (boutiqueForm.get('nom')?.hasError('minlength')) {
+                    <mat-error>Minimum 2 caracteres</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Telephone</mat-label>
+                  <input matInput formControlName="telephone" placeholder="+261340000000" />
+                  @if (boutiqueForm.get('telephone')?.hasError('pattern')) {
+                    <mat-error>Numero invalide</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="email" placeholder="contact@maboutique.com" />
+                  @if (boutiqueForm.get('email')?.hasError('email')) {
+                    <mat-error>Email invalide</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Adresse</mat-label>
+                  <input matInput formControlName="adresse" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-full">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput formControlName="description" rows="3"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Logo (URL)</mat-label>
+                  <input matInput formControlName="logo" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Banner (URL)</mat-label>
+                  <input matInput formControlName="banner" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">Options de service</div>
+                <div class="toggle-grid m-t-12">
+                  <mat-slide-toggle formControlName="clickCollectActif">
+                    Service Click & Collect
+                  </mat-slide-toggle>
+                  <mat-slide-toggle formControlName="accepteLivraisonJourJ">
+                    Livraison Jour J
+                  </mat-slide-toggle>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">Horaires d'ouverture</div>
+                <div class="d-flex justify-content-end m-t-12">
+                  <button
+                    mat-stroked-button
+                    color="primary"
+                    type="button"
+                    (click)="addBoutiqueHoraire()"
+                  >
+                    Ajouter une plage
+                  </button>
+                </div>
+                <div formArrayName="horaires" class="m-t-12">
+                  @for (item of boutiqueHoraires.controls; track $index) {
+                    <div [formGroupName]="$index" class="row align-items-end m-b-12">
+                      <div class="col-12 col-md-4">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Jour</mat-label>
+                          <mat-select formControlName="jour">
+                            @for (j of jours; track j) {
+                              <mat-option [value]="j">{{ j | titlecase }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Ouverture</mat-label>
+                          <input matInput type="time" formControlName="ouverture" />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Fermeture</mat-label>
+                          <input matInput type="time" formControlName="fermeture" />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-12 col-md-2 d-flex justify-content-end">
+                        <button mat-icon-button color="warn" type="button" (click)="removeBoutiqueHoraire($index)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="text-muted">Aucun horaire defini.</div>
+                  }
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">Plages de livraison</div>
+                <div class="d-flex justify-content-end m-t-12">
+                  <button
+                    mat-stroked-button
+                    color="primary"
+                    type="button"
+                    (click)="addBoutiquePlage()"
+                  >
+                    Ajouter une plage
+                  </button>
+                </div>
+                <div formArrayName="plage_livraison_boutique" class="m-t-12">
+                  @for (item of boutiquePlages.controls; track $index) {
+                    <div [formGroupName]="$index" class="row align-items-end m-b-12">
+                      <div class="col-12 col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Jour</mat-label>
+                          <mat-select formControlName="jour">
+                            @for (j of jours; track j) {
+                              <mat-option [value]="j">{{ j | titlecase }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-6 col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Ouverture</mat-label>
+                          <input matInput type="time" formControlName="ouverture" />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-6 col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Fermeture</mat-label>
+                          <input matInput type="time" formControlName="fermeture" />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-12 col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Max livraisons</mat-label>
+                          <input matInput type="number" min="0" formControlName="maxLivraison" />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-12 col-md-2 d-flex justify-content-end">
+                        <button mat-icon-button color="warn" type="button" (click)="removeBoutiquePlage($index)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="text-muted">Aucune plage de livraison definie.</div>
+                  }
+                </div>
+              </div>
+            </form>
+          } @else {
+            <div class="detail-grid m-t-16">
+              <div class="detail-item">
+                <div class="detail-label">Nom</div>
+                <div class="detail-value">{{ boutiqueView.nom || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Adresse</div>
+                <div class="detail-value">{{ boutiqueView.adresse || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Telephone</div>
+                <div class="detail-value">{{ boutiqueView.telephone || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">{{ boutiqueView.email || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Statut</div>
+                <div class="detail-value">{{ formatStatus(boutiqueView.status) || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Statut livreur</div>
+                <div class="detail-value">{{ boutiqueView.statusLivreur || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Click & collect</div>
+                <div class="detail-value">{{ formatBoolean(boutiqueView.clickCollectActif) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Livraison jour J</div>
+                <div class="detail-value">{{ formatBoolean(boutiqueView.accepteLivraisonJourJ) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Note moyenne</div>
+                <div class="detail-value">{{ boutiqueView.noteMoyenne ?? 0 }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Nombre avis</div>
+                <div class="detail-value">{{ boutiqueView.nombreAvis ?? 0 }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Date validation</div>
+                <div class="detail-value">
+                  {{ boutiqueView.dateValidation ? (boutiqueView.dateValidation | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Cree le</div>
+                <div class="detail-value">
+                  {{ boutiqueView.createdAt ? (boutiqueView.createdAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Mis a jour</div>
+                <div class="detail-value">
+                  {{ boutiqueView.updatedAt ? (boutiqueView.updatedAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    } @else if (user?.role === 'boutique') {
+      <mat-card class="cardWithShadow m-b-16">
+        <mat-card-content class="text-muted">Aucune boutique associee.</mat-card-content>
+      </mat-card>
+    }
+
+    @if (panier) {
+      <mat-card class="cardWithShadow">
+        <mat-card-content>
+          <div class="section-header">
+            <div>
+              <mat-card-title>Panier</mat-card-title>
+              <mat-card-subtitle>Suivi du panier client</mat-card-subtitle>
+            </div>
+          </div>
+          <div class="detail-grid m-t-16">
+            <div class="detail-item">
+              <div class="detail-label">Articles</div>
+              <div class="detail-value">{{ panier.items.length }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Mis a jour</div>
+              <div class="detail-value">
+                {{ panier.updatedAt ? (panier.updatedAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+              </div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Expiration</div>
+              <div class="detail-value">
+                {{ panier.expiresAt ? (panier.expiresAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else if (user?.role === 'client') {
+      <mat-card class="cardWithShadow">
+        <mat-card-content class="text-muted">Aucun panier actif.</mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

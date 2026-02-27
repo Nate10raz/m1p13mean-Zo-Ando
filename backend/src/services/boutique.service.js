@@ -128,7 +128,7 @@ export const updateBoutique = async (id, userId, data) => {
 
   // Ownership check: userId must match boutique.userId
   if (boutique.userId.toString() !== userId) {
-    throw createError('Accès refusé : vous n\'êtes pas le propriétaire de cette boutique', 403);
+    throw createError("Accès refusé : vous n'êtes pas le propriétaire de cette boutique", 403);
   }
 
   // Define allowed fields to update
@@ -484,4 +484,3 @@ export const getBoutiqueSalesDashboard = async (
     },
   };
 };
-
