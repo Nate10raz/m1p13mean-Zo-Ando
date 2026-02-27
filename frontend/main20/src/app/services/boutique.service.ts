@@ -32,8 +32,10 @@ export interface Boutique {
     plage_livraison_boutique: BoutiquePlageLivraison[];
     accepteLivraisonJourJ: boolean;
     status: 'en_attente' | 'active' | 'suspendue' | 'rejetee';
+    statusLivreur?: string;
     noteMoyenne: number;
     nombreAvis: number;
+    dateValidation?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -51,7 +53,7 @@ export class BoutiqueService {
     }
 
     updateMyBoutique(data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
-        return this.http.put<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`, data);
+        return this.http.patch<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`, data);
     }
 
     getBoutiqueById(id: string): Observable<ApiResponse<Boutique>> {

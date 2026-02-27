@@ -732,16 +732,10 @@ export const getAdminFinanceDashboard = async (
         },
       },
     ]),
-    Boutique.aggregate([
-      { $group: { _id: '$status', count: { $sum: 1 } } },
-    ]),
-    User.aggregate([
-      { $group: { _id: '$role', count: { $sum: 1 } } },
-    ]),
+    Boutique.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+    User.aggregate([{ $group: { _id: '$role', count: { $sum: 1 } } }]),
     User.countDocuments({ role: 'client', isActive: true }),
-    Avis.aggregate([
-      { $group: { _id: null, avgNote: { $avg: '$note' }, count: { $sum: 1 } } },
-    ]),
+    Avis.aggregate([{ $group: { _id: null, avgNote: { $avg: '$note' }, count: { $sum: 1 } } }]),
   ]);
 
   const { counts: payementCounts, amounts: payementAmounts } = mapStatusCounts(payementStatusAgg, [
@@ -781,8 +775,7 @@ export const getAdminFinanceDashboard = async (
     rentInfo.boxesCount > 0 ? rentInfo.totalRevenue / rentInfo.boxesCount : 0;
   const revenuePerM2 =
     rentInfo.totalSuperficie > 0 ? rentInfo.totalRevenue / rentInfo.totalSuperficie : 0;
-  const occupancyRate =
-    occupancyInfo.total > 0 ? occupancyInfo.occupied / occupancyInfo.total : 0;
+  const occupancyRate = occupancyInfo.total > 0 ? occupancyInfo.occupied / occupancyInfo.total : 0;
 
   return {
     period: {
