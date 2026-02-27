@@ -267,8 +267,7 @@ export class StarterComponent implements OnInit, OnDestroy {
     );
     this.paymentRatePercent = this.toPercentNumber(data.location.paymentRate);
     this.occupancyRatePercent = this.toPercentNumber(data.occupancy.occupancyRate);
-    this.satisfactionNote =
-      data.display?.satisfactionNote ?? data.satisfaction?.noteMoyenne ?? 0;
+    this.satisfactionNote = data.display?.satisfactionNote ?? data.satisfaction?.noteMoyenne ?? 0;
     this.avgDecisionDays = data.display?.avgDecisionDays ?? data.demandesLocation.avgDecisionDays;
     this.minDecisionDays = data.demandesLocation.minDecisionDays;
     this.maxDecisionDays = data.demandesLocation.maxDecisionDays;
@@ -279,10 +278,7 @@ export class StarterComponent implements OnInit, OnDestroy {
       data.location.revenueByEtage,
       (item) => `Etage ${item.etage}`,
     );
-    this.revenueByType = this.buildBreakdown(
-      data.location.revenueByType,
-      (item) => item.typeNom,
-    );
+    this.revenueByType = this.buildBreakdown(data.location.revenueByType, (item) => item.typeNom);
     this.revenueByBoutique = this.buildBreakdown(
       data.location.revenueByBoutique,
       (item) => item.boutiqueNom,
@@ -328,7 +324,8 @@ export class StarterComponent implements OnInit, OnDestroy {
     const revenuePerM2 =
       display?.revenuePerM2 ?? this.formatAmount(data.location.revenuePerM2, data.currency);
     const paymentRate = display?.paymentRate ?? this.toPercentLabel(data.location.paymentRate);
-    const occupancyRate = display?.occupancyRate ?? this.toPercentLabel(data.occupancy.occupancyRate);
+    const occupancyRate =
+      display?.occupancyRate ?? this.toPercentLabel(data.occupancy.occupancyRate);
 
     return [
       {
@@ -625,7 +622,7 @@ export class StarterComponent implements OnInit, OnDestroy {
     return [
       {
         key: 'revenue',
-        label: 'Chiffre d\'affaires',
+        label: "Chiffre d'affaires",
         value: data.display.revenue,
         subLabel: `${data.sales.ordersValidCount} commandes valides`,
         icon: 'cash',
@@ -832,7 +829,10 @@ export class StarterComponent implements OnInit, OnDestroy {
 
   private formatAmount(amount: number, currency?: string | null): string {
     const resolvedCurrency =
-      currency || this.dashboard?.display?.currency || this.boutiqueDashboard?.display?.currency || 'MGA';
+      currency ||
+      this.dashboard?.display?.currency ||
+      this.boutiqueDashboard?.display?.currency ||
+      'MGA';
     return `${this.numberFormatter.format(amount)} ${resolvedCurrency}`;
   }
 

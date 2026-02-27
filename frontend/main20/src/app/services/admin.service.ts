@@ -274,7 +274,7 @@ export interface AdminApproveBoutiqueResponse {
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

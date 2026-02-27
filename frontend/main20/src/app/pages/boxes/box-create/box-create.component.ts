@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -78,9 +84,9 @@ export class AppBoxCreateComponent implements OnInit, OnDestroy {
     }),
     dateDebut: ['', Validators.required],
     raison: [''],
-    caracteristiques: this.fb.array<FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>>(
-      [],
-    ),
+    caracteristiques: this.fb.array<
+      FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>
+    >([]),
     photos: this.fb.array<FormControl<string>>([]),
   });
 
@@ -100,7 +106,9 @@ export class AppBoxCreateComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  get caracteristiques(): FormArray<FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>> {
+  get caracteristiques(): FormArray<
+    FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>
+  > {
     return this.form.get('caracteristiques') as FormArray<
       FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>
     >;
@@ -226,8 +234,8 @@ export class AppBoxCreateComponent implements OnInit, OnDestroy {
       return null;
     }
 
-    const caracteristiques = (raw.caracteristiques as Array<{ nom?: string; valeur?: string }>).
-      map((item) => ({
+    const caracteristiques = (raw.caracteristiques as Array<{ nom?: string; valeur?: string }>)
+      .map((item) => ({
         nom: this.normalizeText(item?.nom),
         valeur: this.normalizeText(item?.valeur),
       }))

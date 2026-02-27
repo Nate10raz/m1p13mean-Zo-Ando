@@ -48,13 +48,7 @@ interface BoxRow {
 @Component({
   selector: 'app-box-my-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    MatTableModule,
-    MatPaginatorModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, MatTableModule, MatPaginatorModule],
   templateUrl: './box-my-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -248,8 +242,8 @@ export class AppBoxMyListComponent implements OnInit, OnDestroy {
   private mapBox(item: BoxEntity, index: number): BoxRow {
     const typeLabel =
       typeof item.typeId === 'object'
-        ? item.typeId?.nom ?? item.typeId?._id ?? '-'
-        : item.typeId ?? '-';
+        ? (item.typeId?.nom ?? item.typeId?._id ?? '-')
+        : (item.typeId ?? '-');
 
     return {
       id: index + 1,
@@ -566,7 +560,9 @@ export class BoxMyDetailDialogComponent {
   }
 
   getTypeLabel(box: BoxEntity): string {
-    return typeof box.typeId === 'object' ? box.typeId?.nom ?? box.typeId?._id ?? '-' : box.typeId;
+    return typeof box.typeId === 'object'
+      ? (box.typeId?.nom ?? box.typeId?._id ?? '-')
+      : box.typeId;
   }
 
   formatDate(value: string | undefined | null): string {

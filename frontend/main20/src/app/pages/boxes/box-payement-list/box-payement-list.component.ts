@@ -28,10 +28,7 @@ import {
 
 import { MaterialModule } from '../../../material.module';
 import { BoxEntity, BoxService } from 'src/app/services/box.service';
-import {
-  PayementBoxEntity,
-  PayementBoxService,
-} from 'src/app/services/payement-box.service';
+import { PayementBoxEntity, PayementBoxService } from 'src/app/services/payement-box.service';
 
 interface PayementRow {
   id: number;
@@ -123,7 +120,9 @@ export class AppBoxPayementListComponent implements OnInit, OnDestroy {
 
     const filters$ = combineLatest([status$, box$]).pipe(
       map(([status, boxId]) => ({ status, boxId })),
-      distinctUntilChanged((prev, curr) => prev.status === curr.status && prev.boxId === curr.boxId),
+      distinctUntilChanged(
+        (prev, curr) => prev.status === curr.status && prev.boxId === curr.boxId,
+      ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 

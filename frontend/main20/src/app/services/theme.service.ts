@@ -10,7 +10,7 @@ export type ThemeMode = 'light' | 'dark';
 // La classe de thème de couleur déjà appliquée sur <body> (ex: blue_theme)
 // Adaptez cette valeur si vous en avez plusieurs
 const COLOR_THEME_CLASS = 'blue_theme';
-const LAYOUT_CLASS      = 'light-theme'; // classe de layout actuelle
+const LAYOUT_CLASS = 'light-theme'; // classe de layout actuelle
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {

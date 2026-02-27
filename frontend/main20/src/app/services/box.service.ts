@@ -84,7 +84,7 @@ export interface BoxListQuery {
   providedIn: 'root',
 })
 export class BoxService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -107,7 +107,9 @@ export class BoxService {
     return this.http.get<ApiResponse<BoxListResponse>>(url);
   }
 
-  listAvailableBoxes(params: Omit<BoxListQuery, 'estOccupe'> = {}): Observable<ApiResponse<BoxListResponse>> {
+  listAvailableBoxes(
+    params: Omit<BoxListQuery, 'estOccupe'> = {},
+  ): Observable<ApiResponse<BoxListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));
     if (params.limit) queryParams.set('limit', String(params.limit));

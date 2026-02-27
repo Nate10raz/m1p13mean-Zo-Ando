@@ -137,7 +137,9 @@ export class AppBoxTarifComponent implements OnInit, OnDestroy {
             unite: payload.unite,
             dateDebut: payload.dateDebut,
           };
-          this.box = this.box ? { ...this.box, tarifActuel: updatedTarif } : response?.data ?? null;
+          this.box = this.box
+            ? { ...this.box, tarifActuel: updatedTarif }
+            : (response?.data ?? null);
           const tarifLabel = this.formatTarif(updatedTarif);
           const dateLabel = this.formatDate(updatedTarif.dateDebut);
           const message =

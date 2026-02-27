@@ -18,7 +18,14 @@ import { AuthService, LoginPayload } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-side-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+  ],
   templateUrl: './side-login.component.html',
 })
 export class AppSideLoginComponent {

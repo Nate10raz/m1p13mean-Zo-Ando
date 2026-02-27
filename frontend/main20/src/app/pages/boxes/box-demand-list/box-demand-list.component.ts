@@ -105,10 +105,9 @@ export class AppBoxDemandListComponent implements OnInit, OnDestroy {
   private boxNumeroMap = new Map<string, string>();
   private boutiqueNameMap = new Map<string, string>();
 
-  statusControl = new FormControl<'all' | 'en_attente' | 'validee' | 'rejetee' | 'annulee'>(
-    'all',
-    { nonNullable: true },
-  );
+  statusControl = new FormControl<'all' | 'en_attente' | 'validee' | 'rejetee' | 'annulee'>('all', {
+    nonNullable: true,
+  });
   boxIdControl = new FormControl('', { nonNullable: true });
   boutiqueIdControl = new FormControl('', { nonNullable: true });
   pendingOnlyControl = new FormControl(false, { nonNullable: true });
@@ -333,10 +332,7 @@ export class AppBoxDemandListComponent implements OnInit, OnDestroy {
     return this.boutiqueNameMap.get(boutiqueId) ?? boutiqueId;
   }
 
-  private resolveBoxLabel(
-    value: DemandeLocationBoxEntity['boxId'],
-    fallbackId: string,
-  ): string {
+  private resolveBoxLabel(value: DemandeLocationBoxEntity['boxId'], fallbackId: string): string {
     if (!value) {
       return '-';
     }
@@ -479,8 +475,7 @@ export class AppBoxDemandListComponent implements OnInit, OnDestroy {
             const updated = response?.data ?? null;
             this.applyActionUpdate(action, demandeId, updated);
             const message =
-              response?.message ??
-              (action === 'approve' ? 'Demande validee.' : 'Demande rejetee.');
+              response?.message ?? (action === 'approve' ? 'Demande validee.' : 'Demande rejetee.');
             this.snackBar.open(message, 'Fermer', { duration: 4000 });
             this.refreshList();
           },

@@ -68,7 +68,7 @@ export interface ProductListQuery {
   providedIn: 'root',
 })
 export class ProductService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -253,7 +253,9 @@ export class AppBoxDetailComponent implements OnInit, OnDestroy {
     if (!box) {
       return '-';
     }
-    return typeof box.typeId === 'object' ? box.typeId?.nom ?? box.typeId?._id ?? '-' : box.typeId;
+    return typeof box.typeId === 'object'
+      ? (box.typeId?.nom ?? box.typeId?._id ?? '-')
+      : box.typeId;
   }
 
   getBoutiqueLabel(box: BoxEntity | null): string {
@@ -261,7 +263,7 @@ export class AppBoxDetailComponent implements OnInit, OnDestroy {
       return '-';
     }
     return typeof box.boutiqueId === 'object'
-      ? box.boutiqueId?.nom ?? box.boutiqueId?._id ?? '-'
+      ? (box.boutiqueId?.nom ?? box.boutiqueId?._id ?? '-')
       : box.boutiqueId;
   }
 

@@ -73,7 +73,9 @@ export class AppBoxTypeCreateComponent {
     private cdr: ChangeDetectorRef,
   ) {}
 
-  get caracteristiques(): FormArray<FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>> {
+  get caracteristiques(): FormArray<
+    FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>
+  > {
     return this.form.get('caracteristiques') as FormArray<
       FormGroup<{ nom: FormControl<string>; valeur: FormControl<string> }>
     >;

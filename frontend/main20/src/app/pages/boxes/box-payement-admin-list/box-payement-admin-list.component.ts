@@ -96,7 +96,15 @@ interface PayementRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppBoxPayementAdminListComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['reference', 'box', 'boutique', 'periode', 'montant', 'statut', 'date'];
+  displayedColumns: string[] = [
+    'reference',
+    'box',
+    'boutique',
+    'periode',
+    'montant',
+    'statut',
+    'date',
+  ];
   dataSource: PayementRow[] = [];
   rawItems: PayementBoxEntity[] = [];
   isLoading = false;

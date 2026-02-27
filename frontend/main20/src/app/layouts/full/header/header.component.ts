@@ -1,15 +1,8 @@
 // ─────────────────────────────────────────────────────────────
 //  header.component.ts  (mis à jour avec dark mode toggle)
 // ─────────────────────────────────────────────────────────────
-import {
-  Component,
-  Output,
-  EventEmitter,
-  Input,
-  ViewEncapsulation,
-  OnInit,
-} from '@angular/core';
-import {AsyncPipe, NgOptimizedImage} from '@angular/common';
+import { Component, Output, EventEmitter, Input, ViewEncapsulation, OnInit } from '@angular/core';
+import { AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule } from '@angular/router';
@@ -40,8 +33,8 @@ import { UserService, UserMeData } from 'src/app/services/user.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class HeaderComponent implements OnInit {
-  @Input()  showToggle    = true;
-  @Input()  toggleChecked = false;
+  @Input() showToggle = true;
+  @Input() toggleChecked = false;
   @Output() toggleMobileNav = new EventEmitter<void>();
 
   unreadCount = 0;
@@ -104,9 +97,11 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  private resolveProfileName(
-    user?: { prenom?: string | null; nom?: string | null; email?: string | null },
-  ): string {
+  private resolveProfileName(user?: {
+    prenom?: string | null;
+    nom?: string | null;
+    email?: string | null;
+  }): string {
     if (!user) {
       return 'Utilisateur';
     }
@@ -176,7 +171,7 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.authService.logout().subscribe({
-      next:  () => this.router.navigate(['/authentication/login']),
+      next: () => this.router.navigate(['/authentication/login']),
       error: () => this.router.navigate(['/authentication/login']),
     });
   }

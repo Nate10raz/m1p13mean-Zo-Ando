@@ -35,7 +35,7 @@ describe('AuthService', () => {
 
     service.registerClient(payload).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/register/client`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/register/client`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
     req.flush({
@@ -78,7 +78,7 @@ describe('AuthService', () => {
 
     service.login(payload).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/login`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
     expect(req.request.withCredentials).toBeTrue();
@@ -114,7 +114,7 @@ describe('AuthService', () => {
   it('refreshes access token using credentials', () => {
     service.refresh().subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/refresh`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/refresh`);
     expect(req.request.method).toBe('POST');
     expect(req.request.withCredentials).toBeTrue();
     req.flush({
@@ -135,7 +135,7 @@ describe('AuthService', () => {
 
     service.logout().subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/logout`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
     expect(req.request.method).toBe('POST');
     expect(req.request.withCredentials).toBeTrue();
     req.flush({

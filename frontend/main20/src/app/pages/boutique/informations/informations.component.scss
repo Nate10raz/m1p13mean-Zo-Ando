@@ -1,22 +1,22 @@
 .mat-mdc-card-header {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .mat-divider {
-    border-top-color: rgba(0, 0, 0, 0.08);
+  border-top-color: rgba(0, 0, 0, 0.08);
 }
 
 .row.align-items-center {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 mat-spinner.d-inline-block {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 @media (max-width: 991px) {
-    .row.align-items-center>div {
-        margin-bottom: 8px;
-    }
+  .row.align-items-center > div {
+    margin-bottom: 8px;
+  }
 }

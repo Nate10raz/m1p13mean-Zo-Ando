@@ -31,7 +31,7 @@ import { AuthService, LoginPayload } from 'src/app/services/auth.service';
 })
 export class AppSideLoginComponent {
   isSubmitting = false;
-  serverError  = '';
+  serverError = '';
   hidePassword = true; // ← toggle mot de passe
 
   constructor(
@@ -41,7 +41,7 @@ export class AppSideLoginComponent {
   ) {}
 
   form = new FormGroup({
-    email:    new FormControl('', [Validators.required, Validators.email]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
 
@@ -56,7 +56,7 @@ export class AppSideLoginComponent {
     }
 
     this.isSubmitting = true;
-    this.serverError  = '';
+    this.serverError = '';
 
     this.authService
       .login(this.form.getRawValue() as LoginPayload)
@@ -66,9 +66,9 @@ export class AppSideLoginComponent {
           const message = response?.message ?? 'Connexion reussie';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
 
-          const role           = response?.data?.user?.role ?? this.authService.getCurrentRole();
+          const role = response?.data?.user?.role ?? this.authService.getCurrentRole();
           const normalizedRole = role?.toLowerCase().trim();
-          const target         = normalizedRole === 'client' ? '/accueil' : '/dashboard';
+          const target = normalizedRole === 'client' ? '/accueil' : '/dashboard';
 
           this.router.navigate([target]);
         },

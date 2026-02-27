@@ -1,12 +1,21 @@
 ﻿import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Subscription } from 'rxjs';
 
 import { MaterialModule } from '../../../material.module';
 import { BoxEntity, BoxService } from 'src/app/services/box.service';
-import { PayementBoxCreatePayload, PayementBoxService } from 'src/app/services/payement-box.service';
+import {
+  PayementBoxCreatePayload,
+  PayementBoxService,
+} from 'src/app/services/payement-box.service';
 
 interface BoxOption {
   id: string;

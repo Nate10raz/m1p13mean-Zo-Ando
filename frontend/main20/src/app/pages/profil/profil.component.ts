@@ -6,7 +6,12 @@ import { finalize, Subscription } from 'rxjs';
 import { TablerIconsModule } from 'angular-tabler-icons';
 
 import { MaterialModule } from 'src/app/material.module';
-import { Boutique, BoutiqueHoraire, BoutiquePlageLivraison, BoutiqueService } from 'src/app/services/boutique.service';
+import {
+  Boutique,
+  BoutiqueHoraire,
+  BoutiquePlageLivraison,
+  BoutiqueService,
+} from 'src/app/services/boutique.service';
 import {
   UserService,
   UserMeData,
@@ -201,7 +206,9 @@ export class ProfilComponent implements OnInit, OnDestroy {
   }
 
   get notificationModes(): NotificationMode[] {
-    const notifications = this.user?.preferences?.notifications as NotificationPreference | undefined;
+    const notifications = this.user?.preferences?.notifications as
+      | NotificationPreference
+      | undefined;
     if (notifications === undefined || notifications === null) {
       return [];
     }
@@ -447,9 +454,10 @@ export class ProfilComponent implements OnInit, OnDestroy {
     );
   }
 
-  private resolveNotificationValues(
-    notifications: NotificationPreference | undefined,
-  ): { email: boolean; inApp: boolean } {
+  private resolveNotificationValues(notifications: NotificationPreference | undefined): {
+    email: boolean;
+    inApp: boolean;
+  } {
     if (notifications === undefined || notifications === null) {
       return { email: false, inApp: false };
     }
@@ -582,12 +590,14 @@ export class ProfilComponent implements OnInit, OnDestroy {
     }
 
     if (this.boutiqueForm.get('plage_livraison_boutique')?.dirty) {
-      payload.plage_livraison_boutique = (value.plage_livraison_boutique ?? []).map((plage: any) => ({
-        jour: plage?.jour ?? 'lundi',
-        ouverture: plage?.ouverture ?? '08:00',
-        fermeture: plage?.fermeture ?? '18:00',
-        maxLivraison: Number(plage?.maxLivraison ?? 0),
-      }));
+      payload.plage_livraison_boutique = (value.plage_livraison_boutique ?? []).map(
+        (plage: any) => ({
+          jour: plage?.jour ?? 'lundi',
+          ouverture: plage?.ouverture ?? '08:00',
+          fermeture: plage?.fermeture ?? '18:00',
+          maxLivraison: Number(plage?.maxLivraison ?? 0),
+        }),
+      );
     }
 
     return payload;

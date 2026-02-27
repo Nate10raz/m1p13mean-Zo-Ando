@@ -3,7 +3,6 @@
     <div class="col-lg-4 d-flex align-items-center">
       <mat-card class="cardWithShadow boxed-auth w-100">
         <mat-card-content class="p-32">
-
           <!-- Logo -->
           <div class="text-center">
             <a [routerLink]="['/']">
@@ -40,7 +39,6 @@
 
           <!-- Form -->
           <form class="m-t-30" [formGroup]="form" (ngSubmit)="submit()">
-
             <!-- Email -->
             <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Email address</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
@@ -110,7 +108,6 @@
             >
               {{ isSubmitting ? 'Signing in…' : 'Sign In' }}
             </button>
-
           </form>
 
           <!-- Register link -->
@@ -123,7 +120,6 @@
               Create an account
             </a>
           </span>
-
         </mat-card-content>
       </mat-card>
     </div>

@@ -108,7 +108,7 @@ export interface RefreshData {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiBaseUrl = environment.apiBaseUrl;
+  private readonly apiBaseUrl = `${environment.apiUrl}/auth`;
 
   constructor(
     private http: HttpClient,
@@ -116,8 +116,7 @@ export class AuthService {
   ) {}
 
   getBoutiqueMe(): Observable<ApiResponse<BoutiqueMeData>> {
-    const apiRoot = this.apiBaseUrl.replace(/\/auth\/?$/, '');
-    return this.http.get<ApiResponse<BoutiqueMeData>>(`${apiRoot}/boutiques/me`);
+    return this.http.get<ApiResponse<BoutiqueMeData>>(`${environment.apiUrl}/boutiques/me`);
   }
 
   registerClient(payload: ClientRegisterPayload): Observable<ApiResponse<ClientRegisterData>> {

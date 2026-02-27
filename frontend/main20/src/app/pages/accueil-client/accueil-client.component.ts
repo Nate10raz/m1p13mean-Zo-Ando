@@ -85,13 +85,9 @@ export class AccueilClientComponent implements OnInit, OnDestroy, AfterViewInit 
         .subscribe(() => this.resetAndFetch()),
     );
 
-    this.subscriptions.add(
-      this.categoryControl.valueChanges.subscribe(() => this.resetAndFetch()),
-    );
+    this.subscriptions.add(this.categoryControl.valueChanges.subscribe(() => this.resetAndFetch()));
 
-    this.subscriptions.add(
-      this.sortControl.valueChanges.subscribe(() => this.resetAndFetch()),
-    );
+    this.subscriptions.add(this.sortControl.valueChanges.subscribe(() => this.resetAndFetch()));
 
     this.subscriptions.add(
       this.minPriceControl.valueChanges

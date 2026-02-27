@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -232,8 +238,8 @@ export class AppBoxListComponent implements OnInit, OnDestroy {
   private mapBox(item: BoxEntity, index: number): BoxRow {
     const typeLabel =
       typeof item.typeId === 'object'
-        ? item.typeId?.nom ?? item.typeId?._id ?? '-'
-        : item.typeId ?? '-';
+        ? (item.typeId?.nom ?? item.typeId?._id ?? '-')
+        : (item.typeId ?? '-');
 
     return {
       id: index + 1,

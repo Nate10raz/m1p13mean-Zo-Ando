@@ -95,10 +95,9 @@ export class AppBoxDemandMyListComponent implements OnInit, OnDestroy {
   page = 1;
   limit = 10;
 
-  statusControl = new FormControl<'all' | 'en_attente' | 'validee' | 'rejetee' | 'annulee'>(
-    'all',
-    { nonNullable: true },
-  );
+  statusControl = new FormControl<'all' | 'en_attente' | 'validee' | 'rejetee' | 'annulee'>('all', {
+    nonNullable: true,
+  });
 
   private boxNumeroMap = new Map<string, string>();
   private readonly subscriptions = new Subscription();
@@ -300,10 +299,7 @@ export class AppBoxDemandMyListComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  private resolveBoxLabel(
-    value: DemandeLocationBoxEntity['boxId'],
-    fallbackId: string,
-  ): string {
+  private resolveBoxLabel(value: DemandeLocationBoxEntity['boxId'], fallbackId: string): string {
     if (!value) {
       return '-';
     }
@@ -376,9 +372,7 @@ export class AppBoxDemandMyListComponent implements OnInit, OnDestroy {
   template: `
     <div mat-dialog-title class="dialog-title">Annuler la demande</div>
     <div mat-dialog-content>
-      <div class="text-muted">
-        Voulez-vous annuler la demande pour la box {{ data.boxLabel }} ?
-      </div>
+      <div class="text-muted">Voulez-vous annuler la demande pour la box {{ data.boxLabel }} ?</div>
       <div class="text-muted m-t-8">Date debut : {{ data.dateDebutLabel }}</div>
     </div>
     <div mat-dialog-actions align="end">

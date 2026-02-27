@@ -47,7 +47,7 @@ export interface DemandeLocationBoxActionPayload {
   providedIn: 'root',
 })
 export class DemandeLocationBoxService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -75,7 +75,9 @@ export class DemandeLocationBoxService {
     return this.http.get<ApiResponse<DemandeLocationBoxListResponse>>(url);
   }
 
-  listPending(params: { page?: number; limit?: number } = {}): Observable<ApiResponse<DemandeLocationBoxListResponse>> {
+  listPending(
+    params: { page?: number; limit?: number } = {},
+  ): Observable<ApiResponse<DemandeLocationBoxListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));
     if (params.limit) queryParams.set('limit', String(params.limit));
@@ -87,7 +89,9 @@ export class DemandeLocationBoxService {
     return this.http.get<ApiResponse<DemandeLocationBoxListResponse>>(url);
   }
 
-  listMyDemandes(params: { page?: number; limit?: number; status?: DemandeLocationBoxEntity['status'] } = {}): Observable<ApiResponse<DemandeLocationBoxListResponse>> {
+  listMyDemandes(
+    params: { page?: number; limit?: number; status?: DemandeLocationBoxEntity['status'] } = {},
+  ): Observable<ApiResponse<DemandeLocationBoxListResponse>> {
     const queryParams = new URLSearchParams();
     if (params.page) queryParams.set('page', String(params.page));
     if (params.limit) queryParams.set('limit', String(params.limit));

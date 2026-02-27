@@ -3,15 +3,13 @@
     <div class="box-header">
       <div>
         <mat-card-title>{{ box?.numero || 'Fiche box' }}</mat-card-title>
-        <mat-card-subtitle class="text-muted">Zone {{ box?.zone }} · Etage {{ box?.etage }}</mat-card-subtitle>
+        <mat-card-subtitle class="text-muted"
+          >Zone {{ box?.zone }} · Etage {{ box?.etage }}</mat-card-subtitle
+        >
       </div>
       @if (box) {
         <div class="d-flex align-items-center gap-8 flex-wrap">
-          <span
-            class="status-pill"
-            [class.free]="!box.estOccupe"
-            [class.occupied]="box.estOccupe"
-          >
+          <span class="status-pill" [class.free]="!box.estOccupe" [class.occupied]="box.estOccupe">
             {{ box.estOccupe ? 'Occupee' : 'Disponible' }}
           </span>
           <button mat-flat-button color="primary" [routerLink]="['/boxes', box._id, 'tarif']">
@@ -142,4 +140,3 @@
     }
   </mat-card-content>
 </mat-card>
-

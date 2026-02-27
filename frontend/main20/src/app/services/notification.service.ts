@@ -21,7 +21,7 @@ export interface Notification {
   providedIn: 'root',
 })
 export class NotificationService {
-  private apiUrl = `${environment.apiBaseUrl.replace(/\/auth\/?$/, '')}/notification`;
+  private apiUrl = `${environment.apiUrl}/notification`;
 
   constructor(private http: HttpClient) {}
 

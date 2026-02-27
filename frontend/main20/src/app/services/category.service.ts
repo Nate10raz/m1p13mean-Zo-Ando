@@ -61,7 +61,7 @@ export interface CategoryUpdatePayload {
   providedIn: 'root',
 })
 export class CategoryService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

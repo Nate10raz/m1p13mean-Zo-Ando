@@ -50,13 +50,7 @@ interface BoxRow {
 @Component({
   selector: 'app-box-available',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    MatTableModule,
-    MatPaginatorModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, MatTableModule, MatPaginatorModule],
   templateUrl: './box-available.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -164,7 +158,8 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
         this.isLoading = false;
 
         if (!response || error) {
-          this.errorMessage = error?.error?.message ?? 'Impossible de charger les boxes disponibles.';
+          this.errorMessage =
+            error?.error?.message ?? 'Impossible de charger les boxes disponibles.';
           this.dataSource = [];
           this.total = 0;
           this.cdr.markForCheck();
@@ -253,8 +248,8 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
   private mapBox(item: BoxEntity, index: number): BoxRow {
     const typeLabel =
       typeof item.typeId === 'object'
-        ? item.typeId?.nom ?? item.typeId?._id ?? '-'
-        : item.typeId ?? '-';
+        ? (item.typeId?.nom ?? item.typeId?._id ?? '-')
+        : (item.typeId ?? '-');
 
     return {
       id: index + 1,
@@ -372,9 +367,7 @@ export class AppBoxAvailableComponent implements OnInit, OnDestroy {
       </div>
     </div>
     <div mat-dialog-actions align="end">
-      <button mat-flat-button color="primary" (click)="openRentRequest()">
-        Demander loyer
-      </button>
+      <button mat-flat-button color="primary" (click)="openRentRequest()">Demander loyer</button>
       <button mat-button (click)="onClose()">Fermer</button>
     </div>
   `,
@@ -582,7 +575,9 @@ export class BoxAvailableDetailDialogComponent {
   }
 
   getTypeLabel(box: BoxEntity): string {
-    return typeof box.typeId === 'object' ? box.typeId?.nom ?? box.typeId?._id ?? '-' : box.typeId;
+    return typeof box.typeId === 'object'
+      ? (box.typeId?.nom ?? box.typeId?._id ?? '-')
+      : box.typeId;
   }
 
   formatDate(value: string | undefined | null): string {
@@ -604,9 +599,7 @@ export class BoxAvailableDetailDialogComponent {
   selector: 'app-box-rent-request-dialog',
   imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   template: `
-    <div mat-dialog-title class="dialog-title">
-      Demande de location
-    </div>
+    <div mat-dialog-title class="dialog-title">Demande de location</div>
     <div mat-dialog-content>
       <div class="text-muted m-b-12">
         Box {{ data.box.numero }} · Zone {{ data.box.zone }} · Etage {{ data.box.etage }}

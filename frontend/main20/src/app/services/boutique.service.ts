@@ -5,62 +5,62 @@ import { environment } from 'src/environments/environment';
 import { ApiResponse } from './auth.service';
 
 export interface BoutiqueHoraire {
-    jour: 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi' | 'dimanche';
-    ouverture: string;
-    fermeture: string;
+  jour: 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi' | 'dimanche';
+  ouverture: string;
+  fermeture: string;
 }
 
 export interface BoutiquePlageLivraison {
-    jour: 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi' | 'dimanche';
-    ouverture: string;
-    fermeture: string;
-    maxLivraison: number;
+  jour: 'lundi' | 'mardi' | 'mercredi' | 'jeudi' | 'vendredi' | 'samedi' | 'dimanche';
+  ouverture: string;
+  fermeture: string;
+  maxLivraison: number;
 }
 
 export interface Boutique {
-    _id: string;
-    userId: string;
-    nom: string;
-    description?: string;
-    logo?: string;
-    banner?: string;
-    adresse?: string;
-    telephone?: string;
-    email?: string;
-    horaires: BoutiqueHoraire[];
-    clickCollectActif: boolean;
-    plage_livraison_boutique: BoutiquePlageLivraison[];
-    accepteLivraisonJourJ: boolean;
-    status: 'en_attente' | 'active' | 'suspendue' | 'rejetee';
-    statusLivreur?: string;
-    noteMoyenne: number;
-    nombreAvis: number;
-    dateValidation?: string;
-    createdAt: string;
-    updatedAt: string;
+  _id: string;
+  userId: string;
+  nom: string;
+  description?: string;
+  logo?: string;
+  banner?: string;
+  adresse?: string;
+  telephone?: string;
+  email?: string;
+  horaires: BoutiqueHoraire[];
+  clickCollectActif: boolean;
+  plage_livraison_boutique: BoutiquePlageLivraison[];
+  accepteLivraisonJourJ: boolean;
+  status: 'en_attente' | 'active' | 'suspendue' | 'rejetee';
+  statusLivreur?: string;
+  noteMoyenne: number;
+  nombreAvis: number;
+  dateValidation?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class BoutiqueService {
-    private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
 
-    constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-    getMyBoutique(): Observable<ApiResponse<Boutique>> {
-        return this.http.get<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`);
-    }
+  getMyBoutique(): Observable<ApiResponse<Boutique>> {
+    return this.http.get<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`);
+  }
 
-    updateMyBoutique(data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
-        return this.http.patch<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`, data);
-    }
+  updateMyBoutique(data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
+    return this.http.patch<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`, data);
+  }
 
-    getBoutiqueById(id: string): Observable<ApiResponse<Boutique>> {
-        return this.http.get<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/${id}`);
-    }
+  getBoutiqueById(id: string): Observable<ApiResponse<Boutique>> {
+    return this.http.get<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/${id}`);
+  }
 
-    updateBoutique(id: string, data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
-        return this.http.put<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/${id}`, data);
-    }
+  updateBoutique(id: string, data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
+    return this.http.put<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/${id}`, data);
+  }
 }
