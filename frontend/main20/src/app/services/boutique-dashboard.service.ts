@@ -123,7 +123,7 @@ export interface BoutiqueDashboardVentes {
   providedIn: 'root',
 })
 export class BoutiqueDashboardService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

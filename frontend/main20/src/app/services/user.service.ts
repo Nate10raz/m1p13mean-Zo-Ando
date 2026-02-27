@@ -89,7 +89,7 @@ export type UpdateMeResponse = UserMeData | { user: UserMe };
   providedIn: 'root',
 })
 export class UserService {
-  private readonly apiRootUrl = environment.apiBaseUrl.replace(/\/auth\/?$/, '');
+  private readonly apiRootUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
