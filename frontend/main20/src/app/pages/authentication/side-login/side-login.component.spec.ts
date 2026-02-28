@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
@@ -15,11 +15,14 @@ describe('AppSideLoginComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['login']);
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['loginWithRole', 'logout']);
 
     await TestBed.configureTestingModule({
       imports: [AppSideLoginComponent, RouterTestingModule, NoopAnimationsModule],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: ActivatedRoute, useValue: { snapshot: { data: { role: 'client' } } } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppSideLoginComponent);
@@ -29,7 +32,7 @@ describe('AppSideLoginComponent', () => {
   });
 
   it('submits a valid form and navigates to accueil for clients', () => {
-    authServiceSpy.login.and.returnValue(
+    authServiceSpy.loginWithRole.and.returnValue(
       of({
         route: '/auth/login',
         status: 200,
@@ -68,10 +71,13 @@ describe('AppSideLoginComponent', () => {
 
     component.submit();
 
-    expect(authServiceSpy.login).toHaveBeenCalledWith({
-      email: 'client@example.com',
-      password: 'secret123',
-    });
+    expect(authServiceSpy.loginWithRole).toHaveBeenCalledWith(
+      {
+        email: 'client@example.com',
+        password: 'secret123',
+      },
+      'client',
+    );
     expect(componentSnackBar.open).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/accueil']);
     expect(component.isSubmitting).toBeFalse();

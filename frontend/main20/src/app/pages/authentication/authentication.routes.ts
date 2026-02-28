@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 
-import { AppSideLoginComponent } from './side-login/side-login.component';
 import { AppSideRegisterComponent } from './side-register/side-register.component';
 import { AppSideRegisterClientComponent } from './side-register-client/side-register-client.component';
 import { AppSideRegisterBoutiqueComponent } from './side-register-boutique/side-register-boutique.component';
@@ -11,7 +10,8 @@ export const AuthenticationRoutes: Routes = [
     children: [
       {
         path: 'login',
-        component: AppSideLoginComponent,
+        redirectTo: '/client/login',
+        pathMatch: 'full',
       },
       {
         path: 'register',

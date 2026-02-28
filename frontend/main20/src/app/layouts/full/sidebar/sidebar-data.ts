@@ -1,4 +1,4 @@
-import { NavItem } from './nav-item/nav-item';
+﻿import { NavItem } from './nav-item/nav-item';
 
 export const navItems: NavItem[] = [
   {
@@ -79,7 +79,7 @@ export const navItems: NavItem[] = [
     roles: ['boutique'],
   },
   {
-    displayName: 'Mon établissement',
+    displayName: 'Mon Ã©tablissement',
     iconName: 'building-store',
     route: '/dashboard/boutique',
     roles: ['boutique'],
@@ -157,7 +157,7 @@ export const navItems: NavItem[] = [
       {
         displayName: 'Login',
         iconName: 'point',
-        route: '/authentication/login',
+        route: '/client/login',
       },
     ],
   },
@@ -184,3 +184,4 @@ export const navItems: NavItem[] = [
     ],
   },
 ];
+

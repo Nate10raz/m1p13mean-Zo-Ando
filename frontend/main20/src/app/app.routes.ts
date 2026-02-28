@@ -18,6 +18,30 @@ export const routes: Routes = [
         pathMatch: 'full',
       },
       {
+        path: 'client/login',
+        loadComponent: () =>
+          import('./pages/authentication/side-login/side-login.component').then(
+            (m) => m.AppSideLoginComponent,
+          ),
+        data: { role: 'client' },
+      },
+      {
+        path: 'boutique/login',
+        loadComponent: () =>
+          import('./pages/authentication/side-login/side-login.component').then(
+            (m) => m.AppSideLoginComponent,
+          ),
+        data: { role: 'boutique' },
+      },
+      {
+        path: 'admin/login',
+        loadComponent: () =>
+          import('./pages/authentication/side-login/side-login.component').then(
+            (m) => m.AppSideLoginComponent,
+          ),
+        data: { role: 'admin' },
+      },
+      {
         path: 'authentication',
         loadChildren: () =>
           import('./pages/authentication/authentication.routes').then(

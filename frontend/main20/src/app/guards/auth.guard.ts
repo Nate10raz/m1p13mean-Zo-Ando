@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   CanActivate,
@@ -45,8 +45,8 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     }
 
     return this.refreshAccessToken().pipe(
-      map((ok) => (ok ? true : this.router.createUrlTree(['/authentication/login']))),
-      catchError(() => of(this.router.createUrlTree(['/authentication/login']))),
+      map((ok) => (ok ? true : this.router.createUrlTree(['/client/login']))),
+      catchError(() => of(this.router.createUrlTree(['/client/login']))),
     );
   }
 
@@ -65,3 +65,4 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return this.refreshInFlight$;
   }
 }
+

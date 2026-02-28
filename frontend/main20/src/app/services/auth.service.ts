@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, tap } from 'rxjs';
+import { Observable, finalize, mergeMap, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TokenService } from './token.service';
 
@@ -148,6 +148,34 @@ export class AuthService {
           if (user) {
             this.tokenService.setUser(user);
           }
+        }),
+      );
+  }
+
+  loginWithRole(
+    payload: LoginPayload,
+    expectedRole: string,
+  ): Observable<ApiResponse<LoginData>> {
+    const expected = expectedRole.toLowerCase().trim();
+    return this.http
+      .post<ApiResponse<LoginData>>(`${this.apiBaseUrl}/login`, payload, { withCredentials: true })
+      .pipe(
+        mergeMap((response) => {
+          const role = response?.data?.user?.role?.toLowerCase().trim();
+          if (!role || role !== expected) {
+            return throwError(() => new Error('ROLE_MISMATCH'));
+          }
+
+          const accessToken = response?.data?.accessToken;
+          if (accessToken) {
+            this.tokenService.setAccessToken(accessToken);
+          }
+          const user = response?.data?.user;
+          if (user) {
+            this.tokenService.setUser(user);
+          }
+
+          return of(response);
         }),
       );
   }

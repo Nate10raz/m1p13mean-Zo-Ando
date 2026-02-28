@@ -29,13 +29,11 @@ import { AuthService, BoutiqueRegisterPayload } from 'src/app/services/auth.serv
     TablerIconsModule,
   ],
   templateUrl: './side-register-boutique.component.html',
-  styleUrls: ['./side-register-boutique.component.scss'],
+  styleUrl: './side-register-boutique.component.scss',
 })
 export class AppSideRegisterBoutiqueComponent {
   isSubmitting = false;
   serverError = '';
-
-  // Variables pour afficher/masquer les mots de passe
   hidePassword = true;
   hideConfirmPassword = true;
 
@@ -86,12 +84,12 @@ export class AppSideRegisterBoutiqueComponent {
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (response) => {
-          const message = response?.message ?? 'Inscription boutique reussie';
+          const message = response?.message ?? 'Inscription boutique réussie';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
-          this.router.navigate(['/authentication/login']);
+          this.router.navigate(['/boutique/login']);
         },
         error: (error) => {
-          this.serverError = error?.error?.message ?? 'Inscription impossible. Veuillez reessayer.';
+          this.serverError = error?.error?.message ?? 'Inscription impossible. Veuillez réessayer.';
           this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });
         },
       });
@@ -100,22 +98,14 @@ export class AppSideRegisterBoutiqueComponent {
   private passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password')?.value;
     const confirm = group.get('confirmPassword')?.value;
-    if (!password || !confirm) {
-      return null;
-    }
+    if (!password || !confirm) return null;
     return password === confirm ? null : { passwordsMismatch: true };
   }
 
-  /**
-   * Toggle la visibilité du mot de passe
-   */
   togglePasswordVisibility(): void {
     this.hidePassword = !this.hidePassword;
   }
 
-  /**
-   * Toggle la visibilité de la confirmation du mot de passe
-   */
   toggleConfirmPasswordVisibility(): void {
     this.hideConfirmPassword = !this.hideConfirmPassword;
   }

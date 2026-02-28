@@ -1,62 +1,100 @@
-<div class="blank-layout-container justify-content-center align-items-center bg-light">
-  <div class="position-relative row w-100 h-100 bg-gredient justify-content-center">
-    <div class="col-lg-4 d-flex align-items-center">
-      <mat-card class="cardWithShadow boxed-auth">
-        <mat-card-content class="p-32">
-          <div class="text-center">
-            <a [routerLink]="['/']" class="app-brand">
-              <span class="app-brand__icon bg-light-primary text-primary">
-                <i-tabler name="building-store" class="icon-20 d-flex"></i-tabler>
-              </span>
-              <span class="app-brand__name">MarketPlace</span>
-            </a>
-          </div>
+<div class="auth-wrapper">
 
-          <div class="row m-t-24 custom-row">
-            <div class="col-12 col-sm-6">
-              <button mat-stroked-button class="w-100">
-                <div class="d-flex align-items-center">
-                  <img
-                    src="/assets/images/svgs/google-icon.svg"
-                    alt="google"
-                    width="16"
-                    class="m-r-8"
-                  />
-                  <span> Sign in with Google </span>
-                </div>
-              </button>
-            </div>
-            <div class="col-12 col-sm-6">
-              <button mat-stroked-button class="w-100 d-flex align-items-center">
-                <div class="d-flex align-items-center">
-                  <img
-                    src="/assets/images/svgs/facebook-icon.svg"
-                    alt="facebook"
-                    width="40"
-                    class="m-r-4"
-                  />
-                  Sign in with FB
-                </div>
-              </button>
-            </div>
-          </div>
+  <!-- Blobs décoratifs fond -->
+  <div class="auth-blob auth-blob--1"></div>
+  <div class="auth-blob auth-blob--2"></div>
 
-          <div class="or-border m-t-30">or sign in with</div>
+  <div class="auth-card-wrap">
+    <mat-card class="cardWithShadow auth-card">
+      <mat-card-content>
 
-          <form class="m-t-30" [formGroup]="form" (ngSubmit)="submit()">
-            <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Email</mat-label>
+        <!-- ── Logo ── -->
+        <div class="auth-logo">
+          <a [routerLink]="['/']" class="app-brand">
+            <span class="app-brand__icon bg-light-primary text-primary">
+              <i-tabler name="building-store" class="icon-20 d-flex"></i-tabler>
+            </span>
+            <span class="app-brand__name">MarketPlace</span>
+          </a>
+        </div>
+
+        <!-- ── Titre ── -->
+        <div class="auth-title">
+          <h2 class="f-s-20 f-w-700 m-0">{{ pageTitle }}</h2>
+          <p class="text-muted f-s-13 m-0 m-t-4">Bienvenue</p>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             SWITCHER DE PROFIL — remplace le simple bouton
+        ═══════════════════════════════════════════ -->
+        <div class="profile-switcher" *ngIf="role !== 'admin'">
+          <a
+            class="profile-tab"
+            [class.active]="role === 'client'"
+            [routerLink]="'/client/login'"
+          >
+            <span class="profile-tab__icon bg-light-primary text-primary">
+              <i-tabler name="user" class="icon-16 d-flex"></i-tabler>
+            </span>
+            <span class="profile-tab__label">Client</span>
+          </a>
+
+          <a
+            class="profile-tab"
+            [class.active]="role === 'boutique'"
+            [routerLink]="'/boutique/login'"
+          >
+            <span class="profile-tab__icon bg-light-warning text-warning">
+              <i-tabler name="building-store" class="icon-16 d-flex"></i-tabler>
+            </span>
+            <span class="profile-tab__label">Boutique</span>
+          </a>
+        </div>
+
+        <!-- Badge admin -->
+        <div class="admin-badge" *ngIf="role === 'admin'">
+          <i-tabler name="shield-check" class="icon-16 d-flex"></i-tabler>
+          Accès administrateur
+        </div>
+
+        <!-- ── Séparateur social ── -->
+        <div class="auth-social">
+          <button mat-stroked-button class="auth-social__btn">
+            <img src="/assets/images/svgs/google-icon.svg" alt="google" width="16" />
+            <span>Google</span>
+          </button>
+          <button mat-stroked-button class="auth-social__btn">
+            <img src="/assets/images/svgs/facebook-icon.svg" alt="facebook" width="18" />
+            <span>Facebook</span>
+          </button>
+        </div>
+
+        <div class="auth-divider">
+          <span>ou connectez-vous avec votre email</span>
+        </div>
+
+        <!-- ── Formulaire ── -->
+        <form [formGroup]="form" (ngSubmit)="submit()">
+
+          <div class="auth-field">
+            <mat-label class="auth-field__label">Adresse email</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <input matInput type="email" formControlName="email" autocomplete="email" />
-              <mat-error *ngIf="f.email.touched && f.email.hasError('required')"
-                >Email is required.</mat-error
-              >
-              <mat-error *ngIf="f.email.touched && f.email.hasError('email')"
-                >Invalid email format.</mat-error
-              >
+              <i-tabler name="mail" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
+              <input matInput type="email" formControlName="email" autocomplete="email" placeholder="vous@exemple.com" />
+              <mat-error *ngIf="f.email.touched && f.email.hasError('required')">L'email est requis.</mat-error>
+              <mat-error *ngIf="f.email.touched && f.email.hasError('email')">Format d'email invalide.</mat-error>
             </mat-form-field>
-            <!-- password -->
-            <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Password</mat-label>
+          </div>
+
+          <div class="auth-field">
+            <div class="d-flex align-items-center justify-content-between m-b-8">
+              <mat-label class="auth-field__label" style="margin-bottom:0">Mot de passe</mat-label>
+              <a [routerLink]="['/']" class="text-primary f-w-500 f-s-13 text-decoration-none auth-forgot">
+                Mot de passe oublié ?
+              </a>
+            </div>
             <mat-form-field appearance="outline" class="w-100" color="primary">
+              <i-tabler name="lock" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
               <input
                 matInput
                 [type]="hidePassword ? 'password' : 'text'"
@@ -64,53 +102,51 @@
                 autocomplete="current-password"
                 placeholder="••••••••"
               />
-              <!-- Toggle visibility icon -->
-              <!-- Toggle visibility icon -->
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
+              <button mat-icon-button matSuffix type="button"
                 (click)="hidePassword = !hidePassword"
-                [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
-              >
+                [attr.aria-label]="hidePassword ? 'Afficher' : 'Masquer'">
                 <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-              <mat-error *ngIf="f.password.touched && f.password.hasError('required')"
-                >Password is required.</mat-error
-              >
+              <mat-error *ngIf="f.password.touched && f.password.hasError('required')">Le mot de passe est requis.</mat-error>
             </mat-form-field>
+          </div>
 
-            <div class="d-flex align-items-center m-b-12">
-              <mat-checkbox color="primary">Remember this Device</mat-checkbox>
-              <a
-                [routerLink]="['/']"
-                class="text-primary f-w-600 text-decoration-none m-l-auto f-s-14"
-                >Forgot Password ?</a
-              >
-            </div>
-            <div *ngIf="serverError" class="text-danger f-s-14 m-b-12">{{ serverError }}</div>
-            <button
-              type="submit"
-              mat-flat-button
-              color="primary"
-              class="w-100"
-              [disabled]="form.invalid || isSubmitting"
-            >
-              {{ isSubmitting ? 'Signing in...' : 'Sign In' }}
-            </button>
-            <!-- input -->
-          </form>
-          <span class="d-block f-w-500 text-center m-t-24"
-            >New to MarketPlace?
-            <a
-              [routerLink]="['/authentication/register-boutique']"
-              class="text-decoration-none text-primary f-w-500 f-s-14"
-            >
-              Create an account</a
-            >
-          </span>
-        </mat-card-content>
-      </mat-card>
-    </div>
+          <div class="d-flex align-items-center m-b-20">
+            <mat-checkbox color="primary" class="f-s-13">Se souvenir de moi</mat-checkbox>
+          </div>
+
+          <!-- Erreur serveur -->
+          <div *ngIf="serverError" class="auth-server-error">
+            <i-tabler name="alert-circle" class="icon-16 d-flex"></i-tabler>
+            {{ serverError }}
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            mat-flat-button
+            color="primary"
+            class="w-100 auth-submit"
+            [disabled]="form.invalid || isSubmitting"
+          >
+            {{ isSubmitting ? 'Connexion en cours…' : 'Se connecter' }}
+          </button>
+
+        </form>
+
+        <!-- ── Lien inscription ── -->
+        <div class="auth-register" *ngIf="registerLink as link; else adminHint">
+          Nouveau sur MarketPlace ?
+          <a [routerLink]="link" class="text-primary f-w-600 text-decoration-none">
+            {{ registerLabel }}
+          </a>
+        </div>
+        <ng-template #adminHint>
+          <div class="auth-register text-muted">Accès réservé aux administrateurs.</div>
+        </ng-template>
+
+      </mat-card-content>
+    </mat-card>
   </div>
+
 </div>

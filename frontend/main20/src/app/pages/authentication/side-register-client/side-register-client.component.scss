@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════════════
-// REGISTER BOUTIQUE — même design system que login & register-client
-// Layout 2 colonnes, card plus large (900px max)
+// REGISTER CLIENT — même style que side-login
+// Variables Material : var(--mat-sys-primary), bg-light-primary, etc.
 // ════════════════════════════════════════════════════════════════════
 
 :host { display: block; }
@@ -11,14 +11,14 @@
   70%       { transform: scale(0.94) translate(-20px, 14px); }
 }
 
-// ─── Wrapper ─────────────────────────────────────────────────────────
+// ─── Wrapper plein écran ─────────────────────────────────────────────
 .auth-wrapper {
   position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
+  padding: 24px;
   background: var(--mat-sys-surface-bright, #f2f6fa);
   overflow: hidden;
 }
@@ -33,34 +33,34 @@
   animation: auth-blob 18s ease-in-out infinite;
 
   &--1 {
-    width: 480px; height: 480px;
-    background: rgba(93, 135, 255, 0.09);
+    width: 420px; height: 420px;
+    background: rgba(93, 135, 255, 0.1);
     top: -80px; right: -60px;
   }
   &--2 {
-    width: 320px; height: 320px;
-    background: rgba(68, 183, 247, 0.07);
+    width: 280px; height: 280px;
+    background: rgba(68, 183, 247, 0.08);
     bottom: -40px; left: -60px;
     animation-delay: -7s;
   }
 }
 
-// ─── Card — plus large pour 2 colonnes ───────────────────────────────
+// ─── Card centrale ───────────────────────────────────────────────────
 .auth-card-wrap {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 900px;
+  max-width: 500px;
+  // Un peu plus large que le login car plus de champs
 }
 
 .auth-card {
   border-radius: 16px !important;
 
   .mat-mdc-card-content {
-    padding: 40px 48px !important;
+    padding: 36px 40px !important;
 
-    @media (max-width: 768px) { padding: 32px 28px !important; }
-    @media (max-width: 480px) { padding: 24px 18px !important; }
+    @media (max-width: 480px) { padding: 28px 22px !important; }
   }
 }
 
@@ -107,10 +107,7 @@
   border: 1px solid var(--mat-sys-outline-variant, #d7dde2);
   border-radius: 12px;
   padding: 5px;
-  margin-bottom: 32px;
-  max-width: 340px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 24px;
 }
 
 .profile-tab {
@@ -148,6 +145,7 @@
   &:hover:not(.active) {
     background: rgba(0, 0, 0, 0.04);
     color: var(--mat-sys-on-background);
+
     .profile-tab__icon { opacity: 0.85; }
   }
 
@@ -155,47 +153,13 @@
     background: #ffffff;
     color: var(--mat-sys-on-background);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
     .profile-tab__icon { opacity: 1; }
     .profile-tab__label { color: var(--mat-sys-on-background); }
   }
 }
 
-// ─── Sections 2 colonnes ─────────────────────────────────────────────
-.auth-section {
-  height: 100%;
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid var(--mat-sys-outline-variant, #d7dde2);
-  background: #ffffff;
-
-  // Colonne boutique : teinte légèrement différente
-  &--alt {
-    background: var(--mat-sys-surface-bright, #f9fbfd);
-    border-color: rgba(255, 174, 31, 0.25);
-  }
-}
-
-.auth-section__header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px dashed var(--mat-sys-outline-variant, #d7dde2);
-
-  // dashboard-badge réutilisé du template
-  .dashboard-badge {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-}
-
-// ─── Champs ──────────────────────────────────────────────────────────
+// ─── Champs formulaire ───────────────────────────────────────────────
 .auth-field {
   margin-bottom: 4px;
 
@@ -205,28 +169,6 @@
     color: var(--mat-sys-on-background);
     display: block;
     margin-bottom: 8px;
-  }
-}
-
-// ─── Info box ────────────────────────────────────────────────────────
-.auth-info-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 10px;
-  background: var(--mat-sys-primary-fixed-dim, rgba(93, 135, 255, 0.08));
-  border: 1px solid rgba(93, 135, 255, 0.15);
-  margin-top: 8px;
-
-  &__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
   }
 }
 
@@ -251,7 +193,6 @@
   font-weight: 600 !important;
   border-radius: 9px !important;
   letter-spacing: 0.01em !important;
-  margin-top: 24px;
 }
 
 // ─── Lien connexion ──────────────────────────────────────────────────
@@ -266,15 +207,4 @@
 }
 
 // ─── Utilitaires ─────────────────────────────────────────────────────
-.w-100    { width: 100%; }
-.m-t-24   { margin-top: 24px; }
-.m-b-4    { margin-bottom: 4px; }
-.dashboard-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
+.w-100 { width: 100%; }

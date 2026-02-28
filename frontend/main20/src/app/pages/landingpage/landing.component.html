@@ -1,8 +1,6 @@
-<div class="landing-wrapper">
+﻿<div class="landing-wrapper">
 
-  <!-- ══════════════════════════════════════════
-       NAVBAR
-  ═══════════════════════════════════════════ -->
+<!--       NAVBAR-->
   <nav class="lp-navbar">
     <div class="lp-navbar__inner">
       <div class="lp-navbar__brand">
@@ -14,14 +12,14 @@
 
       <div class="lp-navbar__links">
         <a href="#produits" class="lp-nav-link">Produits</a>
-        <a href="#how"      class="lp-nav-link">Comment ça marche</a>
+        <a href="#how"      class="lp-nav-link">Comment Ã§a marche</a>
         <a href="#pricing"  class="lp-nav-link">Tarifs</a>
         <a href="#avis-faq" class="lp-nav-link">Avis & FAQ</a>
       </div>
 
       <div class="lp-navbar__actions">
-        <a routerLink="/authentication/login" class="lp-btn-ghost">Se connecter</a>
-        <a routerLink="/authentication/register">
+        <a routerLink="/client/login" class="lp-btn-ghost">Se connecter</a>
+        <a routerLink="/authentication/register-client">
           <button mat-flat-button color="primary">Commencer gratuitement</button>
         </a>
       </div>
@@ -29,9 +27,9 @@
   </nav>
 
 
-  <!-- ══════════════════════════════════════════
-       HERO — 2 stats, 1 card, sobre
-  ═══════════════════════════════════════════ -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       HERO â€” 2 stats, 1 card, sobre
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-hero">
     <div class="lp-hero__blob lp-hero__blob--1"></div>
     <div class="lp-hero__blob lp-hero__blob--2"></div>
@@ -39,16 +37,16 @@
     <div class="lp-hero__content lp-anim">
       <div class="lp-hero__badge bg-light-primary text-primary">
         <i-tabler name="sparkles" class="icon-13 d-flex"></i-tabler>
-        Centre commercial en ligne · Antananarivo
+        Centre commercial en ligne Â· Antananarivo
       </div>
 
       <h1 class="lp-hero__title">
         Achetez, vendez &amp;<br>
-        <span class="lp-hero__title-accent">développez votre commerce</span>
+        <span class="lp-hero__title-accent">dÃ©veloppez votre commerce</span>
       </h1>
 
       <p class="lp-hero__subtitle text-muted">
-        Des centaines de boutiques, des milliers de produits. Tout en un seul endroit — simple, sécurisé et accessible à tous.
+        Des centaines de boutiques, des milliers de produits. Tout en un seul endroit â€” simple, sÃ©curisÃ© et accessible Ã  tous.
       </p>
 
       <div class="d-flex gap-12 flex-wrap m-b-32">
@@ -60,7 +58,7 @@
         </a>
         <a href="#how">
           <button mat-stroked-button color="primary" class="lp-btn-lg">
-            Comment ça marche
+            Comment Ã§a marche
           </button>
         </a>
       </div>
@@ -87,7 +85,7 @@
             </div>
             <div>
               <div class="f-w-600 f-s-14">Boutique Rafitra</div>
-              <div class="text-muted f-s-12">Zone A · Box 104</div>
+              <div class="text-muted f-s-12">Zone A Â· Box 104</div>
             </div>
             <span class="stat-pill bg-light-success text-success m-l-auto">Ouvert</span>
           </div>
@@ -109,13 +107,13 @@
             </div>
           }
 
-          <!-- Petite notif intégrée, pas de card séparée -->
+          <!-- Petite notif intÃ©grÃ©e, pas de card sÃ©parÃ©e -->
           <div class="lp-hero__notif m-t-14">
             <div class="lp-notif-dot bg-light-success text-success">
               <i-tabler name="check" class="icon-13 d-flex"></i-tabler>
             </div>
-            <span class="f-s-12 f-w-600">Commande confirmée</span>
-            <span class="text-muted f-s-12">· 45 000 Ar</span>
+            <span class="f-s-12 f-w-600">Commande confirmÃ©e</span>
+            <span class="text-muted f-s-12">Â· 45 000 Ar</span>
           </div>
         </mat-card-content>
       </mat-card>
@@ -123,9 +121,9 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
-       PRODUITS — 3 col, 6 max, filtres simples
-  ═══════════════════════════════════════════ -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       PRODUITS â€” 3 col, 6 max, filtres simples
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-section lp-section--alt" id="produits">
     <div class="lp-section__inner">
 
@@ -137,7 +135,7 @@
             </div>
             <div>
               <h2 class="m-0">Produits populaires</h2>
-              <div class="text-muted f-s-13">Les articles les plus achetés cette semaine</div>
+              <div class="text-muted f-s-13">Les articles les plus achetÃ©s cette semaine</div>
             </div>
           </div>
         </div>
@@ -200,7 +198,7 @@
       </div>
 
       <div class="d-flex justify-content-center m-t-8">
-        <a routerLink="/authentication/login">
+        <a routerLink="/client/login">
           <button mat-flat-button color="primary">
             Voir tous les produits
             <i-tabler name="arrow-right" class="icon-16 d-flex"></i-tabler>
@@ -212,9 +210,9 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
-       COMMENT ÇA MARCHE
-  ═══════════════════════════════════════════ -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       COMMENT Ã‡A MARCHE
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-section" id="how">
     <div class="lp-section__inner">
 
@@ -224,8 +222,8 @@
             <i-tabler name="route" class="icon-24 d-flex"></i-tabler>
           </div>
           <div>
-            <h2 class="m-0">Comment ça marche ?</h2>
-            <div class="text-muted f-s-13">En 3 étapes simples, vous êtes prêt.</div>
+            <h2 class="m-0">Comment Ã§a marche ?</h2>
+            <div class="text-muted f-s-13">En 3 Ã©tapes simples, vous Ãªtes prÃªt.</div>
           </div>
         </div>
         <div class="lp-how-tabs">
@@ -261,9 +259,9 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        TARIFS
-  ═══════════════════════════════════════════ -->
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-section lp-section--alt" id="pricing">
     <div class="lp-section__inner">
 
@@ -273,7 +271,7 @@
         </div>
         <div>
           <h2 class="m-0">Tarifs transparents</h2>
-          <div class="text-muted f-s-13">Des offres adaptées à chaque profil, sans surprise.</div>
+          <div class="text-muted f-s-13">Des offres adaptÃ©es Ã  chaque profil, sans surprise.</div>
         </div>
       </div>
 
@@ -326,14 +324,14 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
-       AVIS + FAQ — section fusionnée 2 col
-  ═══════════════════════════════════════════ -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       AVIS + FAQ â€” section fusionnÃ©e 2 col
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-section" id="avis-faq">
     <div class="lp-section__inner">
       <div class="row">
 
-        <!-- Gauche : 3 avis empilés -->
+        <!-- Gauche : 3 avis empilÃ©s -->
         <div class="col-12 col-lg-5">
           <div class="dashboard-title m-b-20">
             <div class="dashboard-badge bg-light-success text-success">
@@ -366,7 +364,7 @@
           }
         </div>
 
-        <!-- Séparateur vertical desktop -->
+        <!-- SÃ©parateur vertical desktop -->
         <div class="col-lg-1 lp-vsep-col d-none d-lg-flex">
           <div class="lp-vsep"></div>
         </div>
@@ -378,7 +376,7 @@
               <i-tabler name="help-circle" class="icon-24 d-flex"></i-tabler>
             </div>
             <div>
-              <h2 class="m-0">Questions fréquentes</h2>
+              <h2 class="m-0">Questions frÃ©quentes</h2>
               <div class="text-muted f-s-13">Tout savoir avant de commencer</div>
             </div>
           </div>
@@ -405,25 +403,25 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        CTA FINAL
-  ═══════════════════════════════════════════ -->
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-cta">
     <div class="lp-cta__blob"></div>
     <div class="lp-cta__inner">
       <div class="dashboard-badge bg-light-primary text-primary lp-cta__badge">
         <i-tabler name="rocket" class="icon-26 d-flex"></i-tabler>
       </div>
-      <h2 class="lp-cta__title m-0">Prêt à rejoindre le marché ?</h2>
-      <p class="text-muted f-s-15 m-0">Inscrivez-vous gratuitement et explorez des centaines de boutiques dès aujourd'hui.</p>
+      <h2 class="lp-cta__title m-0">PrÃªt Ã  rejoindre le marchÃ© ?</h2>
+      <p class="text-muted f-s-15 m-0">Inscrivez-vous gratuitement et explorez des centaines de boutiques dÃ¨s aujourd'hui.</p>
       <div class="d-flex gap-12 justify-content-center flex-wrap">
-        <a routerLink="/authentication/register">
+        <a routerLink="/authentication/register-client">
           <button mat-flat-button color="primary" class="lp-btn-lg">
             <i-tabler name="user-plus" class="icon-18 d-flex"></i-tabler>
-            Créer mon compte gratuit
+            Creer mon compte gratuit
           </button>
         </a>
-        <a routerLink="/authentication/login">
+        <a routerLink="/client/login">
           <button mat-stroked-button color="primary" class="lp-btn-lg">Se connecter</button>
         </a>
       </div>
@@ -431,9 +429,9 @@
   </section>
 
 
-  <!-- ══════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        FOOTER
-  ═══════════════════════════════════════════ -->
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <footer class="lp-footer" id="contact">
     <div class="lp-footer__inner">
       <div class="lp-footer__top">
@@ -445,7 +443,7 @@
             </div>
             <span class="lp-brand-name">MarketPlace</span>
           </div>
-          <p class="text-muted f-s-13 m-b-16">Le centre commercial qui connecte acheteurs et vendeurs à Madagascar.</p>
+          <p class="text-muted f-s-13 m-b-16">Le centre commercial qui connecte acheteurs et vendeurs Ã  Madagascar.</p>
           <div class="d-flex gap-8">
             @for (s of socials; track s.icon) {
               <a [href]="s.url" class="lp-social-btn bg-light-primary text-primary">
@@ -458,17 +456,17 @@
         <div class="lp-footer__col">
           <div class="lp-footer__col-title">Navigation</div>
           <a href="#produits"  class="lp-footer__link">Produits</a>
-          <a href="#how"       class="lp-footer__link">Comment ça marche</a>
+          <a href="#how"       class="lp-footer__link">Comment Ã§a marche</a>
           <a href="#pricing"   class="lp-footer__link">Tarifs</a>
           <a href="#avis-faq"  class="lp-footer__link">Avis & FAQ</a>
         </div>
 
         <div class="lp-footer__col">
           <div class="lp-footer__col-title">Compte</div>
-          <a routerLink="/authentication/login"    class="lp-footer__link">Se connecter</a>
-          <a routerLink="/authentication/register" class="lp-footer__link">S'inscrire</a>
-          <a href="#" class="lp-footer__link">Espace vendeur</a>
-          <a href="#" class="lp-footer__link">Espace acheteur</a>
+          <a routerLink="/client/login"    class="lp-footer__link">Se connecter</a>
+          <a routerLink="/authentication/register-client" class="lp-footer__link">S'inscrire</a>
+          <a routerLink="/boutique/login" class="lp-footer__link">Espace vendeur</a>
+          <a routerLink="/client/login" class="lp-footer__link">Espace acheteur</a>
         </div>
 
         <div class="lp-footer__col">
@@ -490,11 +488,11 @@
       </div>
 
       <div class="lp-footer__bottom">
-        <span class="text-muted f-s-12">© {{ currentYear }} MarketPlace. Tous droits réservés.</span>
+        <span class="text-muted f-s-12">Â© {{ currentYear }} MarketPlace. Tous droits rÃ©servÃ©s.</span>
         <div class="d-flex gap=8"></div>
           <span class="text-muted f-s-12"><strong>RAZAFINDRAKOTO Zo Nantenaina | RAZAFINDRAKOTO Tovoarinaina Ando</strong></span>
         <div class="d-flex gap-16">
-          <a href="#" class="lp-footer__link f-s-12">Confidentialité</a>
+          <a href="#" class="lp-footer__link f-s-12">ConfidentialitÃ©</a>
           <a href="#" class="lp-footer__link f-s-12">Conditions d'utilisation</a>
         </div>
       </div>
@@ -502,3 +500,4 @@
   </footer>
 
 </div>
+
