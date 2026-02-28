@@ -145,6 +145,11 @@ export const updateBoutique = async (id, userId, data) => {
     'plage_livraison_boutique',
     'accepteLivraisonJourJ',
     'boxIds',
+    'fermeturesExceptionnelles',
+    'livraisonStatus',
+    'fraisLivraison',
+    'livraisonGratuiteApres',
+    'manualSwitchOpen',
   ];
 
   Object.keys(data).forEach((key) => {

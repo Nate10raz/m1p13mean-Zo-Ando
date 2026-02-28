@@ -17,6 +17,12 @@ export interface BoutiquePlageLivraison {
   maxLivraison: number;
 }
 
+export interface BoutiqueFermetureExceptionnelle {
+  debut: string | Date;
+  fin: string | Date;
+  motif?: string;
+}
+
 export interface Boutique {
   _id: string;
   userId: string;
@@ -39,6 +45,13 @@ export interface Boutique {
   boxIds?: any[];
   motifSuspension?: string;
   dateValidation?: string;
+  fermeturesExceptionnelles?: BoutiqueFermetureExceptionnelle[];
+  livraisonStatus?: boolean;
+  fraisLivraison?: number;
+  livraisonGratuiteApres?: number;
+  isActive?: boolean;
+  isOpen?: boolean;
+  manualSwitchOpen?: boolean;
   createdAt: string;
   updatedAt: string;
 }

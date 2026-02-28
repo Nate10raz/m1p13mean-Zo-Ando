@@ -70,7 +70,9 @@
             <div class="lp-hero__stat-value text-primary">{{ stat.value }}</div>
             <div class="text-muted f-s-12">{{ stat.label }}</div>
           </div>
-          @if (!$last) { <div class="lp-hero__stat-sep"></div> }
+          @if (!$last) {
+            <div class="lp-hero__stat-sep"></div>
+          }
         }
       </div>
     </div>
@@ -120,13 +122,11 @@
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       PRODUITS â€” 3 col, 6 max, filtres simples
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ══════════════════════════════════════════
+       PRODUITS — 3 col, 6 max, filtres simples
+  ═══════════════════════════════════════════ -->
   <section class="lp-section lp-section--alt" id="produits">
     <div class="lp-section__inner">
-
       <div class="row align-items-center m-b-24">
         <div class="col-12 col-md-6">
           <div class="dashboard-title">
@@ -146,7 +146,9 @@
                 class="lp-cat-tab"
                 [class.active]="activeCategory === cat.key"
                 (click)="activeCategory = cat.key"
-              >{{ cat.label }}</button>
+              >
+                {{ cat.label }}
+              </button>
             }
           </div>
         </div>
@@ -166,12 +168,14 @@
                 <mat-card-content>
                   <div class="lp-prod-img">
                     @if (prod.image) {
-                      <img [src]="prod.image" [alt]="prod.name">
+                      <img [src]="prod.image" [alt]="prod.name" />
                     } @else {
                       <i-tabler name="photo" class="icon-40 d-flex"></i-tabler>
                     }
                     @if (prod.badge) {
-                      <span class="lp-prod-badge" [ngClass]="prod.badgeClass">{{ prod.badge }}</span>
+                      <span class="lp-prod-badge" [ngClass]="prod.badgeClass">{{
+                        prod.badge
+                      }}</span>
                     }
                   </div>
                   <div class="m-t-12">
@@ -186,7 +190,12 @@
                         {{ prod.rating }}
                       </div>
                     </div>
-                    <button mat-stroked-button color="primary" class="w-100 f-s-13" (click)="voirProduit(prod)">
+                    <button
+                      mat-stroked-button
+                      color="primary"
+                      class="w-100 f-s-13"
+                      (click)="voirProduit(prod)"
+                    >
                       Voir le produit
                     </button>
                   </div>
@@ -205,17 +214,14 @@
           </button>
         </a>
       </div>
-
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       COMMENT Ã‡A MARCHE
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ══════════════════════════════════════════
+       COMMENT ÇA MARCHE
+  ═══════════════════════════════════════════ -->
   <section class="lp-section" id="how">
     <div class="lp-section__inner">
-
       <div class="lp-section-header m-b-32">
         <div class="dashboard-title">
           <div class="dashboard-badge bg-light-secondary text-secondary">
@@ -227,11 +233,19 @@
           </div>
         </div>
         <div class="lp-how-tabs">
-          <button class="lp-how-tab" [class.active]="howTab === 'acheteur'" (click)="howTab = 'acheteur'">
+          <button
+            class="lp-how-tab"
+            [class.active]="howTab === 'acheteur'"
+            (click)="howTab = 'acheteur'"
+          >
             <i-tabler name="shopping-cart" class="icon-16 d-flex"></i-tabler>
             Acheteur
           </button>
-          <button class="lp-how-tab" [class.active]="howTab === 'vendeur'" (click)="howTab = 'vendeur'">
+          <button
+            class="lp-how-tab"
+            [class.active]="howTab === 'vendeur'"
+            (click)="howTab = 'vendeur'"
+          >
             <i-tabler name="building-store" class="icon-16 d-flex"></i-tabler>
             Vendeur
           </button>
@@ -239,7 +253,7 @@
       </div>
 
       <div class="row">
-        @for (step of (howTab === 'acheteur' ? stepsAcheteur : stepsVendeur); track step.num) {
+        @for (step of howTab === 'acheteur' ? stepsAcheteur : stepsVendeur; track step.num) {
           <div class="col-12 col-md-4 m-b-16">
             <mat-card class="cardWithShadow h-100 lp-step-card">
               <mat-card-content>
@@ -248,23 +262,20 @@
                   <i-tabler [name]="step.icon" class="icon-24 d-flex"></i-tabler>
                 </div>
                 <div class="f-s-16 f-w-600 m-b-8">{{ step.title }}</div>
-                <div class="text-muted f-s-14" style="line-height:1.6">{{ step.desc }}</div>
+                <div class="text-muted f-s-14" style="line-height: 1.6">{{ step.desc }}</div>
               </mat-card-content>
             </mat-card>
           </div>
         }
       </div>
-
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  <!-- ══════════════════════════════════════════
        TARIFS
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-section lp-section--alt" id="pricing">
     <div class="lp-section__inner">
-
       <div class="dashboard-title m-b-32">
         <div class="dashboard-badge bg-light-warning text-warning">
           <i-tabler name="tag" class="icon-24 d-flex"></i-tabler>
@@ -278,7 +289,10 @@
       <div class="row">
         @for (plan of plans; track plan.key) {
           <div class="col-12 col-md-4 m-b-16">
-            <mat-card class="cardWithShadow h-100 lp-plan-card" [class.lp-plan-card--featured]="plan.featured">
+            <mat-card
+              class="cardWithShadow h-100 lp-plan-card"
+              [class.lp-plan-card--featured]="plan.featured"
+            >
               <mat-card-content>
                 @if (plan.featured) {
                   <div class="lp-plan-featured-tag">
@@ -319,19 +333,16 @@
           </div>
         }
       </div>
-
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       AVIS + FAQ â€” section fusionnÃ©e 2 col
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ══════════════════════════════════════════
+       AVIS + FAQ — section fusionnée 2 col
+  ═══════════════════════════════════════════ -->
   <section class="lp-section" id="avis-faq">
     <div class="lp-section__inner">
       <div class="row">
-
-        <!-- Gauche : 3 avis empilÃ©s -->
+        <!-- Gauche : 3 avis empilés -->
         <div class="col-12 col-lg-5">
           <div class="dashboard-title m-b-20">
             <div class="dashboard-badge bg-light-success text-success">
@@ -347,7 +358,7 @@
             <mat-card class="cardWithShadow m-b-12" [class.lp-testi-featured]="t.featured">
               <mat-card-content>
                 <div class="d-flex gap-2 m-b-8">
-                  @for (s of [1,2,3,4,5]; track s) {
+                  @for (s of [1, 2, 3, 4, 5]; track s) {
                     <i-tabler name="star-filled" class="icon-13 d-flex text-warning"></i-tabler>
                   }
                 </div>
@@ -387,7 +398,10 @@
                 <div class="d-flex align-items-center justify-content-between gap-16">
                   <span class="f-s-14 f-w-600">{{ item.question }}</span>
                   <div class="lp-faq-toggle bg-light-primary text-primary">
-                    <i-tabler [name]="item.open ? 'minus' : 'plus'" class="icon-16 d-flex"></i-tabler>
+                    <i-tabler
+                      [name]="item.open ? 'minus' : 'plus'"
+                      class="icon-16 d-flex"
+                    ></i-tabler>
                   </div>
                 </div>
                 @if (item.open) {
@@ -397,13 +411,11 @@
             </mat-card>
           }
         </div>
-
       </div>
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  <!-- ══════════════════════════════════════════
        CTA FINAL
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <section class="lp-cta">
@@ -428,14 +440,12 @@
     </div>
   </section>
 
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  <!-- ══════════════════════════════════════════
        FOOTER
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <footer class="lp-footer" id="contact">
     <div class="lp-footer__inner">
       <div class="lp-footer__top">
-
         <div class="lp-footer__brand">
           <div class="d-flex align-items-center gap-10 m-b-12">
             <div class="lp-brand-icon bg-light-primary text-primary">
@@ -484,13 +494,14 @@
             contact&#64;marketplace.mg
           </div>
         </div>
-
       </div>
 
       <div class="lp-footer__bottom">
         <span class="text-muted f-s-12">Â© {{ currentYear }} MarketPlace. Tous droits rÃ©servÃ©s.</span>
         <div class="d-flex gap=8"></div>
-          <span class="text-muted f-s-12"><strong>RAZAFINDRAKOTO Zo Nantenaina | RAZAFINDRAKOTO Tovoarinaina Ando</strong></span>
+        <span class="text-muted f-s-12"
+          ><strong>RAZAFINDRAKOTO Zo Nantenaina | RAZAFINDRAKOTO Tovoarinaina Ando</strong></span
+        >
         <div class="d-flex gap-16">
           <a href="#" class="lp-footer__link f-s-12">ConfidentialitÃ©</a>
           <a href="#" class="lp-footer__link f-s-12">Conditions d'utilisation</a>
@@ -498,6 +509,5 @@
       </div>
     </div>
   </footer>
-
 </div>
 

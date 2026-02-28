@@ -40,56 +40,98 @@
                 <mat-card-title id="top-save-point" class="m-b-0 f-s-24 f-w-700">{{
                   isOwner ? boutique?.nom || 'Ma Boutique' : boutique?.nom
                 }}</mat-card-title>
-                @if (boutique?.status) {
-                  <span
-                    class="badge"
-                    [ngClass]="{
-                      'bg-light-success text-success': boutique?.status === 'active',
-                      'bg-light-warning text-warning': boutique?.status === 'en_attente',
-                      'bg-light-danger text-danger':
-                        boutique?.status === 'suspendue' || boutique?.status === 'rejetee',
-                    }"
-                  >
-                    {{ boutique?.status | titlecase }}
-                  </span>
-                }
+                <!-- Real-time Status Badge (Glassmorphic) -->
+                @let currentStatus = getCurrentStatus();
+                <div
+                  class="status-glass-badge d-flex align-items-center gap-12 p-x-16 p-y-8 rounded-pill transition-all"
+                  [ngClass]="'status-' + currentStatus.color"
+                  [matTooltip]="currentStatus.reason || ''"
+                >
+                  <div class="status-indicator">
+                    <span class="dot"></span>
+                    <span class="pulse"></span>
+                  </div>
+                  <div class="d-flex flex-column">
+                    <span class="f-s-12 f-w-700 text-uppercase letter-spacing-1 line-height-1"
+                      >Boutique {{ currentStatus.label }}</span
+                    >
+                    @if (currentStatus.reason) {
+                      <span class="f-s-10 opacity-75">{{ currentStatus.reason }}</span>
+                    }
+                  </div>
+                </div>
               </div>
-              <mat-card-subtitle class="m-t-4 d-flex align-items-center gap-12 flex-wrap">
-                @if (boutique?.noteMoyenne) {
-                  <span class="d-flex align-items-center text-warning f-s-16">
-                    <mat-icon class="icon-18">grade</mat-icon>
-                    <span class="f-w-700 m-l-4">{{ boutique?.noteMoyenne }}</span>
-                  </span>
-                  <span class="text-muted f-s-14">({{ boutique?.nombreAvis }} avis)</span>
-                } @else {
-                  <span class="text-muted f-s-14 italic">Pas encore d'avis</span>
-                }
+              <mat-card-subtitle class="m-t-8 d-flex align-items-center gap-12 flex-wrap">
+                <app-star-rating
+                  [rating]="boutique?.noteMoyenne || 0"
+                  [count]="boutique?.nombreAvis"
+                ></app-star-rating>
               </mat-card-subtitle>
             </div>
           </div>
           @if (isOwner) {
-            <div class="d-flex gap-12">
-              <button
-                mat-stroked-button
-                color="warn"
-                type="button"
-                (click)="cancel()"
-                [disabled]="isSaving || form.pristine"
-              >
-                Annuler
-              </button>
-              <button
-                mat-flat-button
-                color="primary"
-                type="button"
-                (click)="save()"
-                [disabled]="form.invalid || isSaving || form.pristine"
-              >
-                @if (isSaving) {
-                  <mat-spinner diameter="20" class="m-r-8 d-inline-block"></mat-spinner>
-                }
-                Enregistrer
-              </button>
+            <div class="d-flex align-items-center gap-24 flex-wrap">
+              <!-- Manual Visibility Switch (Renamed to Ouvert/Fermé) -->
+              <form [formGroup]="form">
+                <div
+                  class="visibility-control-panel d-flex align-items-center bg-white rounded-pill p-4 p-x-12 border border-2 transition-all shadow-sm"
+                  [class.is-active]="form.get('manualSwitchOpen')?.value"
+                >
+                  <div class="d-flex align-items-center gap-10">
+                    <div
+                      class="control-icon d-flex align-items-center justify-content-center rounded-circle transition-all"
+                      [ngClass]="
+                        form.get('manualSwitchOpen')?.value
+                          ? 'bg-light-primary text-primary'
+                          : 'bg-light-error text-error'
+                      "
+                    >
+                      <mat-icon class="icon-20">{{
+                        form.get('manualSwitchOpen')?.value ? 'store' : 'store_off'
+                      }}</mat-icon>
+                    </div>
+                    <div class="control-label d-flex flex-column">
+                      <span class="f-s-12 f-w-700">{{
+                        form.get('manualSwitchOpen')?.value
+                          ? 'FERMER LA BOUTIQUE'
+                          : 'OUVRIR
+                      LA BOUTIQUE'
+                      }}</span>
+                    </div>
+                    <mat-slide-toggle
+                      formControlName="manualSwitchOpen"
+                      color="primary"
+                      class="modern-toggle"
+                    ></mat-slide-toggle>
+                  </div>
+                </div>
+              </form>
+
+              <div class="d-flex gap-12">
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  type="button"
+                  class="rounded-pill"
+                  (click)="cancel()"
+                  [disabled]="isSaving || form.pristine"
+                >
+                  Annuler
+                </button>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  class="rounded-pill p-x-24 shadow-sm"
+                  (click)="save()"
+                  [disabled]="form.invalid || isSaving || form.pristine"
+                >
+                  @if (isSaving) {
+                    <mat-spinner diameter="18" class="m-r-8 d-inline-block"></mat-spinner>
+                  }
+                  Enregistrer
+                </button>
+              </div>
             </div>
           }
         </div>
@@ -405,6 +447,81 @@
 
             <mat-divider class="m-y-32"></mat-divider>
 
+            <!-- Fermetures exceptionnelles -->
+            <div
+              class="section-title-container m-b-24 d-flex align-items-center justify-content-between"
+            >
+              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+                <mat-icon class="text-warning">event_busy</mat-icon> Fermetures exceptionnelles et
+                congés
+              </h4>
+              @if (isOwner) {
+                <button type="button" mat-stroked-button color="primary" (click)="addClosure()">
+                  <mat-icon class="icon-18">add</mat-icon> Ajouter une période
+                </button>
+              }
+            </div>
+
+            <div formArrayName="fermeturesExceptionnelles" class="row p-x-12">
+              @for (ctrl of closuresFormArray.controls; track $index) {
+                <div [formGroupName]="$index" class="col-12 m-b-16 p-0">
+                  <mat-card class="shadow-none border mb-0 bg-light-warning">
+                    <mat-card-content class="p-16">
+                      <div class="row align-items-center">
+                        <div class="col-md-3">
+                          <mat-form-field appearance="outline" class="w-100 densify-field">
+                            <mat-label>Date de début</mat-label>
+                            <input
+                              matInput
+                              type="date"
+                              formControlName="debut"
+                              [readonly]="!isOwner"
+                            />
+                          </mat-form-field>
+                        </div>
+                        <div class="col-md-3">
+                          <mat-form-field appearance="outline" class="w-100 densify-field">
+                            <mat-label>Date de fin</mat-label>
+                            <input
+                              matInput
+                              type="date"
+                              formControlName="fin"
+                              [readonly]="!isOwner"
+                            />
+                          </mat-form-field>
+                        </div>
+                        <div class="col-md-5">
+                          <mat-form-field appearance="outline" class="w-100 densify-field">
+                            <mat-label>Motif (ex: Congés annuels)</mat-label>
+                            <input matInput formControlName="motif" [readonly]="!isOwner" />
+                          </mat-form-field>
+                        </div>
+                        <div class="col-md-1 text-center">
+                          @if (isOwner) {
+                            <button
+                              type="button"
+                              mat-icon-button
+                              color="warn"
+                              (click)="removeClosure($index)"
+                            >
+                              <mat-icon>delete_outline</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              } @empty {
+                <div class="col-12 text-center p-32 bg-light rounded border-dashed m-b-16">
+                  <mat-icon class="text-muted f-s-32 m-b-8">event_available</mat-icon>
+                  <p class="text-muted m-0 italic">Aucune fermeture exceptionnelle programmée.</p>
+                </div>
+              }
+            </div>
+
+            <mat-divider class="m-y-32"></mat-divider>
+
             <!-- Livraison -->
             <div class="section-title-container m-b-24">
               <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
@@ -492,6 +609,82 @@
                       </mat-card-actions>
                     }
                   </mat-card>
+                </div>
+              }
+            </div>
+
+            <mat-divider class="m-y-32"></mat-divider>
+
+            <!-- Configuration des Frais de Livraison -->
+            <div class="section-title-container m-b-24 d-flex align-items-center gap-8">
+              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+                <mat-icon class="text-primary">payments</mat-icon> Configuration des Frais de
+                Livraison
+              </h4>
+            </div>
+
+            <div class="row p-x-16">
+              <div class="col-lg-12 m-b-20">
+                <div
+                  class="delivery-status-box p-16 border rounded d-flex align-items-center justify-content-between bg-light-info-subtle border-info"
+                >
+                  <div class="d-flex align-items-center gap-16">
+                    <div class="bg-white rounded-circle p-8 shadow-sm">
+                      <mat-icon class="text-info d-block">local_shipping</mat-icon>
+                    </div>
+                    <div>
+                      <div class="f-w-600 f-s-16">Service de Livraison</div>
+                      <div class="f-s-13 text-muted">
+                        Activer ou désactiver complètement la livraison pour votre boutique
+                      </div>
+                    </div>
+                  </div>
+                  <mat-slide-toggle
+                    formControlName="livraisonStatus"
+                    color="primary"
+                    [disabled]="!isOwner"
+                  ></mat-slide-toggle>
+                </div>
+              </div>
+
+              @if (form.get('livraisonStatus')?.value) {
+                <div class="col-lg-6 col-md-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Frais de livraison fixe</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="fraisLivraison"
+                      [readonly]="!isOwner"
+                    />
+                    <span matSuffix class="f-w-600 p-r-8">Ar</span>
+                    <mat-icon matPrefix class="text-muted m-r-8">toll</mat-icon>
+                    <mat-hint>Montant prélevé pour chaque livraison (ex: 5000)</mat-hint>
+                  </mat-form-field>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Livraison gratuite à partir de</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="livraisonGratuiteApres"
+                      [readonly]="!isOwner"
+                    />
+                    <span matSuffix class="f-w-600 p-r-8">Ar</span>
+                    <mat-icon matPrefix class="text-muted m-r-8">redeem</mat-icon>
+                    <mat-hint>Offrir la livraison si la commande dépasse ce montant</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="col-12 m-t-8">
+                  <div class="bg-light p-12 rounded border-dashed d-flex align-items-center gap-8">
+                    <mat-icon class="text-muted icon-18">info_outline</mat-icon>
+                    <span class="f-s-12 text-muted"
+                      >Aide : Laissez à <strong>0</strong> dans "Livraison gratuite" pour que les
+                      frais s'appliquent systématiquement.</span
+                    >
+                  </div>
                 </div>
               }
             </div>

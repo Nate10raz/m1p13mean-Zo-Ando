@@ -1,0 +1,20 @@
+<div class="d-flex align-items-center">
+  <div class="d-flex align-items-center m-r-8">
+    @for (star of stars; track star) {
+      <mat-icon
+        [style.font-size.px]="size"
+        [style.width.px]="size"
+        [style.height.px]="size"
+        class="text-rating"
+      >
+        {{ getIconName(star) }}
+      </mat-icon>
+    }
+  </div>
+  @if (showNumber) {
+    <span class="f-w-700 text-dark" [style.font-size.px]="size - 2">{{ rating }}</span>
+  }
+  @if (count !== undefined) {
+    <span class="text-muted m-l-8" [style.font-size.px]="size - 4">({{ count }} avis)</span>
+  }
+</div>
