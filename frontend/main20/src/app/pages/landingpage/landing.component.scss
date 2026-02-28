@@ -470,6 +470,14 @@
   justify-content: center;
   color: rgba(255, 255, 255, 0.85);
   overflow: hidden;
+  background: linear-gradient(135deg, rgba(93,135,255,0.12), rgba(68,183,247,0.18));
+}
+
+.lp-prod-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .lp-prod-badge {
@@ -487,6 +495,13 @@
 }
 
 .w-100 { width: 100%; }
+
+.lp-empty {
+  text-align: center;
+  padding: 32px 0;
+  font-size: 14px;
+  color: rgba(42, 53, 71, 0.65);
+}
 
 // kpi-icon réutilisé pour pricing
 .kpi-icon {
@@ -793,3 +808,61 @@
   @media (min-width: 768px) { margin-top: 0 !important; }
 }
 .m-t-12 { margin-top: 12px; }
+
+// ─── Ajouts v2 — Hero simplifié ──────────────────────────────────────
+
+// Hero visual : une seule card, plus de side-cards
+.lp-hero__visual {
+  // On réduit la hauteur implicite en supprimant le gap des side-cards
+  gap: 0 !important;
+}
+
+// Notif intégrée dans la card (remplace les side-cards séparées)
+.lp-hero__notif {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: var(--mat-sys-surface-bright);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.lp-notif-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ─── Produits — bouton stroked au lieu de flat ────────────────────────
+// (changement de style déjà dans le HTML, pas de CSS supplémentaire)
+
+// ─── Avis + FAQ fusionnés ─────────────────────────────────────────────
+
+// Séparateur vertical entre les deux colonnes
+.lp-vsep-col {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  padding: 0;
+}
+
+.lp-vsep {
+  width: 1px;
+  background: var(--mat-sys-outline-variant);
+  min-height: 100%;
+  margin: 0 auto;
+}
+
+// Responsive : espace au-dessus de la FAQ sur mobile
+.m-t-32       { margin-top: 32px; }
+.m-t-lg-0     { @media (min-width: 992px) { margin-top: 0 !important; } }
+.d-lg-flex    { @media (min-width: 992px) { display: flex !important; } }
+.d-none       { display: none !important; }
+.justify-content-md-end {
+  @media (min-width: 768px) { justify-content: flex-end !important; }
+}

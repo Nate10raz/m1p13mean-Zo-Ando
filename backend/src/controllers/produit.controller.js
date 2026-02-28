@@ -2,6 +2,7 @@ import {
   createProduit,
   getProduitById,
   listProduits,
+  getLandingProduits,
   updateProduit,
   removeProduitImage,
   setProduitMainImage,
@@ -108,6 +109,24 @@ export const listProduitsController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Liste des produits',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLandingProduitsController = async (req, res, next) => {
+  try {
+    const result = await getLandingProduits({
+      limit: req.query.limit,
+    });
+
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Produits landing',
       data: result,
     });
   } catch (error) {
