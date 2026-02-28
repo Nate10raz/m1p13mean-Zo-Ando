@@ -11,11 +11,19 @@ import { AuthService } from 'src/app/services/auth.service';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UploadService } from 'src/app/services/upload.service';
+import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
 
 @Component({
   selector: 'app-boutique-informations',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule, TablerIconsModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    TablerIconsModule,
+    MatDialogModule,
+    StarRatingComponent,
+  ],
   templateUrl: './informations.component.html',
   styleUrls: ['./informations.component.scss'],
 })
@@ -48,8 +56,13 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       banner: [''],
       horaires: this.fb.array([]),
       plage_livraison_boutique: this.fb.array([]),
+      fermeturesExceptionnelles: this.fb.array([]),
       clickCollectActif: [false],
       accepteLivraisonJourJ: [false],
+      livraisonStatus: [true],
+      fraisLivraison: [0, [Validators.min(0)]],
+      livraisonGratuiteApres: [0, [Validators.min(0)]],
+      manualSwitchOpen: [true],
     });
   }
 
@@ -61,9 +74,67 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
     return this.form.get('plage_livraison_boutique') as FormArray;
   }
 
+  get closuresFormArray() {
+    return this.form.get('fermeturesExceptionnelles') as FormArray;
+  }
+
   get isCustomer(): boolean {
     const role = this.authService.getCurrentRole();
     return role !== 'admin' && !this.isOwner;
+  }
+
+  getCurrentStatus(): { label: string; color: string; reason?: string } {
+    if (!this.form.get('manualSwitchOpen')?.value) {
+      return { label: 'Fermé', color: 'error', reason: 'Désactivé manuellement par la boutique' };
+    }
+
+    const now = new Date();
+    const closures = this.form.get('fermeturesExceptionnelles')?.value || [];
+
+    // Check for exceptional closures
+    const activeClosure = closures.find((c: any) => {
+      const start = new Date(c.debut);
+      const end = new Date(c.fin);
+      // Include full days
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return now >= start && now <= end;
+    });
+
+    if (activeClosure) {
+      return {
+        label: 'Fermé',
+        color: 'error',
+        reason: activeClosure.motif || 'Fermeture exceptionnelle',
+      };
+    }
+
+    // Check regular hours
+    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const currentDay = days[now.getDay()];
+    const currentTimeNum = now.getHours() * 100 + now.getMinutes();
+
+    const dayHoraires = (this.form.get('horaires')?.value || []).filter(
+      (h: any) => h.jour === currentDay,
+    );
+
+    if (dayHoraires.length === 0) {
+      return { label: 'Fermé', color: 'error', reason: "Fermé aujourd'hui" };
+    }
+
+    const isOpen = dayHoraires.some((h: any) => {
+      const [hOpen, mOpen] = h.ouverture.split(':').map(Number);
+      const [hClose, mClose] = h.fermeture.split(':').map(Number);
+      const openNum = hOpen * 100 + mOpen;
+      const closeNum = hClose * 100 + mClose;
+      return currentTimeNum >= openNum && currentTimeNum <= closeNum;
+    });
+
+    if (!isOpen) {
+      return { label: 'Fermé', color: 'warning', reason: "En dehors des horaires d'ouverture" };
+    }
+
+    return { label: 'Ouvert', color: 'success' };
   }
 
   ngOnInit(): void {
@@ -179,6 +250,10 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       banner: boutique.banner,
       clickCollectActif: boutique.clickCollectActif,
       accepteLivraisonJourJ: boutique.accepteLivraisonJourJ,
+      livraisonStatus: boutique.livraisonStatus ?? true,
+      fraisLivraison: boutique.fraisLivraison ?? 0,
+      livraisonGratuiteApres: boutique.livraisonGratuiteApres ?? 0,
+      manualSwitchOpen: boutique.manualSwitchOpen ?? true,
     });
 
     // Clear and fill horaires
@@ -202,7 +277,47 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       boutique.plage_livraison_boutique.forEach((plage) => this.addPlageLivraison(plage));
     }
 
+    // Fill exceptional closures
+    this.closuresFormArray.clear();
+    if (boutique.fermeturesExceptionnelles) {
+      boutique.fermeturesExceptionnelles.forEach((c) => {
+        this.closuresFormArray.push(
+          this.fb.group({
+            debut: [this.formatDateForInput(c.debut), Validators.required],
+            fin: [this.formatDateForInput(c.fin), Validators.required],
+            motif: [c.motif],
+          }),
+        );
+      });
+    }
+
     this.form.markAsPristine();
+  }
+
+  formatDateForInput(date: any): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  addClosure(): void {
+    const today = this.formatDateForInput(new Date());
+    this.closuresFormArray.push(
+      this.fb.group({
+        debut: [today, Validators.required],
+        fin: [today, Validators.required],
+        motif: [''],
+      }),
+    );
+    this.form.markAsDirty();
+  }
+
+  removeClosure(index: number): void {
+    this.closuresFormArray.removeAt(index);
+    this.form.markAsDirty();
   }
 
   getHoraireControlsForDay(jour: string) {
