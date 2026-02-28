@@ -3,6 +3,7 @@ import Produit from '../models/Produit.js';
 import Boutique from '../models/Boutique.js';
 import User from '../models/User.js';
 import AlerteStock from '../models/AlerteStock.js';
+import Commande from '../models/Commande.js';
 import { createNotification } from './notification.service.js';
 import VariationProduit from '../models/VariationProduit.js';
 import cloudinary from '../config/cloudinary.js';
@@ -72,6 +73,65 @@ const normalizeNumber = (value) => {
 };
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const clampLandingLimit = (value, fallback = 6) => {
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed)) return fallback;
+  return Math.max(1, Math.min(6, parsed));
+};
+
+const buildVariationStockSet = async (produits) => {
+  const ids = produits
+    .filter((produit) => produit?.hasVariations)
+    .map((produit) => produit._id)
+    .filter(Boolean);
+
+  if (!ids.length) {
+    return new Set();
+  }
+
+  const rows = await VariationProduit.aggregate([
+    { $match: { produitId: { $in: ids }, isActive: true, stock: { $gt: 0 } } },
+    { $group: { _id: '$produitId' } },
+  ]);
+
+  return new Set(rows.map((row) => row._id.toString()));
+};
+
+const isProduitInStock = (produit, variationStockSet) => {
+  if (!produit) return false;
+  if (produit.hasVariations) {
+    return variationStockSet.has(produit._id.toString());
+  }
+  const qty = produit?.stock?.quantite;
+  return typeof qty === 'number' && qty > 0;
+};
+
+const pickInStockProducts = async ({ filter, sort, limit, excludeIds = [] } = {}) => {
+  if (!limit || limit < 1) return [];
+
+  const candidateLimit = Math.max(limit * 5, 20);
+  const queryFilter = { ...filter };
+  if (excludeIds.length) {
+    queryFilter._id = { $nin: excludeIds };
+  }
+
+  const candidates = await Produit.find(queryFilter).sort(sort).limit(candidateLimit).lean();
+  if (!candidates.length) return [];
+
+  const variationStockSet = await buildVariationStockSet(candidates);
+  const excludeSet = new Set(excludeIds.map((id) => id.toString()));
+
+  const results = [];
+  for (const produit of candidates) {
+    if (excludeSet.has(produit._id.toString())) continue;
+    if (!isProduitInStock(produit, variationStockSet)) continue;
+    results.push(produit);
+    if (results.length >= limit) break;
+  }
+
+  return results;
+};
 
 const triggerStockAlertIfNeeded = async ({
   produitId,
@@ -366,6 +426,77 @@ export const listProduits = async (
     limit: parsedLimit,
     total,
     totalPages: Math.max(1, Math.ceil(total / parsedLimit)),
+  };
+};
+
+export const getLandingProduits = async ({ limit = 6 } = {}) => {
+  const resolvedLimit = clampLandingLimit(limit, 6);
+  const baseFilter = { estActif: true, publishedAt: { $exists: true, $ne: null } };
+
+  let bestSeller = null;
+  const selectedIds = new Set();
+
+  const topRows = await Commande.aggregate([
+    { $unwind: '$boutiques' },
+    { $match: { 'boutiques.status': { $ne: 'annulee' } } },
+    { $unwind: '$boutiques.items' },
+    { $match: { 'boutiques.items.produitId': { $ne: null } } },
+    {
+      $group: {
+        _id: '$boutiques.items.produitId',
+        quantite: { $sum: '$boutiques.items.quantite' },
+      },
+    },
+    { $sort: { quantite: -1 } },
+    { $limit: 25 },
+  ]);
+
+  const topIds = topRows.map((row) => row._id).filter(Boolean);
+  if (topIds.length) {
+    const products = await Produit.find({ _id: { $in: topIds }, ...baseFilter }).lean();
+    if (products.length) {
+      const variationStockSet = await buildVariationStockSet(products);
+      const byId = new Map(products.map((produit) => [produit._id.toString(), produit]));
+      for (const id of topIds) {
+        const key = id.toString();
+        const candidate = byId.get(key);
+        if (!candidate) continue;
+        if (!isProduitInStock(candidate, variationStockSet)) continue;
+        bestSeller = candidate;
+        selectedIds.add(key);
+        break;
+      }
+    }
+  }
+
+  const newestList = await pickInStockProducts({
+    filter: baseFilter,
+    sort: { publishedAt: -1, createdAt: -1 },
+    limit: 1,
+    excludeIds: Array.from(selectedIds),
+  });
+
+  const newest = newestList[0] || null;
+  if (newest) {
+    selectedIds.add(newest._id.toString());
+  }
+
+  const remaining = Math.max(0, resolvedLimit - selectedIds.size);
+  const others = remaining
+    ? await pickInStockProducts({
+        filter: baseFilter,
+        sort: { publishedAt: -1, createdAt: -1 },
+        limit: remaining,
+        excludeIds: Array.from(selectedIds),
+      })
+    : [];
+
+  return {
+    limit: resolvedLimit,
+    bestSeller: bestSeller ? sanitizeProduitForClient(bestSeller) : null,
+    newest: newest ? sanitizeProduitForClient(newest) : null,
+    others: others.map((produit) => sanitizeProduitForClient(produit)),
+    total: (bestSeller ? 1 : 0) + (newest ? 1 : 0) + others.length,
   };
 };
 

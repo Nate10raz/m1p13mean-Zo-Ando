@@ -1,4 +1,4 @@
--+<div class="landing-wrapper">
+<div class="landing-wrapper">
 
   <!-- ══════════════════════════════════════════
        NAVBAR
@@ -14,10 +14,9 @@
 
       <div class="lp-navbar__links">
         <a href="#produits" class="lp-nav-link">Produits</a>
-        <a href="#how" class="lp-nav-link">Comment ça marche</a>
-        <a href="#pricing" class="lp-nav-link">Tarifs</a>
-        <a href="#avis" class="lp-nav-link">Avis</a>
-        <a href="#faq" class="lp-nav-link">FAQ</a>
+        <a href="#how"      class="lp-nav-link">Comment ça marche</a>
+        <a href="#pricing"  class="lp-nav-link">Tarifs</a>
+        <a href="#avis-faq" class="lp-nav-link">Avis & FAQ</a>
       </div>
 
       <div class="lp-navbar__actions">
@@ -29,8 +28,9 @@
     </div>
   </nav>
 
+
   <!-- ══════════════════════════════════════════
-       HERO
+       HERO — 2 stats, 1 card, sobre
   ═══════════════════════════════════════════ -->
   <section class="lp-hero">
     <div class="lp-hero__blob lp-hero__blob--1"></div>
@@ -38,7 +38,7 @@
 
     <div class="lp-hero__content lp-anim">
       <div class="lp-hero__badge bg-light-primary text-primary">
-        <i-tabler name="sparkles" class="icon-14 d-flex"></i-tabler>
+        <i-tabler name="sparkles" class="icon-13 d-flex"></i-tabler>
         Centre commercial en ligne · Antananarivo
       </div>
 
@@ -60,12 +60,12 @@
         </a>
         <a href="#how">
           <button mat-stroked-button color="primary" class="lp-btn-lg">
-            <i-tabler name="play" class="icon-18 d-flex"></i-tabler>
             Comment ça marche
           </button>
         </a>
       </div>
 
+      <!-- 2 stats seulement -->
       <div class="lp-hero__stats">
         @for (stat of heroStats; track stat.key) {
           <div class="lp-hero__stat">
@@ -77,6 +77,7 @@
       </div>
     </div>
 
+    <!-- Visual : 1 seule card flottante -->
     <div class="lp-hero__visual lp-anim lp-anim--delay">
       <mat-card class="cardWithShadow lp-float">
         <mat-card-content>
@@ -90,6 +91,7 @@
             </div>
             <span class="stat-pill bg-light-success text-success m-l-auto">Ouvert</span>
           </div>
+
           @for (p of heroPreviewProducts; track p.id) {
             <div class="lp-prev-row">
               <div class="lp-prev-icon" [style.background]="p.bg">
@@ -106,56 +108,25 @@
               </div>
             </div>
           }
+
+          <!-- Petite notif intégrée, pas de card séparée -->
+          <div class="lp-hero__notif m-t-14">
+            <div class="lp-notif-dot bg-light-success text-success">
+              <i-tabler name="check" class="icon-13 d-flex"></i-tabler>
+            </div>
+            <span class="f-s-12 f-w-600">Commande confirmée</span>
+            <span class="text-muted f-s-12">· 45 000 Ar</span>
+          </div>
         </mat-card-content>
       </mat-card>
-
-      <div class="lp-hero__side-cards">
-        <mat-card class="cardWithShadow lp-notif-card">
-          <mat-card-content>
-            <div class="d-flex align-items-center gap-10">
-              <div class="lp-notif-icon bg-light-success text-success">
-                <i-tabler name="check" class="icon-16 d-flex"></i-tabler>
-              </div>
-              <div>
-                <div class="f-s-13 f-w-600">Commande confirmée !</div>
-                <div class="text-muted f-s-12">Il y a 2 min · 45 000 Ar</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="cardWithShadow">
-          <mat-card-content>
-            <div class="text-muted f-s-12 m-b-4">Ventes aujourd'hui</div>
-            <div class="f-s-18 f-w-700 text-primary">1 240 000 Ar</div>
-            <div class="d-flex align-items-center gap-4 f-s-12 text-success m-t-4">
-              <i-tabler name="trending-up" class="icon-14 d-flex"></i-tabler>
-              +18% vs hier
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════
-       TRUST BAND
-  ═══════════════════════════════════════════ -->
-  <div class="lp-trust-band">
-    <div class="lp-trust-band__inner">
-      <span class="text-muted f-s-12 f-w-600 lp-trust-label">Paiements acceptés</span>
-      <div class="lp-trust-logos">
-        @for (b of brands; track b) {
-          <span class="lp-trust-logo text-muted f-s-12 f-w-600">{{ b }}</span>
-        }
-      </div>
-    </div>
-  </div>
 
   <!-- ══════════════════════════════════════════
-       PRODUITS EN VEDETTE
+       PRODUITS — 3 col, 6 max, filtres simples
   ═══════════════════════════════════════════ -->
-  <section class="lp-section" id="produits">
+  <section class="lp-section lp-section--alt" id="produits">
     <div class="lp-section__inner">
 
       <div class="row align-items-center m-b-24">
@@ -170,74 +141,83 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="lp-cat-tabs d-flex gap-8 flex-wrap justify-content-md-end m-t-md-0 m-t-12">
+        <div class="col-12 col-md-6 d-flex justify-content-md-end m-t-12 m-t-md-0">
+          <div class="lp-cat-tabs">
             @for (cat of categories; track cat.key) {
               <button
                 class="lp-cat-tab"
                 [class.active]="activeCategory === cat.key"
                 (click)="activeCategory = cat.key"
-              >
-                <i-tabler [name]="cat.icon" class="icon-15 d-flex"></i-tabler>
-                {{ cat.label }}
-              </button>
+              >{{ cat.label }}</button>
             }
           </div>
         </div>
       </div>
 
       <div class="row">
-        @for (prod of filteredProducts; track prod.id) {
-          <div class="col-12 col-sm-6 col-md-4 col-xl-3 m-b-16">
-            <mat-card class="cardWithShadow card-hover lp-prod-card h-100">
-              <mat-card-content>
-                <div class="lp-prod-img" [style.background]="prod.imgBg">
-                  <i-tabler [name]="prod.icon" class="icon-40 d-flex"></i-tabler>
-                  @if (prod.badge) {
-                    <span class="lp-prod-badge" [ngClass]="prod.badgeClass">{{ prod.badge }}</span>
-                  }
-                </div>
-                <div class="m-t-12">
-                  <div class="text-muted f-s-11 m-b-2">{{ prod.boutique }}</div>
-                  <div class="f-w-600 f-s-14 m-b-8">{{ prod.name }}</div>
-                  <div class="d-flex align-items-end justify-content-between">
-                    <div>
-                      <div class="f-s-16 f-w-700 text-primary">{{ prod.price }}</div>
-                      @if (prod.oldPrice) {
-                        <div class="text-muted f-s-12 text-decoration-line-through">{{ prod.oldPrice }}</div>
-                      }
-                    </div>
-                    <div class="d-flex align-items-center gap-4 text-warning f-s-12 f-w-600">
-                      <i-tabler name="star-filled" class="icon-13 d-flex"></i-tabler>
-                      {{ prod.rating }}
-                    </div>
+        @if (isLoadingProducts) {
+          <div class="col-12 lp-empty">Chargement...</div>
+        } @else if (productsError) {
+          <div class="col-12 lp-empty text-error">{{ productsError }}</div>
+        } @else if (displayedProducts.length === 0) {
+          <div class="col-12 lp-empty">Aucun produit disponible.</div>
+        } @else {
+          @for (prod of displayedProducts; track prod.id) {
+            <div class="col-12 col-sm-6 col-md-4 m-b-16">
+              <mat-card class="cardWithShadow card-hover lp-prod-card h-100">
+                <mat-card-content>
+                  <div class="lp-prod-img">
+                    @if (prod.image) {
+                      <img [src]="prod.image" [alt]="prod.name">
+                    } @else {
+                      <i-tabler name="photo" class="icon-40 d-flex"></i-tabler>
+                    }
+                    @if (prod.badge) {
+                      <span class="lp-prod-badge" [ngClass]="prod.badgeClass">{{ prod.badge }}</span>
+                    }
                   </div>
-                  <button mat-flat-button color="primary" class="w-100 m-t-12 f-s-13" (click)="voirProduit(prod)">
-                    Voir le produit
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
+                  <div class="m-t-12">
+                    <div class="text-muted f-s-11 m-b-2">{{ prod.boutique }}</div>
+                    <div class="f-w-600 f-s-14 m-b-8">{{ prod.name }}</div>
+                    <div class="d-flex align-items-end justify-content-between m-b-12">
+                      <div>
+                        <div class="f-s-15 f-w-700 text-primary">{{ prod.price }}</div>
+                      </div>
+                      <div class="d-flex align-items-center gap-4 text-warning f-s-12 f-w-600">
+                        <i-tabler name="star-filled" class="icon-13 d-flex"></i-tabler>
+                        {{ prod.rating }}
+                      </div>
+                    </div>
+                    <button mat-stroked-button color="primary" class="w-100 f-s-13" (click)="voirProduit(prod)">
+                      Voir le produit
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          }
         }
       </div>
 
       <div class="d-flex justify-content-center m-t-8">
         <a routerLink="/authentication/login">
-          <button mat-stroked-button color="primary">
+          <button mat-flat-button color="primary">
             Voir tous les produits
             <i-tabler name="arrow-right" class="icon-16 d-flex"></i-tabler>
           </button>
         </a>
       </div>
+
     </div>
   </section>
+
 
   <!-- ══════════════════════════════════════════
        COMMENT ÇA MARCHE
   ═══════════════════════════════════════════ -->
-  <section class="lp-section lp-section--alt" id="how">
+  <section class="lp-section" id="how">
     <div class="lp-section__inner">
+
       <div class="lp-section-header m-b-32">
         <div class="dashboard-title">
           <div class="dashboard-badge bg-light-secondary text-secondary">
@@ -276,14 +256,17 @@
           </div>
         }
       </div>
+
     </div>
   </section>
+
 
   <!-- ══════════════════════════════════════════
        TARIFS
   ═══════════════════════════════════════════ -->
-  <section class="lp-section" id="pricing">
+  <section class="lp-section lp-section--alt" id="pricing">
     <div class="lp-section__inner">
+
       <div class="dashboard-title m-b-32">
         <div class="dashboard-badge bg-light-warning text-warning">
           <i-tabler name="tag" class="icon-24 d-flex"></i-tabler>
@@ -311,7 +294,6 @@
                   </div>
                   <div class="f-s-15 f-w-600">{{ plan.name }}</div>
                 </div>
-
                 <div class="d-flex align-items-baseline gap-6 m-b-4">
                   <span class="lp-plan-amount">{{ plan.price }}</span>
                   @if (plan.period) {
@@ -319,7 +301,6 @@
                   }
                 </div>
                 <div class="text-muted f-s-13 m-b-16 lp-plan-desc">{{ plan.desc }}</div>
-
                 <div class="d-flex flex-col gap-10 m-b-20">
                   @for (f of plan.features; track f) {
                     <div class="d-flex align-items-center gap-8 f-s-13">
@@ -328,7 +309,6 @@
                     </div>
                   }
                 </div>
-
                 <a routerLink="/authentication/register">
                   @if (plan.featured) {
                     <button mat-flat-button color="primary" class="w-100">{{ plan.cta }}</button>
@@ -341,35 +321,39 @@
           </div>
         }
       </div>
+
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════
-       TÉMOIGNAGES
-  ═══════════════════════════════════════════ -->
-  <section class="lp-section lp-section--alt" id="avis">
-    <div class="lp-section__inner">
-      <div class="dashboard-title m-b-32">
-        <div class="dashboard-badge bg-light-success text-success">
-          <i-tabler name="heart" class="icon-24 d-flex"></i-tabler>
-        </div>
-        <div>
-          <h2 class="m-0">Ce que disent nos clients</h2>
-          <div class="text-muted f-s-13">Des vraies personnes, de vraies expériences.</div>
-        </div>
-      </div>
 
+  <!-- ══════════════════════════════════════════
+       AVIS + FAQ — section fusionnée 2 col
+  ═══════════════════════════════════════════ -->
+  <section class="lp-section" id="avis-faq">
+    <div class="lp-section__inner">
       <div class="row">
-        @for (t of testimonials; track t.id) {
-          <div class="col-12 col-md-6 col-xl-3 m-b-16">
-            <mat-card class="cardWithShadow h-100" [class.lp-testi-featured]="t.featured">
+
+        <!-- Gauche : 3 avis empilés -->
+        <div class="col-12 col-lg-5">
+          <div class="dashboard-title m-b-20">
+            <div class="dashboard-badge bg-light-success text-success">
+              <i-tabler name="heart" class="icon-24 d-flex"></i-tabler>
+            </div>
+            <div>
+              <h2 class="m-0">Avis clients</h2>
+              <div class="text-muted f-s-13">Ce qu'ils disent de nous</div>
+            </div>
+          </div>
+
+          @for (t of testimonials.slice(0, 3); track t.id) {
+            <mat-card class="cardWithShadow m-b-12" [class.lp-testi-featured]="t.featured">
               <mat-card-content>
-                <div class="d-flex gap-2 m-b-12">
+                <div class="d-flex gap-2 m-b-8">
                   @for (s of [1,2,3,4,5]; track s) {
-                    <i-tabler name="star-filled" class="icon-14 d-flex text-warning"></i-tabler>
+                    <i-tabler name="star-filled" class="icon-13 d-flex text-warning"></i-tabler>
                   }
                 </div>
-                <p class="f-s-13 lp-testi-quote m-b-16">"{{ t.quote }}"</p>
+                <p class="f-s-13 lp-testi-quote m-b-12">"{{ t.quote }}"</p>
                 <div class="d-flex align-items-center gap-10">
                   <div class="lp-testi-avatar bg-light-primary text-primary">{{ t.initials }}</div>
                   <div>
@@ -379,46 +363,47 @@
                 </div>
               </mat-card-content>
             </mat-card>
+          }
+        </div>
+
+        <!-- Séparateur vertical desktop -->
+        <div class="col-lg-1 lp-vsep-col d-none d-lg-flex">
+          <div class="lp-vsep"></div>
+        </div>
+
+        <!-- Droite : FAQ accordion -->
+        <div class="col-12 col-lg-6 m-t-32 m-t-lg-0">
+          <div class="dashboard-title m-b-20">
+            <div class="dashboard-badge bg-light-error text-error">
+              <i-tabler name="help-circle" class="icon-24 d-flex"></i-tabler>
+            </div>
+            <div>
+              <h2 class="m-0">Questions fréquentes</h2>
+              <div class="text-muted f-s-13">Tout savoir avant de commencer</div>
+            </div>
           </div>
-        }
-      </div>
-    </div>
-  </section>
 
-  <!-- ══════════════════════════════════════════
-       FAQ
-  ═══════════════════════════════════════════ -->
-  <section class="lp-section" id="faq">
-    <div class="lp-section__inner lp-section__inner--narrow">
-      <div class="dashboard-title m-b-32">
-        <div class="dashboard-badge bg-light-error text-error">
-          <i-tabler name="help-circle" class="icon-24 d-flex"></i-tabler>
-        </div>
-        <div>
-          <h2 class="m-0">Questions fréquentes</h2>
-          <div class="text-muted f-s-13">Tout ce que vous devez savoir avant de commencer.</div>
-        </div>
-      </div>
-
-      <div class="d-flex flex-col gap-8">
-        @for (item of faqs; track item.id) {
-          <mat-card class="cardWithShadow lp-faq-card" (click)="toggleFaq(item)">
-            <mat-card-content>
-              <div class="d-flex align-items-center justify-content-between gap-16">
-                <span class="f-s-14 f-w-600">{{ item.question }}</span>
-                <div class="lp-faq-toggle bg-light-primary text-primary">
-                  <i-tabler [name]="item.open ? 'minus' : 'plus'" class="icon-16 d-flex"></i-tabler>
+          @for (item of faqs; track item.id) {
+            <mat-card class="cardWithShadow lp-faq-card m-b-8" (click)="toggleFaq(item)">
+              <mat-card-content>
+                <div class="d-flex align-items-center justify-content-between gap-16">
+                  <span class="f-s-14 f-w-600">{{ item.question }}</span>
+                  <div class="lp-faq-toggle bg-light-primary text-primary">
+                    <i-tabler [name]="item.open ? 'minus' : 'plus'" class="icon-16 d-flex"></i-tabler>
+                  </div>
                 </div>
-              </div>
-              @if (item.open) {
-                <div class="text-muted f-s-13 m-t-12 lp-faq-answer">{{ item.answer }}</div>
-              }
-            </mat-card-content>
-          </mat-card>
-        }
+                @if (item.open) {
+                  <div class="text-muted f-s-13 m-t-12 lp-faq-answer">{{ item.answer }}</div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+
       </div>
     </div>
   </section>
+
 
   <!-- ══════════════════════════════════════════
        CTA FINAL
@@ -444,6 +429,7 @@
       </div>
     </div>
   </section>
+
 
   <!-- ══════════════════════════════════════════
        FOOTER
@@ -471,16 +457,15 @@
 
         <div class="lp-footer__col">
           <div class="lp-footer__col-title">Navigation</div>
-          <a href="#produits" class="lp-footer__link">Produits</a>
-          <a href="#how" class="lp-footer__link">Comment ça marche</a>
-          <a href="#pricing" class="lp-footer__link">Tarifs</a>
-          <a href="#avis" class="lp-footer__link">Avis clients</a>
-          <a href="#faq" class="lp-footer__link">FAQ</a>
+          <a href="#produits"  class="lp-footer__link">Produits</a>
+          <a href="#how"       class="lp-footer__link">Comment ça marche</a>
+          <a href="#pricing"   class="lp-footer__link">Tarifs</a>
+          <a href="#avis-faq"  class="lp-footer__link">Avis & FAQ</a>
         </div>
 
         <div class="lp-footer__col">
           <div class="lp-footer__col-title">Compte</div>
-          <a routerLink="/authentication/login" class="lp-footer__link">Se connecter</a>
+          <a routerLink="/authentication/login"    class="lp-footer__link">Se connecter</a>
           <a routerLink="/authentication/register" class="lp-footer__link">S'inscrire</a>
           <a href="#" class="lp-footer__link">Espace vendeur</a>
           <a href="#" class="lp-footer__link">Espace acheteur</a>
@@ -501,10 +486,13 @@
             contact&#64;marketplace.mg
           </div>
         </div>
+
       </div>
 
       <div class="lp-footer__bottom">
         <span class="text-muted f-s-12">© {{ currentYear }} MarketPlace. Tous droits réservés.</span>
+        <div class="d-flex gap=8"></div>
+          <span class="text-muted f-s-12"><strong>RAZAFINDRAKOTO Zo Nantenaina | RAZAFINDRAKOTO Tovoarinaina Ando</strong></span>
         <div class="d-flex gap-16">
           <a href="#" class="lp-footer__link f-s-12">Confidentialité</a>
           <a href="#" class="lp-footer__link f-s-12">Conditions d'utilisation</a>

@@ -4,6 +4,7 @@ import {
   createProduitController,
   getProduitController,
   listProduitsController,
+  getLandingProduitsController,
   updateProduitController,
   deleteProduitImageController,
   setProduitMainImageController,
@@ -70,6 +71,13 @@ router.post(
   ],
   validateRequest,
   createProduitController,
+);
+
+router.get(
+  '/landing',
+  [query('limit').optional().isInt({ min: 1, max: 6 }).toInt()],
+  validateRequest,
+  getLandingProduitsController,
 );
 
 router.get(
@@ -190,6 +198,22 @@ router.patch(
   validateRequest,
   setProduitMainImageController,
 );
+
+/**
+ * @openapi
+ * /produits/landing:
+ *   get:
+ *     tags: [Produits]
+ *     summary: Produits pour la landing page
+ *     description: >
+ *       Retourne jusqu'a 6 produits en stock : 1 plus vendu, 1 nouveau, et le reste.
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 6 }
+ *     responses:
+ *       200: { description: Produits landing }
+ */
 
 /**
  * @openapi

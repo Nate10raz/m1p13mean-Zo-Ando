@@ -1,22 +1,30 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { finalize } from 'rxjs';
 
-interface Product {
-  id: number;
+import {
+  LandingProductsResponse,
+  ProductCreateResponse,
+  ProductService,
+} from 'src/app/services/product.service';
+
+type LandingProductCategory = 'bestSeller' | 'newest' | 'others';
+type LandingCategoryKey = 'all' | LandingProductCategory;
+
+interface LandingProductCard {
+  id: string;
   name: string;
   boutique: string;
   price: string;
-  oldPrice?: string;
   rating: string;
-  icon: string;
-  imgBg: string;
+  image: string;
   badge?: string;
   badgeClass?: string;
-  category: string;
+  category: LandingProductCategory;
 }
 
 interface PricingPlan {
@@ -62,109 +70,177 @@ interface HowStep {
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
+
+  constructor(private productService: ProductService) {}
 
   currentYear = new Date().getFullYear();
 
-  // ─── Hero stats ────────────────────────────────────────────────
+  // ─── Hero : 2 stats sobres (pas de chiffres excessifs) ────────────
   heroStats = [
     { key: 'boutiques', value: '500+', label: 'Boutiques actives' },
     { key: 'acheteurs', value: '12 000+', label: 'Acheteurs inscrits' },
-    { key: 'note', value: '4.8/5', label: 'Note moyenne' },
   ];
 
-  // ─── Hero cards preview ────────────────────────────────────────
+  // ─── Hero card preview ────────────────────────────────────────────
   heroPreviewProducts = [
     { id: 1, name: 'Sac artisanal', price: '35 000 Ar', icon: 'shopping-bag', bg: 'rgba(93,135,255,0.18)', stock: '75%' },
     { id: 2, name: 'Tissu soie', price: '18 000 Ar', icon: 'sparkles', bg: 'rgba(68,183,247,0.18)', stock: '45%' },
     { id: 3, name: 'Chaussures', price: '52 000 Ar', icon: 'circle-dot', bg: 'rgba(19,222,185,0.18)', stock: '88%' },
   ];
 
-  // ─── Trust band ────────────────────────────────────────────────
-  brands = ['MVola', 'Orange Money', 'Airtel Money', 'BNI Madagascar', 'BOA', 'Telma'];
-
+  // ─── Réseaux sociaux footer ───────────────────────────────────────
   socials = [
     { icon: 'brand-facebook', url: '#' },
     { icon: 'brand-instagram', url: '#' },
     { icon: 'brand-x', url: '#' },
   ];
 
-  // ─── Catégories produits ───────────────────────────────────────
-  categories = [
-    { key: 'all', label: 'Tout', icon: 'layout-grid' },
-    { key: 'mode', label: 'Mode', icon: 'shirt' },
-    { key: 'alimentation', label: 'Alimentation', icon: 'apple' },
-    { key: 'electronique', label: 'Électronique', icon: 'device-mobile' },
+  // ─── Filtres produits — sans icônes, plus légers ──────────────────
+  // Produits landing - best seller, newest, others
+  categories: Array<{ key: LandingCategoryKey; label: string }> = [
+    { key: 'all', label: 'Tout' },
+    { key: 'bestSeller', label: 'Plus vendu' },
+    { key: 'newest', label: 'Nouveau' },
+    { key: 'others', label: 'Autres' },
   ];
 
-  activeCategory = 'all';
+  activeCategory: LandingCategoryKey = 'all';
+  landingProducts: LandingProductCard[] = [];
+  isLoadingProducts = false;
+  productsError = '';
 
-  allProducts: Product[] = [
-    {
-      id: 1, name: 'Sac en raphia', boutique: 'Artisanat Malagasy',
-      price: '35 000 Ar', rating: '4.8', icon: 'shopping-bag',
-      imgBg: 'linear-gradient(135deg, rgba(93,135,255,0.15), rgba(68,183,247,0.2))',
-      badge: 'Populaire', badgeClass: 'bg-light-primary text-primary',
-      category: 'mode',
-    },
-    {
-      id: 2, name: 'Vanille de Madagascar', boutique: 'Épices & Co',
-      price: '12 000 Ar', oldPrice: '15 000 Ar', rating: '4.9', icon: 'leaf',
-      imgBg: 'linear-gradient(135deg, rgba(19,222,185,0.15), rgba(19,222,185,0.25))',
-      badge: '-20%', badgeClass: 'bg-light-success text-success',
-      category: 'alimentation',
-    },
-    {
-      id: 3, name: 'Smartphone Galaxy A', boutique: 'Tech Store 101',
-      price: '480 000 Ar', rating: '4.6', icon: 'device-mobile',
-      imgBg: 'linear-gradient(135deg, rgba(255,174,31,0.15), rgba(255,174,31,0.25))',
-      badge: 'Nouveau', badgeClass: 'bg-light-warning text-warning',
-      category: 'electronique',
-    },
-    {
-      id: 4, name: 'Lamba soie brodé', boutique: 'Tissu Fianarantsoa',
-      price: '68 000 Ar', rating: '4.7', icon: 'sparkles',
-      imgBg: 'linear-gradient(135deg, rgba(250,137,107,0.15), rgba(250,137,107,0.25))',
-      category: 'mode',
-    },
-    {
-      id: 5, name: 'Café Arabica 500g', boutique: 'Café des Hautes Terres',
-      price: '22 000 Ar', rating: '4.9', icon: 'coffee',
-      imgBg: 'linear-gradient(135deg, rgba(68,183,247,0.15), rgba(93,135,255,0.2))',
-      category: 'alimentation',
-    },
-    {
-      id: 6, name: 'Écouteurs sans fil', boutique: 'Tech Store 101',
-      price: '95 000 Ar', oldPrice: '120 000 Ar', rating: '4.5', icon: 'headphones',
-      imgBg: 'linear-gradient(135deg, rgba(93,135,255,0.18), rgba(19,222,185,0.15))',
-      badge: '-21%', badgeClass: 'bg-light-success text-success',
-      category: 'electronique',
-    },
-    {
-      id: 7, name: 'Chapeau traditionnel', boutique: 'Artisanat Malagasy',
-      price: '28 000 Ar', rating: '4.8', icon: 'hat',
-      imgBg: 'linear-gradient(135deg, rgba(255,174,31,0.18), rgba(68,183,247,0.15))',
-      category: 'mode',
-    },
-    {
-      id: 8, name: 'Crevettes séchées 1kg', boutique: 'Produits de la Mer',
-      price: '45 000 Ar', rating: '4.7', icon: 'fish',
-      imgBg: 'linear-gradient(135deg, rgba(19,222,185,0.18), rgba(68,183,247,0.2))',
-      category: 'alimentation',
-    },
+  private readonly fallbackImages = [
+    'assets/images/products/product-1.png',
+    'assets/images/products/product-2.png',
+    'assets/images/products/product-3.png',
+    'assets/images/products/product-4.png',
+    'assets/images/products/product-5.png',
+    'assets/images/products/product-6.png',
   ];
 
-  get filteredProducts(): Product[] {
-    if (this.activeCategory === 'all') return this.allProducts;
-    return this.allProducts.filter(p => p.category === this.activeCategory);
+  ngOnInit(): void {
+    this.loadLandingProducts();
   }
 
-  voirProduit(prod: Product): void {
-    // Rediriger vers page produit ou login
+  get displayedProducts(): LandingProductCard[] {
+    if (this.activeCategory === 'all') {
+      return this.landingProducts.slice(0, 6);
+    }
+    return this.landingProducts
+      .filter((p) => p.category === this.activeCategory)
+      .slice(0, 6);
+  }
+
+  voirProduit(prod: LandingProductCard): void {
     console.log('Voir produit:', prod.name);
   }
 
-  // ─── Comment ça marche ─────────────────────────────────────────
+  private loadLandingProducts(limit = 6): void {
+    this.isLoadingProducts = true;
+    this.productsError = '';
+
+    this.productService
+      .getLandingProducts(limit)
+      .pipe(
+        finalize(() => {
+          this.isLoadingProducts = false;
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.landingProducts = this.mapLandingResponse(response?.data);
+        },
+        error: (error) => {
+          this.productsError = error?.error?.message ?? 'Impossible de charger les produits.';
+          this.landingProducts = [];
+        },
+      });
+  }
+
+  private mapLandingResponse(
+    data: LandingProductsResponse | null | undefined,
+  ): LandingProductCard[] {
+    if (!data) {
+      return [];
+    }
+
+    const result: LandingProductCard[] = [];
+    const seen = new Set<string>();
+
+    const push = (
+      item: ProductCreateResponse | null | undefined,
+      category: LandingProductCategory,
+    ) => {
+      if (!item?._id || seen.has(item._id)) {
+        return;
+      }
+      seen.add(item._id);
+      result.push(this.mapLandingProduct(item, category, result.length));
+    };
+
+    push(data.bestSeller, 'bestSeller');
+    push(data.newest, 'newest');
+
+    for (const item of data.others ?? []) {
+      if (result.length >= (data.limit ?? 6)) {
+        break;
+      }
+      push(item, 'others');
+    }
+
+    return result;
+  }
+
+  private mapLandingProduct(
+    item: ProductCreateResponse,
+    category: LandingProductCategory,
+    index: number,
+  ): LandingProductCard {
+    const images = item.images ?? [];
+    const main = images.find((img) => img.isMain) ?? images[0];
+    const fallbackImage = this.fallbackImages[index % this.fallbackImages.length];
+    const boutiqueLabel = item.boutique?.nom ?? item.boutiqueId ?? 'Boutique';
+
+    const badge =
+      category === 'bestSeller' ? 'Plus vendu' : category === 'newest' ? 'Nouveau' : undefined;
+    const badgeClass =
+      category === 'bestSeller'
+        ? 'bg-light-primary text-primary'
+        : category === 'newest'
+          ? 'bg-light-warning text-warning'
+          : undefined;
+
+    return {
+      id: item._id,
+      name: item.titre,
+      boutique: boutiqueLabel,
+      price: this.formatPrice(item.prixBaseActuel),
+      rating: this.formatRating(item.noteMoyenne),
+      image: main?.url ?? fallbackImage,
+      badge,
+      badgeClass,
+      category,
+    };
+  }
+
+  private formatPrice(value: number | undefined | null): string {
+    const num = Number(value);
+    if (!Number.isFinite(num)) {
+      return '-';
+    }
+    return `${new Intl.NumberFormat('fr-FR').format(num)} Ar`;
+  }
+
+  private formatRating(value: number | undefined | null): string {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) {
+      return '0.0';
+    }
+    return num.toFixed(1);
+  }
+
+  // Comment ca marche
   howTab: 'acheteur' | 'vendeur' = 'acheteur';
 
   stepsAcheteur: HowStep[] = [
@@ -203,7 +279,7 @@ export class LandingComponent {
     },
   ];
 
-  // ─── Tarifs ────────────────────────────────────────────────────
+  // ─── Tarifs ───────────────────────────────────────────────────────
   plans: PricingPlan[] = [
     {
       key: 'acheteur', name: 'Acheteur', price: 'Gratuit',
@@ -252,7 +328,7 @@ export class LandingComponent {
     },
   ];
 
-  // ─── Témoignages ───────────────────────────────────────────────
+  // ─── 3 témoignages (pas 4) ────────────────────────────────────────
   testimonials: Testimonial[] = [
     {
       id: 1,
@@ -275,16 +351,9 @@ export class LandingComponent {
       role: 'Vendeur · Électronique',
       featured: false,
     },
-    {
-      id: 4,
-      quote: 'L\'inscription est simple et le support répond vite. Je recommande à tous les commerçants.',
-      name: 'Lanto Rasolofoson', initials: 'LR',
-      role: 'Vendeur · Alimentation',
-      featured: false,
-    },
   ];
 
-  // ─── FAQ ───────────────────────────────────────────────────────
+  // ─── FAQ ──────────────────────────────────────────────────────────
   faqs: FaqItem[] = [
     {
       id: 1,

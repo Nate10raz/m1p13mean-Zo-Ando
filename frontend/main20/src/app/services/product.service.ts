@@ -53,6 +53,14 @@ export interface ProductListResponse {
   totalPages: number;
 }
 
+export interface LandingProductsResponse {
+  limit: number;
+  bestSeller: ProductCreateResponse | null;
+  newest: ProductCreateResponse | null;
+  others: ProductCreateResponse[];
+  total: number;
+}
+
 export interface ProductListQuery {
   page?: number;
   limit?: number;
@@ -153,5 +161,16 @@ export class ProductService {
     const suffix = queryParams.toString();
     const url = suffix ? `${this.apiRootUrl}/produits?${suffix}` : `${this.apiRootUrl}/produits`;
     return this.http.get<ApiResponse<ProductListResponse>>(url);
+  }
+
+  getLandingProducts(limit = 6): Observable<ApiResponse<LandingProductsResponse>> {
+    const queryParams = new URLSearchParams();
+    if (limit) queryParams.set('limit', String(limit));
+
+    const suffix = queryParams.toString();
+    const url = suffix
+      ? `${this.apiRootUrl}/produits/landing?${suffix}`
+      : `${this.apiRootUrl}/produits/landing`;
+    return this.http.get<ApiResponse<LandingProductsResponse>>(url);
   }
 }
