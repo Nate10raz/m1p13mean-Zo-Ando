@@ -11,6 +11,7 @@ import { Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 import { MaterialModule } from 'src/app/material.module';
 import { AuthService, LoginPayload } from 'src/app/services/auth.service';
@@ -25,6 +26,7 @@ import { AuthService, LoginPayload } from 'src/app/services/auth.service';
     FormsModule,
     ReactiveFormsModule,
     MatIconModule,
+    TablerIconsModule,
   ],
   templateUrl: './side-login.component.html',
 })

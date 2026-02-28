@@ -7,7 +7,10 @@ const boutiqueSchema = new mongoose.Schema({
   logo: String,
   banner: String,
   adresse: String,
-  boxIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Box' }],
+  boxIds: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Box' }],
+    default: [],
+  },
 
   horaires: [
     {
@@ -65,7 +68,10 @@ boutiqueSchema.pre('save', function () {
   this.updatedAt = Date.now();
 });
 
-// Index to allow efficient queries on boxes
-boutiqueSchema.index({ boxIds: 1 });
+// Unique only when boxIds has values (allows multiple empty arrays)
+boutiqueSchema.index(
+  { boxIds: 1 },
+  { unique: true, partialFilterExpression: { boxIds: { $type: 'array', $ne: [] } } },
+);
 
 export default mongoose.model('Boutique', boutiqueSchema);

@@ -4,8 +4,11 @@
       <mat-card class="cardWithShadow boxed-auth">
         <mat-card-content class="p-32">
           <div class="text-center">
-            <a [routerLink]="['/']">
-              <img src="./assets/images/logos/dark-logo.svg" class="align-middle m-2" alt="logo" />
+            <a [routerLink]="['/']" class="app-brand">
+              <span class="app-brand__icon bg-light-primary text-primary">
+                <i-tabler name="building-store" class="icon-20 d-flex"></i-tabler>
+              </span>
+              <span class="app-brand__name">MarketPlace</span>
             </a>
           </div>
 
@@ -98,7 +101,7 @@
             <!-- input -->
           </form>
           <span class="d-block f-w-500 text-center m-t-24"
-            >New to Shopping Center?
+            >New to MarketPlace?
             <a
               [routerLink]="['/authentication/register-boutique']"
               class="text-decoration-none text-primary f-w-500 f-s-14"

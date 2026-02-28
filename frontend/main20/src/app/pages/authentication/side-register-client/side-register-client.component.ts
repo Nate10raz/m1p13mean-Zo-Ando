@@ -11,6 +11,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 import { MaterialModule } from 'src/app/material.module';
 import { AuthService, ClientRegisterPayload } from 'src/app/services/auth.service';
@@ -18,7 +19,14 @@ import { AuthService, ClientRegisterPayload } from 'src/app/services/auth.servic
 @Component({
   selector: 'app-side-register-client',
   standalone: true,
-  imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TablerIconsModule,
+  ],
   templateUrl: './side-register-client.component.html',
   styleUrls: ['./side-register-styles.components.scss'],
 })

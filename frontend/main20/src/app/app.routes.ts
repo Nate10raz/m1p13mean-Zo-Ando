@@ -7,11 +7,32 @@ import { RoleGuard } from './guards/role.guard';
 export const routes: Routes = [
   {
     path: '',
+    component: BlankComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/landingpage/landing.component').then(
+            (m) => m.LandingComponent,
+          ),
+        pathMatch: 'full',
+      },
+      {
+        path: 'authentication',
+        loadChildren: () =>
+          import('./pages/authentication/authentication.routes').then(
+            (m) => m.AuthenticationRoutes,
+          ),
+      },
+    ],
+  },
+  {
+    path: '',
     component: FullComponent,
     canActivateChild: [AuthGuard],
     children: [
       {
-        path: '',
+        path: 'home',
         loadComponent: () =>
           import('./pages/home-redirect/home-redirect.component').then(
             (m) => m.HomeRedirectComponent,
@@ -130,19 +151,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/boxes/box-payement-list/box-payement-list.component').then(
             (m) => m.AppBoxPayementListComponent,
-          ),
-      },
-    ],
-  },
-  {
-    path: '',
-    component: BlankComponent,
-    children: [
-      {
-        path: 'authentication',
-        loadChildren: () =>
-          import('./pages/authentication/authentication.routes').then(
-            (m) => m.AuthenticationRoutes,
           ),
       },
     ],

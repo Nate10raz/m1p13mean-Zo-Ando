@@ -171,8 +171,8 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/authentication/login']),
-      error: () => this.router.navigate(['/authentication/login']),
+      next: () => this.router.navigate(['/']),
+      error: () => this.router.navigate(['/']),
     });
   }
 }
