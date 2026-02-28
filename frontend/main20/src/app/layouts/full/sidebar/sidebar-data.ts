@@ -75,6 +75,16 @@ export const navItems: NavItem[] = [
     roles: ['admin'],
   },
   {
+    navCap: 'Ma Boutique',
+    roles: ['boutique'],
+  },
+  {
+    displayName: 'Mon établissement',
+    iconName: 'building-store',
+    route: '/dashboard/boutique',
+    roles: ['boutique'],
+  },
+  {
     navCap: 'Boxes',
     roles: ['boutique'],
   },

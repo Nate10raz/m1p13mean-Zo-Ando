@@ -100,7 +100,7 @@ const requireBoutiqueUser = async (userId) => {
 
 export const getMyBoutique = async (userId) => {
   const user = await requireBoutiqueUser(userId);
-  const boutique = await Boutique.findById(user.boutiqueId).lean();
+  const boutique = await Boutique.findById(user.boutiqueId).populate('boxIds').lean();
   if (!boutique) {
     throw createError('Boutique introuvable', 404);
   }
@@ -113,7 +113,7 @@ export const updateMyBoutique = async (userId, data) => {
 };
 
 export const getBoutiqueById = async (id) => {
-  const boutique = await Boutique.findById(id).lean();
+  const boutique = await Boutique.findById(id).populate('boxIds').lean();
   if (!boutique) {
     throw createError('Boutique introuvable', 404);
   }
@@ -144,6 +144,7 @@ export const updateBoutique = async (id, userId, data) => {
     'clickCollectActif',
     'plage_livraison_boutique',
     'accepteLivraisonJourJ',
+    'boxIds',
   ];
 
   Object.keys(data).forEach((key) => {

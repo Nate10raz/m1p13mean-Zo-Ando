@@ -109,11 +109,11 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item [routerLink]="['/dashboard/boutique', element.boutiqueId]">
                   <mat-icon>visibility</mat-icon>
                   <span>Voir</span>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item [routerLink]="['/dashboard/boutique', element.boutiqueId]">
                   <mat-icon>edit</mat-icon>
                   <span>Modifier</span>
                 </button>

@@ -12,6 +12,18 @@ export const PagesRoutes: Routes = [
     },
   },
   {
+    path: 'boutique',
+    component: BoutiqueInformationsComponent,
+    data: {
+      title: 'Ma Boutique',
+      urls: [
+        { title: 'Dashboard', url: '/dashboard' },
+        { title: 'Boutique' },
+        { title: 'Informations' },
+      ],
+    },
+  },
+  {
     path: 'boutique/:id',
     component: BoutiqueInformationsComponent,
     data: {
