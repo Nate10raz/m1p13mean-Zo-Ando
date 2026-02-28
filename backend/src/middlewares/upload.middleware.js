@@ -17,3 +17,13 @@ export const productImageUpload = multer({
     files: 10,
   },
 }).array('images', 10);
+
+export const singleImageUpload = (fieldName = 'image') =>
+  multer({
+    storage,
+    fileFilter: imageFilter,
+    limits: {
+      fileSize: 3 * 1024 * 1024,
+      files: 1,
+    },
+  }).single(fieldName);

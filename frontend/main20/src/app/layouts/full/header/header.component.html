@@ -62,6 +62,14 @@
       </mat-icon>
       Mon profil
     </button>
+    @if (isBoutique) {
+      <button mat-menu-item routerLink="/dashboard/boutique">
+        <mat-icon class="d-flex align-items-center">
+          <i-tabler name="building-store" class="icon-18 d-flex"></i-tabler>
+        </mat-icon>
+        Ma boutique
+      </button>
+    }
     <div class="p-x-12 m-t-12">
       <button mat-stroked-button class="w-100" (click)="logout()">Logout</button>
     </div>

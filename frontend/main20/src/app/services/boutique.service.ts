@@ -35,6 +35,9 @@ export interface Boutique {
   statusLivreur?: string;
   noteMoyenne: number;
   nombreAvis: number;
+  boxId?: string;
+  boxIds?: any[];
+  motifSuspension?: string;
   dateValidation?: string;
   createdAt: string;
   updatedAt: string;

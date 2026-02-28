@@ -12,6 +12,7 @@ import { MaterialModule } from '../../../material.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -69,6 +70,7 @@ interface SuspendBoutiqueDialogData {
     MatMenuModule,
     MatButtonModule,
     MatPaginatorModule,
+    RouterModule,
   ],
   templateUrl: './boutique.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
