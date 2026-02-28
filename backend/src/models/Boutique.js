@@ -55,11 +55,22 @@ const boutiqueSchema = new mongoose.Schema({
 
   accepteLivraisonJourJ: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  manualSwitchOpen: { type: Boolean, default: true },
   dateValidation: Date,
   motifSuspension: String,
   noteMoyenne: { type: Number, min: 0, max: 5, default: 0 },
   nombreAvis: { type: Number, default: 0 },
   validatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  fermeturesExceptionnelles: [
+    {
+      debut: { type: Date, required: true },
+      fin: { type: Date, required: true },
+      motif: String,
+    },
+  ],
+  livraisonStatus: { type: Boolean, default: true },
+  fraisLivraison: { type: Number, default: 0 },
+  livraisonGratuiteApres: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -73,5 +84,44 @@ boutiqueSchema.index(
   { boxIds: 1 },
   { unique: true, partialFilterExpression: { boxIds: { $type: 'array', $ne: [] } } },
 );
+// Ensure virtuals are included in toJSON and toObject
+boutiqueSchema.set('toJSON', { virtuals: true });
+boutiqueSchema.set('toObject', { virtuals: true });
+
+// Virtual to calculate if the boutique is actually open (operational) right now
+boutiqueSchema.virtual('isOpen').get(function () {
+  // 1. Priority: Manual Switch (Owner controlled)
+  if (!this.manualSwitchOpen) return false;
+
+  const now = new Date();
+
+  // 2. Priority: Exceptional Closures
+  if (this.fermeturesExceptionnelles && this.fermeturesExceptionnelles.length > 0) {
+    const activeClosure = this.fermeturesExceptionnelles.find((c) => {
+      const start = new Date(c.debut);
+      const end = new Date(c.fin);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return now >= start && now <= end;
+    });
+    if (activeClosure) return false;
+  }
+
+  // 3. Priority: Regular Hours
+  const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const currentDay = days[now.getDay()];
+  const currentTimeNum = now.getHours() * 100 + now.getMinutes();
+
+  const dayHoraires = (this.horaires || []).filter((h) => h.jour === currentDay);
+  if (dayHoraires.length === 0) return false;
+
+  return dayHoraires.some((h) => {
+    const [hOpen, mOpen] = h.ouverture.split(':').map(Number);
+    const [hClose, mClose] = h.fermeture.split(':').map(Number);
+    const openNum = hOpen * 100 + mOpen;
+    const closeNum = hClose * 100 + mClose;
+    return currentTimeNum >= openNum && currentTimeNum <= closeNum;
+  });
+});
 
 export default mongoose.model('Boutique', boutiqueSchema);
