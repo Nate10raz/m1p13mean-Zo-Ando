@@ -75,7 +75,11 @@ const boutiqueValidation = [
   ...baseUserValidation,
   body('boutique').isObject().withMessage('Champ boutique requis'),
   body('boutique.nom').isString().notEmpty().withMessage('Nom boutique requis'),
-  body('boutique.boxId').optional().isMongoId().withMessage('boxId invalide'),
+  body('boutique.boxIds')
+    .optional()
+    .isArray()
+    .withMessage('boxIds invalide'),
+  body('boutique.boxIds.*').isMongoId().withMessage('boxIds invalide'),
   body('boutique.description').optional().isString(),
   body('boutique.logo').optional().isString(),
   body('boutique.banner').optional().isString(),

@@ -12,6 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 import { MaterialModule } from 'src/app/material.module';
 import { AuthService, BoutiqueRegisterPayload } from 'src/app/services/auth.service';
@@ -19,7 +20,14 @@ import { AuthService, BoutiqueRegisterPayload } from 'src/app/services/auth.serv
 @Component({
   selector: 'app-side-register-boutique',
   standalone: true,
-  imports: [CommonModule, RouterModule, MaterialModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TablerIconsModule,
+  ],
   templateUrl: './side-register-boutique.component.html',
   styleUrls: ['./side-register-boutique.component.scss'],
 })

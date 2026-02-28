@@ -1,2 +1,2 @@
-# Modernize-Angular-pro
-Modernize Angular Admin Dashboard
+# MarketPlace Frontend
+MarketPlace Angular Admin Dashboard

@@ -314,8 +314,18 @@ export const approveDemandeLocationBox = async (id, payload, auth) => {
     };
     await box.save({ session });
 
-    if (!boutique.boxId) {
-      boutique.boxId = box._id;
+    const existingBoxIds = Array.isArray(boutique.boxIds)
+      ? boutique.boxIds
+      : Array.isArray(boutique.boxId)
+        ? boutique.boxId
+        : boutique.boxId
+          ? [boutique.boxId]
+          : [];
+    const boxIdString = box._id.toString();
+    const alreadyLinked = existingBoxIds.some((id) => id.toString() === boxIdString);
+    if (!alreadyLinked) {
+      existingBoxIds.push(box._id);
+      boutique.boxIds = existingBoxIds;
       await boutique.save({ session });
     }
 

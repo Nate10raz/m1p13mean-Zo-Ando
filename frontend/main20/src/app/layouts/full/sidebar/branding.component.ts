@@ -1,12 +1,17 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { TablerIconsModule } from 'angular-tabler-icons';
 import { CoreService } from 'src/app/services/core.service';
 
 @Component({
   selector: 'app-branding',
-  imports: [],
+  imports: [RouterModule, TablerIconsModule],
   template: `
-    <a href="/" class="logodark">
-      <img src="./assets/images/logos/dark-logo.svg" class="align-middle m-2" alt="logo" />
+    <a routerLink="/" class="app-brand">
+      <span class="app-brand__icon bg-light-primary text-primary">
+        <i-tabler name="building-store" class="icon-20 d-flex"></i-tabler>
+      </span>
+      <span class="app-brand__name">MarketPlace</span>
     </a>
   `,
 })
