@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { isObservable, of, throwError } from 'rxjs';
@@ -75,8 +75,9 @@ describe('AuthGuard', () => {
 
     result.subscribe((value: boolean | ReturnType<Router['createUrlTree']>) => {
       const serialized = router.serializeUrl(value as ReturnType<Router['createUrlTree']>);
-      expect(serialized).toBe('/authentication/login');
+      expect(serialized).toBe('/client/login');
       done();
     });
   });
 });
+

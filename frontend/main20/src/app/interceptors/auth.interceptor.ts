@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import {
   HttpErrorResponse,
   HttpEvent,
@@ -76,7 +76,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private handleAuthFailure(error: unknown): Observable<never> {
     this.tokenService.clearAccessToken();
-    this.router.navigate(['/authentication/login']);
+    this.router.navigate(['/client/login']);
     return throwError(() => error);
   }
 
@@ -102,3 +102,4 @@ export const authInterceptorProvider = {
   useClass: AuthInterceptor,
   multi: true,
 };
+
