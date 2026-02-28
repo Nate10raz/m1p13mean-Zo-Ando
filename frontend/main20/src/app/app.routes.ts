@@ -12,9 +12,7 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./pages/landingpage/landing.component').then(
-            (m) => m.LandingComponent,
-          ),
+          import('./pages/landingpage/landing.component').then((m) => m.LandingComponent),
         pathMatch: 'full',
       },
       {
