@@ -264,13 +264,37 @@ export const createProduit = async (payload, auth) => {
 const sanitizeProduitForClient = (produit) => {
   if (!produit) return produit;
 
+  let boutique = undefined;
+  if (produit.boutiqueId && typeof produit.boutiqueId === 'object') {
+    const b = produit.boutiqueId;
+    boutique = {
+      _id: b._id,
+      nom: b.nom,
+      isActive: b.isActive,
+      isOpen: b.isOpen,
+      statusReason: b.statusReason,
+    };
+  }
+
+  let categorie = undefined;
+  if (produit.categorieId && typeof produit.categorieId === 'object') {
+    categorie = {
+      _id: produit.categorieId._id,
+      nom: produit.categorieId.nom,
+    };
+  }
+
   return {
     _id: produit._id,
     titre: produit.titre,
     slug: produit.slug,
     description: produit.description,
     descriptionCourte: produit.descriptionCourte,
-    categorieId: produit.categorieId,
+    categorieId:
+      produit.categorieId && typeof produit.categorieId === 'object'
+        ? produit.categorieId._id
+        : produit.categorieId,
+    categorie,
     sousCategoriesIds: produit.sousCategoriesIds,
     tags: produit.tags,
     images: produit.images,
@@ -282,7 +306,7 @@ const sanitizeProduitForClient = (produit) => {
     createdAt: produit.createdAt,
     updatedAt: produit.updatedAt,
     publishedAt: produit.publishedAt,
-    boutique: produit.boutique,
+    boutique,
   };
 };
 
@@ -291,7 +315,11 @@ export const getProduitById = async (productId, auth) => {
     throw createError('Forbidden', 403);
   }
 
-  const produit = await Produit.findById(productId).populate('boutiqueId', 'nom').lean();
+  const query = Produit.findById(productId)
+    .populate('boutiqueId', 'nom isActive manualSwitchOpen horaires fermeturesExceptionnelles')
+    .populate('categorieId', 'nom');
+
+  const produit = await query;
   if (!produit) {
     throw createError('Produit introuvable', 404);
   }
@@ -301,34 +329,18 @@ export const getProduitById = async (productId, auth) => {
     if (!user || !user.boutiqueId) {
       throw createError('Boutique utilisateur introuvable', 404);
     }
-    const boutiqueId = produit.boutiqueId?._id ?? produit.boutiqueId;
-    if (boutiqueId.toString() !== user.boutiqueId.toString()) {
+    const bId = produit.boutiqueId?._id ?? produit.boutiqueId;
+    if (bId.toString() !== user.boutiqueId.toString()) {
       throw createError('Forbidden', 403);
     }
   }
 
-  const boutique =
-    produit.boutiqueId && typeof produit.boutiqueId === 'object'
-      ? {
-          _id: produit.boutiqueId._id?.toString?.() ?? produit.boutiqueId._id,
-          nom: produit.boutiqueId.nom,
-        }
-      : undefined;
-
-  const response = {
-    ...produit,
-    boutiqueId:
-      produit.boutiqueId && typeof produit.boutiqueId === 'object'
-        ? produit.boutiqueId._id
-        : produit.boutiqueId,
-    boutique,
-  };
-
   if (auth.role === 'client') {
-    return sanitizeProduitForClient(response);
+    const json = produit.toJSON({ virtuals: true });
+    return sanitizeProduitForClient(json);
   }
 
-  return response;
+  return produit.toObject({ virtuals: true });
 };
 
 export const listProduits = async (
@@ -405,20 +417,34 @@ export const listProduits = async (
       break;
   }
 
+  if (auth.role === 'client') {
+    const activeBoutiques = await Boutique.find({ isActive: true }).select('_id').lean();
+    const activeBoutiqueIds = activeBoutiques.map((b) => b._id);
+    filter.boutiqueId = { $in: activeBoutiqueIds };
+  }
+
   const parsedPage = Math.max(1, parseInt(page, 10) || 1);
   const parsedLimit = Math.min(200, Math.max(1, parseInt(limit, 10) || 20));
 
-  const [items, total] = await Promise.all([
-    Produit.find(filter)
-      .sort(sortSpec)
-      .skip((parsedPage - 1) * parsedLimit)
-      .limit(parsedLimit)
-      .lean(),
-    Produit.countDocuments(filter),
-  ]);
+  const itemsQuery = Produit.find(filter)
+    .sort(sortSpec)
+    .skip((parsedPage - 1) * parsedLimit)
+    .limit(parsedLimit);
+
+  if (auth.role === 'client') {
+    itemsQuery
+      .populate('boutiqueId', 'nom isActive manualSwitchOpen horaires fermeturesExceptionnelles')
+      .populate('categorieId', 'nom');
+  } else {
+    itemsQuery.lean();
+  }
+
+  const [items, total] = await Promise.all([itemsQuery, Produit.countDocuments(filter)]);
 
   const sanitizedItems =
-    auth.role === 'client' ? items.map((item) => sanitizeProduitForClient(item)) : items;
+    auth.role === 'client'
+      ? items.map((item) => sanitizeProduitForClient(item.toJSON({ virtuals: true })))
+      : items;
 
   return {
     items: sanitizedItems,
@@ -431,7 +457,14 @@ export const listProduits = async (
 
 export const getLandingProduits = async ({ limit = 6 } = {}) => {
   const resolvedLimit = clampLandingLimit(limit, 6);
-  const baseFilter = { estActif: true, publishedAt: { $exists: true, $ne: null } };
+  const activeBoutiques = await Boutique.find({ isActive: true }).select('_id').lean();
+  const activeBoutiqueIds = activeBoutiques.map((b) => b._id);
+
+  const baseFilter = {
+    estActif: true,
+    publishedAt: { $exists: true, $ne: null },
+    boutiqueId: { $in: activeBoutiqueIds },
+  };
 
   let bestSeller = null;
   const selectedIds = new Set();
@@ -484,20 +517,43 @@ export const getLandingProduits = async ({ limit = 6 } = {}) => {
   const remaining = Math.max(0, resolvedLimit - selectedIds.size);
   const others = remaining
     ? await pickInStockProducts({
-        filter: baseFilter,
-        sort: { publishedAt: -1, createdAt: -1 },
-        limit: remaining,
-        excludeIds: Array.from(selectedIds),
-      })
+      filter: baseFilter,
+      sort: { publishedAt: -1, createdAt: -1 },
+      limit: remaining,
+      excludeIds: Array.from(selectedIds),
+    })
     : [];
 
-  return {
+  const result = {
     limit: resolvedLimit,
-    bestSeller: bestSeller ? sanitizeProduitForClient(bestSeller) : null,
-    newest: newest ? sanitizeProduitForClient(newest) : null,
-    others: others.map((produit) => sanitizeProduitForClient(produit)),
+    bestSeller,
+    newest,
+    others,
     total: (bestSeller ? 1 : 0) + (newest ? 1 : 0) + others.length,
   };
+
+  // Populate data for client/landing
+  const [pBestSeller, pNewest, pOthers] = await Promise.all([
+    populateForLanding(result.bestSeller),
+    populateForLanding(result.newest),
+    Promise.all(result.others.map((p) => populateForLanding(p))),
+  ]);
+
+  return {
+    ...result,
+    bestSeller: pBestSeller,
+    newest: pNewest,
+    others: pOthers.filter(Boolean),
+  };
+};
+
+const populateForLanding = async (produit) => {
+  if (!produit) return null;
+  const doc = await Produit.findById(produit._id)
+    .populate('boutiqueId', 'nom isActive manualSwitchOpen horaires fermeturesExceptionnelles')
+    .populate('categorieId', 'nom');
+  if (!doc) return null;
+  return sanitizeProduitForClient(doc.toJSON({ virtuals: true }));
 };
 
 export const removeProduitImage = async (productId, imageId, auth) => {

@@ -4,6 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { StarRatingComponent } from '../star-rating/star-rating.component';
+import { CommonModule } from '@angular/common';
 
 // ecommerce card
 export interface ProductCard {
@@ -13,18 +15,35 @@ export interface ProductCard {
   price: number;
   rprice?: number;
   boutique?: string;
+  boutiqueId?: string;
   categorieId?: string;
+  categorieNom?: string;
+  description?: string;
   stock?: number;
+  rating?: number;
   createdAt?: string;
+  boutiqueStatus?: {
+    isOpen?: boolean;
+    statusReason?: string | null;
+  };
 }
 
 @Component({
   selector: 'app-blog-card',
-  imports: [MatCardModule, TablerIconsModule, MatButtonModule, MatTooltipModule, RouterModule],
+  imports: [
+    MatCardModule,
+    TablerIconsModule,
+    MatButtonModule,
+    MatTooltipModule,
+    RouterModule,
+    StarRatingComponent,
+    CommonModule,
+  ],
   templateUrl: './blog-card.component.html',
+  styleUrls: ['./blog-card.component.scss'],
 })
 export class AppBlogCardsComponent {
-  constructor() {}
+  constructor() { }
 
   @Input() productcards: ProductCard[] | null = null;
   @Input() showFallback = true;

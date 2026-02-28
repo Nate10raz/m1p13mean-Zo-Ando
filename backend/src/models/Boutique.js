@@ -124,4 +124,51 @@ boutiqueSchema.virtual('isOpen').get(function () {
   });
 });
 
+boutiqueSchema.virtual('statusReason').get(function () {
+  if (!this.isActive) return 'Boutique suspendue par l\'administration';
+  if (!this.manualSwitchOpen) return 'Boutique fermée manuellement par le propriétaire';
+
+  const now = new Date();
+
+  if (this.fermeturesExceptionnelles && this.fermeturesExceptionnelles.length > 0) {
+    const activeClosure = this.fermeturesExceptionnelles.find((c) => {
+      const start = new Date(c.debut);
+      const end = new Date(c.fin);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return now >= start && now <= end;
+    });
+    if (activeClosure) return activeClosure.motif || 'Fermeture exceptionnelle';
+  }
+
+  const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const currentDay = days[now.getDay()];
+
+  const dayHoraires = (this.horaires || []).filter((h) => h.jour === currentDay);
+  if (dayHoraires.length === 0) return 'Fermé aujourd\'hui';
+
+  const currentTimeNum = now.getHours() * 100 + now.getMinutes();
+  const isCurrentlyOpen = dayHoraires.some((h) => {
+    const [hOpen, mOpen] = h.ouverture.split(':').map(Number);
+    const [hClose, mClose] = h.fermeture.split(':').map(Number);
+    const openNum = hOpen * 100 + mOpen;
+    const closeNum = hClose * 100 + mClose;
+    return currentTimeNum >= openNum && currentTimeNum <= closeNum;
+  });
+
+  if (!isCurrentlyOpen) {
+    // Check if it's before the first opening or after the last closing
+    const sorted = [...dayHoraires].sort((a, b) => a.ouverture.localeCompare(b.ouverture));
+    const nextToday = sorted.find((h) => {
+      const [hO, mO] = h.ouverture.split(':').map(Number);
+      return hO * 100 + mO > currentTimeNum;
+    });
+
+    if (nextToday) return `Ouvre à ${nextToday.ouverture}`;
+    return 'Fermé pour aujourd\'hui';
+  }
+
+  return null;
+});
+
 export default mongoose.model('Boutique', boutiqueSchema);

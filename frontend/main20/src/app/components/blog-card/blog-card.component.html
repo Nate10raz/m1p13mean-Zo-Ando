@@ -1,44 +1,59 @@
 <div class="row">
   @for (productcard of cards; track productcard.id) {
-    <div class="col-sm-6 col-lg-3">
-      <mat-card class="cardWithShadow productcard overflow-hidden">
-        @if (detailRouteBase && productcard.id !== undefined && productcard.id !== null) {
-          <a [routerLink]="[detailRouteBase, productcard.id]">
-            <img src="{{ productcard.imgSrc }}" alt="imgSrc" class="w-100" mat-card-image />
-          </a>
-        } @else {
-          <img src="{{ productcard.imgSrc }}" alt="imgSrc" class="w-100" mat-card-image />
+  <div class="col-sm-6 col-md-4 col-lg-3 m-b-24">
+    <mat-card class="product-card overflow-hidden cardWithShadow">
+      <div class="img-container position-relative">
+        @if (productcard.categorieNom) {
+        <span class="category-badge">{{ productcard.categorieNom }}</span>
         }
-        <mat-card-content class="p-b-24 p-t-12 position-relative">
-          <button
-            mat-mini-fab
-            class="icon-30 cart-btn bg-primary text-white d-block"
-            matTooltip="Add to Cart"
-          >
-            <i-tabler name="basket" class="icon-16"></i-tabler>
-          </button>
-          <mat-card-title class="mat-headline-2 f-s-16 m-b-4">{{
-            productcard.title
-          }}</mat-card-title>
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-              <h6 class="f-w-600 f-s-16">{{ formatPrice(productcard.price) }}</h6>
-              @if (productcard.rprice) {
-                <span class="f-s-14 m-l-4 text-decoration-line-through">{{
-                  formatPrice(productcard.rprice)
-                }}</span>
-              }
-            </div>
+
+        @if (detailRouteBase && productcard.id !== undefined && productcard.id !== null) {
+        <a [routerLink]="[detailRouteBase, productcard.id]">
+          <img [src]="productcard.imgSrc" class="w-100" />
+        </a>
+        } @else {
+        <img [src]="productcard.imgSrc" class="w-100" />
+        }
+      </div>
+
+      <mat-card-content class="p-b-24 p-t-16 position-relative">
+        <button mat-mini-fab color="primary" class="cart-btn" matTooltip="Ajouter au panier">
+          <i-tabler name="basket" class="icon-18"></i-tabler>
+        </button>
+
+        <div class="m-b-8">
+          <a class="text-muted f-s-12 text-decoration-none d-flex align-items-center gap-1">
+            <i-tabler name="store" class="icon-12"></i-tabler>
+            {{ productcard.boutique || 'Boutique' }}
+          </a>
+
+          @if (productcard.boutiqueStatus) {
+          <div class="boutique-status-indicator m-t-4">
+            <span class="status-dot" [ngClass]="productcard.boutiqueStatus.isOpen ? 'bg-success' : 'bg-danger'"></span>
+            <span class="f-s-10" [ngClass]="productcard.boutiqueStatus.isOpen ? 'text-success' : 'text-danger'">
+              {{ productcard.boutiqueStatus.isOpen ? 'Ouvert' : (productcard.boutiqueStatus.statusReason || 'Fermé') }}
+            </span>
           </div>
-          <div class="m-t-8 d-flex gap-4">
-            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
-            <span><i-tabler name="star" class="fill-warning icon-18"></i-tabler></span>
+          }
+        </div>
+
+        <mat-card-title class="f-s-16 f-w-700 m-b-8 text-truncate">{{ productcard.title }}</mat-card-title>
+
+        <p class="description-text m-0 m-b-16 text-muted">{{ productcard.description || 'Pas de description
+          disponible.' }}</p>
+
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-baseline gap-4">
+            <h6 class="f-w-700 f-s-16 m-0">{{ formatPrice(productcard.price) }}</h6>
+            @if (productcard.rprice) {
+            <span class="f-s-12 text-muted text-decoration-line-through">{{ formatPrice(productcard.rprice) }}</span>
+            }
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+
+          <app-star-rating [rating]="productcard.rating || 0" [showNumber]="false" [size]="14"></app-star-rating>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
   }
 </div>
