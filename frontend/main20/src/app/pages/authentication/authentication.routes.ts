@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { AppSideRegisterComponent } from './side-register/side-register.component';
 import { AppSideRegisterClientComponent } from './side-register-client/side-register-client.component';
 import { AppSideRegisterBoutiqueComponent } from './side-register-boutique/side-register-boutique.component';
+import { AppResetPasswordComponent } from './reset-password/reset-password.component';
 
 export const AuthenticationRoutes: Routes = [
   {
@@ -24,6 +25,14 @@ export const AuthenticationRoutes: Routes = [
       {
         path: 'register-boutique',
         component: AppSideRegisterBoutiqueComponent,
+      },
+      {
+        path: 'reset-password',
+        component: AppResetPasswordComponent,
+      },
+      {
+        path: 'forgot-password',
+        component: AppResetPasswordComponent,
       },
     ],
   },

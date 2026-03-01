@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import mongoose from 'mongoose';
 import Avis from '../models/Avis.js';
 import Box from '../models/Box.js';
@@ -6,11 +6,37 @@ import BoxType from '../models/BoxType.js';
 import Boutique from '../models/Boutique.js';
 import DemandeLocationBox from '../models/DemandeLocationBox.js';
 import PayementBox from '../models/PayementBox.js';
+import PasswordReset from '../models/PasswordReset.js';
 import User from '../models/User.js';
-import UserToken from '../models/UserToken.js';
 import { createNotification } from './notification.service.js';
+import { ENV } from '../config/env.js';
 
-const SALT_ROUNDS = 10;
+const RESET_TOKEN_BYTES = 32;
+const RESET_TOKEN_EXPIRES_MINUTES = 60;
+
+const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const buildResetUrl = (token) => {
+  const base = String(ENV.FRONTEND_URL || 'http://localhost:4200').replace(/\/+$/, '');
+  return `${base}/reset-password?token=${encodeURIComponent(token)}`;
+};
+
+const createPasswordResetToken = async (userId) => {
+  await PasswordReset.deleteMany({ userId, used: false });
+  const rawToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+  const tokenHash = hashResetToken(rawToken);
+  const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRES_MINUTES * 60 * 1000);
+  await PasswordReset.create({
+    userId,
+    token: tokenHash,
+    expiresAt,
+  });
+  return {
+    token: rawToken,
+    expiresAt,
+    resetUrl: buildResetUrl(rawToken),
+  };
+};
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -444,19 +470,6 @@ export const resetUserPassword = async (userId, payload = {}) => {
     throw createError('Id utilisateur invalide', 400);
   }
 
-  const newPassword = typeof payload.newPassword === 'string' ? payload.newPassword : '';
-  const confirmPassword = payload.confirmPassword;
-
-  if (!newPassword.trim()) {
-    throw createError('Mot de passe requis', 400);
-  }
-  if (newPassword.length < 6) {
-    throw createError('Mot de passe trop court (min 6)', 400);
-  }
-  if (confirmPassword !== undefined && confirmPassword !== newPassword) {
-    throw createError('Confirmation mot de passe invalide', 400);
-  }
-
   const user = await User.findById(userId);
   if (!user) {
     throw createError('User not found', 404);
@@ -468,19 +481,25 @@ export const resetUserPassword = async (userId, payload = {}) => {
     throw createError('User disabled', 403);
   }
 
-  user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
-  await user.save();
-  await UserToken.deleteMany({ userId: user._id, type: 'refresh' });
+  const resetInfo = await createPasswordResetToken(user._id);
   await createNotification({
     userId: user._id,
     type: 'password_reset',
     channel: 'email',
-    titre: 'Mot de passe reinitialise',
-    message: `Votre mot de passe a ete reinitialise par un administrateur. Nouveau mot de passe: ${newPassword}. Merci de le changer apres connexion.`,
+    titre: 'Reinitialisation du mot de passe',
+    message:
+      'Un administrateur a demande la reinitialisation de votre mot de passe. ' +
+      `Utilisez le lien suivant (valable ${RESET_TOKEN_EXPIRES_MINUTES} minutes).`,
+    data: {
+      url: resetInfo.resetUrl,
+    },
   });
 
   return {
     user: sanitizeUser(user),
+    reset: {
+      expiresAt: resetInfo.expiresAt,
+    },
   };
 };
 

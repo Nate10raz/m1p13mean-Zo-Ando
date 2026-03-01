@@ -7,6 +7,7 @@ import {
   registerBoutiqueController,
   registerClientController,
   registerAdminController,
+  resetPasswordController,
 } from '../controllers/auth.controller.js';
 import { ENV } from '../config/env.js';
 import { badRequestResponse, forbiddenResponse } from '../utils/response.util.js';
@@ -63,6 +64,22 @@ const loginValidation = [
   body('password').isString().notEmpty().withMessage('Mot de passe requis'),
 ];
 
+const resetPasswordValidation = [
+  body('token').isString().notEmpty().withMessage('Token requis'),
+  body('newPassword')
+    .isString()
+    .isLength({ min: 6 })
+    .withMessage('Mot de passe trop court (min 6)'),
+  body('confirmPassword')
+    .optional()
+    .isString()
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Confirmation mot de passe invalide');
+      }
+      return true;
+    }),
+];
 const adminValidation = [
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
   body('password').isString().isLength({ min: 6 }).withMessage('Mot de passe trop court (min 6)'),
@@ -197,6 +214,31 @@ router.post(
  *       401: { description: Identifiants invalides }
  */
 router.post('/login', loginValidation, validateRequest, loginController);
+
+/**
+ * @openapi
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reinitialiser le mot de passe via un token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token: { type: string }
+ *               newPassword: { type: string }
+ *               confirmPassword: { type: string }
+ *     responses:
+ *       200: { description: Mot de passe reinitialise }
+ *       400: { description: Requete invalide }
+ *       403: { description: Utilisateur non actif }
+ *       404: { description: Utilisateur introuvable }
+ */
+router.post('/reset-password', resetPasswordValidation, validateRequest, resetPasswordController);
 
 /**
  * @openapi

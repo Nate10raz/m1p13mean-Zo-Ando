@@ -104,6 +104,12 @@ export interface RefreshData {
   accessToken: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+  confirmPassword?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -191,6 +197,10 @@ export class AuthService {
           }
         }),
       );
+  }
+
+  resetPassword(payload: ResetPasswordPayload): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.apiBaseUrl}/reset-password`, payload);
   }
 
   logout(): Observable<ApiResponse<null>> {

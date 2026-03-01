@@ -171,7 +171,7 @@ export const resetUserPasswordController = async (req, res, next) => {
       req,
       res,
       status: 200,
-      message: 'Mot de passe reinitialise',
+      message: 'Lien de reinitialisation envoye',
       data: result,
     });
   } catch (error) {

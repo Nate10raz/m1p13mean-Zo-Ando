@@ -317,7 +317,7 @@ router.get(
  * /admin/users/{id}/password:
  *   patch:
  *     tags: [Admin]
- *     summary: Reinitialiser le mot de passe d'un utilisateur
+ *     summary: Demander la reinitialisation du mot de passe d'un utilisateur
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -325,18 +325,8 @@ router.get(
  *         name: id
  *         required: true
  *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [newPassword]
- *             properties:
- *               newPassword: { type: string }
- *               confirmPassword: { type: string }
  *     responses:
- *       200: { description: Mot de passe reinitialise }
+ *       200: { description: Lien de reinitialisation envoye }
  *       400: { description: Requete invalide }
  *       401: { description: Non authentifie }
  *       403: { description: Utilisateur non actif }
@@ -345,22 +335,7 @@ router.get(
 router.patch(
   '/users/:id/password',
   ...adminGuard,
-  [
-    param('id').isMongoId().withMessage('Id utilisateur invalide'),
-    body('newPassword')
-      .isString()
-      .isLength({ min: 6 })
-      .withMessage('Mot de passe trop court (min 6)'),
-    body('confirmPassword')
-      .optional()
-      .isString()
-      .custom((value, { req }) => {
-        if (value !== req.body.newPassword) {
-          throw new Error('Confirmation mot de passe invalide');
-        }
-        return true;
-      }),
-  ],
+  [param('id').isMongoId().withMessage('Id utilisateur invalide')],
   validateRequest,
   resetUserPasswordController,
 );

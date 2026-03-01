@@ -7,15 +7,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialModule } from '../../../material.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -46,7 +38,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
   AdminService,
-  AdminResetPasswordPayload,
   AdminSuspendUserPayload,
   AdminUser,
   AdminUserStatus,
@@ -294,11 +285,11 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
       data: { user },
     });
 
-    dialogRef.afterClosed().subscribe((payload: AdminResetPasswordPayload | undefined) => {
-      if (!payload) {
+    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
+      if (!confirmed) {
         return;
       }
-      this.resetUserPassword(user.userId, payload);
+      this.resetUserPassword(user.userId);
     });
   }
 
@@ -329,11 +320,11 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
       });
   }
 
-  private resetUserPassword(userId: string, payload: AdminResetPasswordPayload): void {
+  private resetUserPassword(userId: string): void {
     this.actionInProgress = true;
 
     this.adminService
-      .resetUserPassword(userId, payload)
+      .resetUserPassword(userId)
       .pipe(
         finalize(() => {
           this.actionInProgress = false;
@@ -342,7 +333,7 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          const message = response?.message ?? 'Mot de passe reinitialise';
+          const message = response?.message ?? 'Lien de reinitialisation envoye';
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
         },
         error: (error) => {
@@ -388,134 +379,36 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
 
 @Component({
   selector: 'app-reset-user-password-dialog',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [CommonModule, MaterialModule],
   template: `
     <h2 mat-dialog-title>Reinitialiser le mot de passe</h2>
     <div mat-dialog-content>
       <p class="m-b-8">
-        Utilisateur: <strong>{{ data.user.nom }}</strong>
+        Un lien de reinitialisation sera envoye a l'email de
+        <strong>{{ data.user.nom }}</strong>.
       </p>
-      <div class="d-flex justify-content-end m-b-12">
-        <button mat-stroked-button type="button" (click)="generatePassword()">Generer</button>
-      </div>
-      <form [formGroup]="form" class="d-flex flex-column gap-16">
-        <mat-form-field appearance="outline">
-          <mat-label>Nouveau mot de passe</mat-label>
-          <input matInput [type]="showNewPassword ? 'text' : 'password'" formControlName="newPassword" />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="showNewPassword = !showNewPassword"
-            [attr.aria-label]="showNewPassword ? 'Masquer' : 'Afficher'"
-          >
-            <mat-icon>{{ showNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          @if (form.get('newPassword')?.hasError('required')) {
-            <mat-error>Nouveau mot de passe requis</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Confirmer le mot de passe</mat-label>
-          <input
-            matInput
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            formControlName="confirmPassword"
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="showConfirmPassword = !showConfirmPassword"
-            [attr.aria-label]="showConfirmPassword ? 'Masquer' : 'Afficher'"
-          >
-            <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          @if (form.get('confirmPassword')?.hasError('required')) {
-            <mat-error>Confirmation requise</mat-error>
-          }
-          @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
-            <mat-error>Les mots de passe ne correspondent pas</mat-error>
-          }
-        </mat-form-field>
-      </form>
+      <p class="text-muted m-0">L'utilisateur choisira un nouveau mot de passe via ce lien.</p>
     </div>
     <div mat-dialog-actions align="end">
       <button mat-button type="button" (click)="onCancel()">Annuler</button>
       <button mat-flat-button color="primary" type="button" (click)="onConfirm()">
-        Reinitialiser
+        Envoyer le lien
       </button>
     </div>
   `,
 })
 export class ResetUserPasswordDialogComponent {
-  form: FormGroup;
-  showNewPassword = false;
-  showConfirmPassword = false;
-
   constructor(
-    private fb: FormBuilder,
     private dialogRef: MatDialogRef<ResetUserPasswordDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ResetPasswordDialogData,
-  ) {
-    this.form = this.fb.group(
-      {
-        newPassword: ['', [Validators.required]],
-        confirmPassword: ['', [Validators.required]],
-      },
-      { validators: [this.passwordMatchValidator] },
-    );
-  }
-
-  generatePassword(): void {
-    const generated = this.createPassword();
-    this.form.patchValue({ newPassword: generated, confirmPassword: generated });
-    this.form.markAsDirty();
-    this.showNewPassword = true;
-    this.showConfirmPassword = true;
-  }
+  ) {}
 
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onConfirm(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    const value = this.form.getRawValue();
-    const payload: AdminResetPasswordPayload = {
-      newPassword: value.newPassword,
-      confirmPassword: value.confirmPassword,
-    };
-    this.dialogRef.close(payload);
-  }
-
-  private passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
-    const next = group.get('newPassword')?.value ?? '';
-    const confirm = group.get('confirmPassword')?.value ?? '';
-
-    if (!next || !confirm) {
-      return null;
-    }
-
-    return next === confirm ? null : { passwordMismatch: true };
-  }
-
-  private createPassword(length = 12): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?';
-    const values = new Uint32Array(length);
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      crypto.getRandomValues(values);
-      return Array.from(values, (value) => chars[value % chars.length]).join('');
-    }
-    let result = '';
-    for (let i = 0; i < length; i += 1) {
-      result += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return result;
+    this.dialogRef.close(true);
   }
 }
 
