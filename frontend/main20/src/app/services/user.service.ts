@@ -83,6 +83,12 @@ export interface UpdateMePayload {
   };
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword?: string;
+}
+
 export type UpdateMeResponse = UserMeData | { user: UserMe };
 
 @Injectable({
@@ -99,5 +105,9 @@ export class UserService {
 
   updateMe(payload: UpdateMePayload): Observable<ApiResponse<UpdateMeResponse>> {
     return this.http.patch<ApiResponse<UpdateMeResponse>>(`${this.apiRootUrl}/users/me`, payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<ApiResponse<null>> {
+    return this.http.patch<ApiResponse<null>>(`${this.apiRootUrl}/users/me/password`, payload);
   }
 }

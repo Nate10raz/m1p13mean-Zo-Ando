@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
+import UserToken from '../models/UserToken.js';
 import Boutique from '../models/Boutique.js';
 import Panier from '../models/Panier.js';
 
@@ -311,4 +312,52 @@ export const updateMyProfile = async (userId, data = {}) => {
 
   await user.save();
   return getMyProfile(userId);
+};
+
+export const changeMyPassword = async (userId, payload = {}) => {
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+
+  const currentPassword =
+    typeof payload.currentPassword === 'string' ? payload.currentPassword : '';
+  const newPassword = typeof payload.newPassword === 'string' ? payload.newPassword : '';
+  const confirmPassword = payload.confirmPassword;
+
+  if (!currentPassword.trim()) {
+    throw createStatusError('Mot de passe actuel requis', 400);
+  }
+  if (!newPassword.trim()) {
+    throw createStatusError('Nouveau mot de passe requis', 400);
+  }
+  if (newPassword.length < 6) {
+    throw createStatusError('Mot de passe trop court (min 6)', 400);
+  }
+  if (confirmPassword !== undefined && confirmPassword !== newPassword) {
+    throw createStatusError('Confirmation mot de passe invalide', 400);
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createStatusError('Utilisateur introuvable', 404);
+  }
+  if (user.status && user.status !== 'active') {
+    throw createStatusError('Utilisateur non actif', 403);
+  }
+  if (user.isActive === false) {
+    throw createStatusError('Utilisateur desactive', 403);
+  }
+
+  const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isValid) {
+    throw createStatusError('Mot de passe actuel invalide', 401);
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await user.save();
+  await UserToken.deleteMany({ userId: user._id, type: 'refresh' });
+
+  return {
+    user: sanitizeUser(user),
+  };
 };

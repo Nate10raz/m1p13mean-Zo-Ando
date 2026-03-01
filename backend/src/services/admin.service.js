@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import Avis from '../models/Avis.js';
 import Box from '../models/Box.js';
@@ -6,6 +7,10 @@ import Boutique from '../models/Boutique.js';
 import DemandeLocationBox from '../models/DemandeLocationBox.js';
 import PayementBox from '../models/PayementBox.js';
 import User from '../models/User.js';
+import UserToken from '../models/UserToken.js';
+import { createNotification } from './notification.service.js';
+
+const SALT_ROUNDS = 10;
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -414,6 +419,65 @@ export const reactivateUser = async (userId) => {
   user.status = 'active';
   user.motifSuspension = undefined;
   await user.save();
+
+  return {
+    user: sanitizeUser(user),
+  };
+};
+
+export const getUserById = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+  if (user.role !== 'client') {
+    throw createError('Only client accounts can be fetched here', 400);
+  }
+
+  return {
+    user: sanitizeUser(user),
+  };
+};
+
+export const resetUserPassword = async (userId, payload = {}) => {
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw createError('Id utilisateur invalide', 400);
+  }
+
+  const newPassword = typeof payload.newPassword === 'string' ? payload.newPassword : '';
+  const confirmPassword = payload.confirmPassword;
+
+  if (!newPassword.trim()) {
+    throw createError('Mot de passe requis', 400);
+  }
+  if (newPassword.length < 6) {
+    throw createError('Mot de passe trop court (min 6)', 400);
+  }
+  if (confirmPassword !== undefined && confirmPassword !== newPassword) {
+    throw createError('Confirmation mot de passe invalide', 400);
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+  if (user.isActive === false) {
+    throw createError('User disabled', 403);
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await user.save();
+  await UserToken.deleteMany({ userId: user._id, type: 'refresh' });
+  await createNotification({
+    userId: user._id,
+    type: 'password_reset',
+    channel: 'email',
+    titre: 'Mot de passe reinitialise',
+    message: `Votre mot de passe a ete reinitialise par un administrateur. Nouveau mot de passe: ${newPassword}. Merci de le changer apres connexion.`,
+  });
 
   return {
     user: sanitizeUser(user),

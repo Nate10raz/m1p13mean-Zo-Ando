@@ -1,0 +1,163 @@
+<div class="profile-page">
+  <div class="row align-items-center m-b-24">
+    <div class="col-12 col-lg-7">
+      <div class="profile-title">
+        <div class="profile-avatar">
+          <img [src]="avatarUrl" alt="Avatar" />
+        </div>
+        <div>
+          <h2 class="m-0">{{ displayName }}</h2>
+          <div class="text-muted">{{ user?.email || '-' }}</div>
+          <div class="chip-row m-t-8">
+            <mat-chip class="chip role-chip">{{ roleLabel }}</mat-chip>
+            @if (user?.status || user?.isActive !== undefined) {
+              <mat-chip class="chip" [ngClass]="statusToneClass">
+                {{ statusLabel }}
+              </mat-chip>
+            }
+            <mat-chip class="chip" [ngClass]="user?.isEmailVerified ? 'chip-success' : 'chip-warn'">
+              {{ emailVerifiedLabel }}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5 profile-actions">
+      <button mat-stroked-button type="button" routerLink="/admin/acheteur">
+        Retour a la liste
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="d-flex align-items-center gap-16">
+        <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+        <span>Chargement du profil...</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (errorMessage) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-error">{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  } @else if (!user) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-muted">Aucune information de profil.</mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="row">
+      <div class="col-12 col-xl-7 m-b-16">
+        <mat-card class="cardWithShadow info-card">
+          <mat-card-content>
+            <div class="section-header">
+              <div>
+                <mat-card-title>Informations personnelles</mat-card-title>
+                <mat-card-subtitle>Identite, contact et statut</mat-card-subtitle>
+              </div>
+            </div>
+            <div class="detail-grid m-t-16">
+              <div class="detail-item">
+                <div class="detail-label">Nom</div>
+                <div class="detail-value">{{ user.nom || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Prenom</div>
+                <div class="detail-value">{{ user.prenom || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Telephone</div>
+                <div class="detail-value">{{ user.telephone || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">{{ user.email || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Role</div>
+                <div class="detail-value">{{ roleLabel }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Statut</div>
+                <div class="detail-value">{{ statusLabel }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email verifie</div>
+                <div class="detail-value">{{ formatBoolean(user.isEmailVerified) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Compte actif</div>
+                <div class="detail-value">{{ formatBoolean(user.isActive) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Cree le</div>
+                <div class="detail-value">
+                  {{ user.createdAt ? (user.createdAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Mis a jour</div>
+                <div class="detail-value">
+                  {{ user.updatedAt ? (user.updatedAt | date: 'dd/MM/yyyy HH:mm') : '-' }}
+                </div>
+              </div>
+              @if (user.motifSuspension) {
+                <div class="detail-item">
+                  <div class="detail-label">Motif suspension</div>
+                  <div class="detail-value">{{ user.motifSuspension }}</div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-xl-5 m-b-16">
+        <mat-card class="cardWithShadow info-card">
+          <mat-card-content>
+            <div class="section-header">
+              <div>
+                <mat-card-title>Preferences</mat-card-title>
+                <mat-card-subtitle>Notifications</mat-card-subtitle>
+              </div>
+            </div>
+            @if (notificationsEnabled === null) {
+              <div class="text-muted m-t-16">Aucune preference enregistree.</div>
+            } @else {
+              <div class="chip-row m-t-16">
+                <mat-chip
+                  class="chip"
+                  [ngClass]="notificationsEnabled ? 'chip-success' : 'chip-muted'"
+                >
+                  Notifications: {{ notificationsEnabled ? 'Oui' : 'Non' }}
+                </mat-chip>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    @if (user.panierId) {
+      <mat-card class="cardWithShadow">
+        <mat-card-content>
+          <div class="section-header">
+            <div>
+              <mat-card-title>Panier</mat-card-title>
+              <mat-card-subtitle>Identifiant du panier client</mat-card-subtitle>
+            </div>
+          </div>
+          <div class="detail-grid m-t-16">
+            <div class="detail-item">
+              <div class="detail-label">Panier ID</div>
+              <div class="detail-value">{{ user.panierId }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card class="cardWithShadow">
+        <mat-card-content class="text-muted">Aucun panier actif.</mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

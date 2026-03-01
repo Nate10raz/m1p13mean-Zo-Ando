@@ -110,14 +110,22 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item [routerLink]="['/admin/acheteur', element.userId]">
                   <mat-icon>visibility</mat-icon>
                   <span>Voir</span>
                 </button>
-                <button mat-menu-item>
-                  <mat-icon>edit</mat-icon>
-                  <span>Modifier</span>
+                <button
+                  mat-menu-item
+                  [disabled]="actionInProgress"
+                  (click)="openResetPasswordDialog(element)"
+                >
+                  <mat-icon>lock_reset</mat-icon>
+                  <span>Reinitialiser mot de passe</span>
                 </button>
+<!--                <button mat-menu-item>-->
+<!--                  <mat-icon>edit</mat-icon>-->
+<!--                  <span>Modifier</span>-->
+<!--                </button>-->
                 <button
                   mat-menu-item
                   [disabled]="actionInProgress || element.statut !== 'suspendu'"

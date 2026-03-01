@@ -7,8 +7,10 @@ import {
   suspendBoutique,
   reactivateUser,
   suspendUser,
+  getUserById,
   listClients,
   getAdminFinanceDashboard,
+  resetUserPassword,
 } from '../services/admin.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
@@ -140,6 +142,36 @@ export const listClientsController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Liste clients',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserByIdController = async (req, res, next) => {
+  try {
+    const result = await getUserById(req.params.id);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Detail utilisateur',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetUserPasswordController = async (req, res, next) => {
+  try {
+    const result = await resetUserPassword(req.params.id, req.body);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Mot de passe reinitialise',
       data: result,
     });
   } catch (error) {

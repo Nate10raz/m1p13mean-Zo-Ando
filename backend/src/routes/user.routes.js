@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import {
+  changeMyPasswordController,
   getMyProfileController,
   updateMyProfileController,
 } from '../controllers/user.controller.js';
@@ -30,6 +31,23 @@ const updateValidation = [
   body('preferences.notifications').optional().isObject(),
   body('preferences.notifications.email').optional().isBoolean(),
   body('preferences.notifications.inApp').optional().isBoolean(),
+];
+
+const passwordChangeValidation = [
+  body('currentPassword').isString().notEmpty().withMessage('Mot de passe actuel requis'),
+  body('newPassword')
+    .isString()
+    .isLength({ min: 6 })
+    .withMessage('Mot de passe trop court (min 6)'),
+  body('confirmPassword')
+    .optional()
+    .isString()
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Confirmation mot de passe invalide');
+      }
+      return true;
+    }),
 ];
 
 /**
@@ -88,5 +106,39 @@ router.get('/me', requireAuth, getMyProfileController);
  *       404: { description: Utilisateur introuvable }
  */
 router.patch('/me', requireAuth, updateValidation, validateRequest, updateMyProfileController);
+
+/**
+ * @openapi
+ * /users/me/password:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Changer le mot de passe de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword]
+ *             properties:
+ *               currentPassword: { type: string }
+ *               newPassword: { type: string }
+ *               confirmPassword: { type: string }
+ *     responses:
+ *       200: { description: Mot de passe modifie }
+ *       400: { description: Requete invalide }
+ *       401: { description: Non authentifie }
+ *       403: { description: Utilisateur non actif }
+ *       404: { description: Utilisateur introuvable }
+ */
+router.patch(
+  '/me/password',
+  requireAuth,
+  passwordChangeValidation,
+  validateRequest,
+  changeMyPasswordController,
+);
 
 export default router;
