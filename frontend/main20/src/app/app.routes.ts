@@ -112,6 +112,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'panier',
+        canActivate: [RoleGuard],
+        data: { roles: ['client'] },
+        loadComponent: () =>
+          import('./pages/panier/panier.component').then(
+            (m) => m.PanierComponent,
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [RoleGuard],
         data: { roles: ['admin'] },

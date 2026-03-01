@@ -15,6 +15,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { UserService, UserMeData } from 'src/app/services/user.service';
+import { CartService } from 'src/app/services/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -37,7 +38,7 @@ export class HeaderComponent implements OnInit {
   @Input() toggleChecked = false;
   @Output() toggleMobileNav = new EventEmitter<void>();
 
-  unreadCount = 0;
+  unreadCount$: Observable<number>;
   profileName = 'Utilisateur';
   boutiqueName = '';
   isBoutique = false;
@@ -45,31 +46,21 @@ export class HeaderComponent implements OnInit {
   roleLabel = 'Utilisateur';
   roleToneClass = 'role-pill--default';
 
-  /** Observable booléen consommé dans le template via async pipe */
-  isDark$: Observable<boolean>;
-
   constructor(
     private authService: AuthService,
     private notificationService: NotificationService,
     private router: Router,
     private themeService: ThemeService,
     private userService: UserService,
+    public cartService: CartService,
   ) {
-    this.isDark$ = this.themeService.mode$.pipe(map((m) => m === 'dark'));
+    this.unreadCount$ = this.notificationService.notifications$.pipe(
+      map(notifications => notifications.filter(n => !n.lu).length)
+    );
   }
 
   ngOnInit(): void {
-    this.fetchUnreadCount();
     this.loadProfileHeader();
-  }
-
-  fetchUnreadCount(): void {
-    this.notificationService.getNotifications().subscribe({
-      next: (notifications) => {
-        this.unreadCount = notifications.filter((n) => !n.lu).length;
-      },
-      error: (err) => console.error('Error fetching notifications', err),
-    });
   }
 
   loadProfileHeader(): void {
@@ -163,10 +154,6 @@ export class HeaderComponent implements OnInit {
       return 'role-pill--client';
     }
     return 'role-pill--default';
-  }
-
-  toggleTheme(): void {
-    this.themeService.toggle();
   }
 
   logout(): void {

@@ -79,7 +79,7 @@ export const navItems: NavItem[] = [
     roles: ['boutique'],
   },
   {
-    displayName: 'Mon Ã©tablissement',
+    displayName: 'Mon établissement',
     iconName: 'building-store',
     route: '/dashboard/boutique',
     roles: ['boutique'],

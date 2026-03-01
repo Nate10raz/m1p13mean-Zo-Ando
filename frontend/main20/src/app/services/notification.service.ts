@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Notification {
@@ -23,7 +23,19 @@ export interface Notification {
 export class NotificationService {
   private apiUrl = `${environment.apiUrl}/notification`;
 
-  constructor(private http: HttpClient) {}
+  private _notifications$ = new BehaviorSubject<Notification[]>([]);
+  readonly notifications$ = this._notifications$.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.refresh();
+  }
+
+  refresh(): void {
+    this.getNotifications().subscribe({
+      next: (data) => this._notifications$.next(data),
+      error: (err) => console.error('Failed to refresh notifications', err)
+    });
+  }
 
   getNotifications(): Observable<Notification[]> {
     return this.http.get<Notification[]>(this.apiUrl);

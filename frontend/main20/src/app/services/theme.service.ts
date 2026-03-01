@@ -59,11 +59,6 @@ export class ThemeService {
   }
 
   private getSavedMode(): ThemeMode {
-    const saved = localStorage.getItem(this.storageKey) as ThemeMode | null;
-    if (saved === 'dark' || saved === 'light') return saved;
-
-    // Fallback : respecter la préférence système
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return prefersDark ? 'dark' : 'light';
+    return 'light'; // Toujours en mode light
   }
 }

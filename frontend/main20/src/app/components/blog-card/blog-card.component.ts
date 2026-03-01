@@ -6,6 +6,9 @@ import { RouterModule } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import { CommonModule } from '@angular/common';
+import { CartService } from 'src/app/services/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 // ecommerce card
 export interface ProductCard {
@@ -43,7 +46,33 @@ export interface ProductCard {
   styleUrls: ['./blog-card.component.scss'],
 })
 export class AppBlogCardsComponent {
-  constructor() { }
+  constructor(
+    private cartService: CartService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) { }
+
+  onAddToCart(product: ProductCard, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.cartService.addToCart(product.id.toString()).subscribe({
+      next: () => {
+        this.snackBar.open(`${product.title} ajouté au panier !`, 'Voir le panier', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+        }).onAction().subscribe(() => {
+          this.router.navigate(['/panier']);
+        });
+      },
+      error: (err) => {
+        console.error('Add to cart failed', err);
+        this.snackBar.open('Erreur lors de l\'ajout au panier. Vérifiez votre connexion.', 'OK', {
+          duration: 3000,
+        });
+      }
+    });
+  }
 
   @Input() productcards: ProductCard[] | null = null;
   @Input() showFallback = true;

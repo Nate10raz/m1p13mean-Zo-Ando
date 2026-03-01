@@ -17,7 +17,8 @@
       </div>
 
       <mat-card-content class="p-b-24 p-t-16 position-relative">
-        <button mat-mini-fab color="primary" class="cart-btn" matTooltip="Ajouter au panier">
+        <button mat-mini-fab color="primary" class="cart-btn" matTooltip="Ajouter au panier"
+          (click)="onAddToCart(productcard, $event)">
           <i-tabler name="basket" class="icon-18"></i-tabler>
         </button>
 
