@@ -89,7 +89,10 @@
           <div class="auth-field">
             <div class="d-flex align-items-center justify-content-between m-b-8">
               <mat-label class="auth-field__label" style="margin-bottom:0">Mot de passe</mat-label>
-              <a [routerLink]="['/']" class="text-primary f-w-500 f-s-13 text-decoration-none auth-forgot">
+              <a
+                [routerLink]="['/authentication/forgot-password']"
+                class="text-primary f-w-500 f-s-13 text-decoration-none auth-forgot"
+              >
                 Mot de passe oublié ?
               </a>
             </div>

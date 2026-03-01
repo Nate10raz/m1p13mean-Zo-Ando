@@ -52,11 +52,6 @@ export interface AdminSuspendUserPayload {
   motif: string;
 }
 
-export interface AdminResetPasswordPayload {
-  newPassword: string;
-  confirmPassword?: string;
-}
-
 export interface AdminSuspendUserResponse {
   user: AdminUser & {
     status?: AdminUserStatus;
@@ -315,13 +310,10 @@ export class AdminService {
     );
   }
 
-  resetUserPassword(
-    userId: string,
-    payload: AdminResetPasswordPayload,
-  ): Observable<ApiResponse<AdminResetPasswordResponse>> {
+  resetUserPassword(userId: string): Observable<ApiResponse<AdminResetPasswordResponse>> {
     return this.http.patch<ApiResponse<AdminResetPasswordResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/password`,
-      payload,
+      {},
     );
   }
 
