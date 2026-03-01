@@ -21,6 +21,7 @@ import {
 
 import { AuthService } from 'src/app/services/auth.service';
 import { TokenService } from 'src/app/services/token.service';
+import { SKIP_AUTH_REDIRECT } from 'src/app/services/http-context';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -46,9 +47,11 @@ export class AuthInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
 
+        const skipRedirect = req.context.get(SKIP_AUTH_REDIRECT);
+
         return this.refreshAccessToken().pipe(
           switchMap((token) => next.handle(this.addAuthHeader(req, token))),
-          catchError((refreshError) => this.handleAuthFailure(refreshError)),
+          catchError((refreshError) => this.handleAuthFailure(refreshError, skipRedirect)),
         );
       }),
     );
@@ -74,9 +77,11 @@ export class AuthInterceptor implements HttpInterceptor {
     return this.refreshRequest$;
   }
 
-  private handleAuthFailure(error: unknown): Observable<never> {
+  private handleAuthFailure(error: unknown, skipRedirect: boolean): Observable<never> {
     this.tokenService.clearAccessToken();
-    this.router.navigate(['/client/login']);
+    if (!skipRedirect) {
+      this.router.navigate(['/client/login']);
+    }
     return throwError(() => error);
   }
 
