@@ -18,10 +18,17 @@
       </div>
 
       <div class="lp-navbar__actions">
-        <a routerLink="/client/login" class="lp-btn-ghost">Se connecter</a>
-        <a routerLink="/authentication/register-client">
-          <button mat-flat-button color="primary">Commencer gratuitement</button>
-        </a>
+        @if (!isAuthenticated) {
+          <a routerLink="/client/login" class="lp-btn-ghost">Se connecter</a>
+          <a routerLink="/authentication/register-client">
+            <button mat-flat-button color="primary">Commencer gratuitement</button>
+          </a>
+        } @else {
+          <a [routerLink]="userHomeRoute" class="lp-user-pill">
+            <i-tabler name="user" class="icon-18 d-flex"></i-tabler>
+            <span class="lp-user-pill__name">{{ profileName }}</span>
+          </a>
+        }
       </div>
     </div>
   </nav>
@@ -50,12 +57,21 @@
       </p>
 
       <div class="d-flex gap-12 flex-wrap m-b-32">
-        <a routerLink="/authentication/register">
-          <button mat-flat-button color="primary" class="lp-btn-lg">
-            <i-tabler name="shopping-bag" class="icon-18 d-flex"></i-tabler>
-            Je commence maintenant
-          </button>
-        </a>
+        @if (!isAuthenticated) {
+          <a routerLink="/authentication/register">
+            <button mat-flat-button color="primary" class="lp-btn-lg">
+              <i-tabler name="shopping-bag" class="icon-18 d-flex"></i-tabler>
+              Je commence maintenant
+            </button>
+          </a>
+        } @else {
+          <a [routerLink]="userHomeRoute">
+            <button mat-flat-button color="primary" class="lp-btn-lg lp-user-pill">
+              <i-tabler name="user" class="icon-18 d-flex"></i-tabler>
+              {{ profileName }}
+            </button>
+          </a>
+        }
         <a href="#how">
           <button mat-stroked-button color="primary" class="lp-btn-lg">
             Comment ça marche
@@ -207,9 +223,9 @@
       </div>
 
       <div class="d-flex justify-content-center m-t-8">
-        <a routerLink="/client/login">
+        <a [routerLink]="userHomeRoute">
           <button mat-flat-button color="primary">
-            Voir tous les produits
+            {{ homeCtaLabel }}
             <i-tabler name="arrow-right" class="icon-16 d-flex"></i-tabler>
           </button>
         </a>
@@ -321,13 +337,17 @@
                     </div>
                   }
                 </div>
-                <a routerLink="/authentication/register">
-                  @if (plan.featured) {
-                    <button mat-flat-button color="primary" class="w-100">{{ plan.cta }}</button>
-                  } @else {
-                    <button mat-stroked-button color="primary" class="w-100">{{ plan.cta }}</button>
-                  }
-                </a>
+                @if (!isAuthenticated) {
+                  <a routerLink="/authentication/register">
+                    @if (plan.featured) {
+                      <button mat-flat-button color="primary" class="w-100">{{ plan.cta }}</button>
+                    } @else {
+                      <button mat-stroked-button color="primary" class="w-100">{{ plan.cta }}</button>
+                    }
+                  </a>
+                } @else {
+                  <div class="lp-plan-cta-disabled text-muted f-s-12">Deja membre</div>
+                }
               </mat-card-content>
             </mat-card>
           </div>
@@ -424,19 +444,34 @@
       <div class="dashboard-badge bg-light-primary text-primary lp-cta__badge">
         <i-tabler name="rocket" class="icon-26 d-flex"></i-tabler>
       </div>
-      <h2 class="lp-cta__title m-0">Prêt à rejoindre le marché ?</h2>
-      <p class="text-muted f-s-15 m-0">Inscrivez-vous gratuitement et explorez des centaines de boutiques dès aujourd'hui.</p>
-      <div class="d-flex gap-12 justify-content-center flex-wrap">
-        <a routerLink="/authentication/register-client">
-          <button mat-flat-button color="primary" class="lp-btn-lg">
-            <i-tabler name="user-plus" class="icon-18 d-flex"></i-tabler>
-            Creer mon compte gratuit
-          </button>
-        </a>
-        <a routerLink="/client/login">
-          <button mat-stroked-button color="primary" class="lp-btn-lg">Se connecter</button>
-        </a>
-      </div>
+      @if (!isAuthenticated) {
+        <h2 class="lp-cta__title m-0">Prêt à rejoindre le marché ?</h2>
+        <p class="text-muted f-s-15 m-0">Inscrivez-vous gratuitement et explorez des centaines de boutiques dès aujourd'hui.</p>
+        <div class="d-flex gap-12 justify-content-center flex-wrap">
+          <a routerLink="/authentication/register-client">
+            <button mat-flat-button color="primary" class="lp-btn-lg">
+              <i-tabler name="user-plus" class="icon-18 d-flex"></i-tabler>
+              Créer mon compte gratuit
+            </button>
+          </a>
+          <a routerLink="/client/login">
+            <button mat-stroked-button color="primary" class="lp-btn-lg">Se connecter</button>
+          </a>
+        </div>
+      } @else {
+        <h2 class="lp-cta__title m-0">Bon retour, {{ profileName }}.</h2>
+        <p class="text-muted f-s-15 m-0">
+          Votre compte est actif. Accédez à votre espace pour continuer.
+        </p>
+        <div class="d-flex gap-12 justify-content-center flex-wrap">
+          <a [routerLink]="userHomeRoute">
+            <button mat-flat-button color="primary" class="lp-btn-lg">
+              <i-tabler name="arrow-right" class="icon-18 d-flex"></i-tabler>
+              Accéder à mon espace
+            </button>
+          </a>
+        </div>
+      }
     </div>
   </section>
 
@@ -473,10 +508,17 @@
 
         <div class="lp-footer__col">
           <div class="lp-footer__col-title">Compte</div>
-          <a routerLink="/client/login"    class="lp-footer__link">Se connecter</a>
-          <a routerLink="/authentication/register-client" class="lp-footer__link">S'inscrire</a>
-          <a routerLink="/boutique/login" class="lp-footer__link">Espace vendeur</a>
-          <a routerLink="/client/login" class="lp-footer__link">Espace acheteur</a>
+          @if (!isAuthenticated) {
+            <a routerLink="/client/login" class="lp-footer__link">Se connecter</a>
+            <a routerLink="/authentication/register-client" class="lp-footer__link">S'inscrire</a>
+            <a routerLink="/boutique/login" class="lp-footer__link">Espace vendeur</a>
+            <a routerLink="/client/login" class="lp-footer__link">Espace acheteur</a>
+          } @else {
+            <span class="lp-footer__link lp-footer__link--disabled">Se connecter</span>
+            <span class="lp-footer__link lp-footer__link--disabled">S'inscrire</span>
+            <span class="lp-footer__link lp-footer__link--disabled">Espace vendeur</span>
+            <span class="lp-footer__link lp-footer__link--disabled">Espace acheteur</span>
+          }
         </div>
 
         <div class="lp-footer__col">
@@ -499,9 +541,9 @@
       <div class="lp-footer__bottom">
         <span class="text-muted f-s-12">© {{ currentYear }} MarketPlace. Tous droits réservés.</span>
         <div class="d-flex gap=8"></div>
-        <span class="text-muted f-s-12"
-          ><strong>RAZAFINDRAKOTO Zo Nantenaina | RAZAFINDRAKOTO Tovoarinaina Ando</strong></span
-        >
+        <span class="lp-footer__names">
+          ETU002350 - RAZAFINDRAKOTO Zo Nantenaina | ETU002624 - RAZAFINDRAKOTO Tovoarinaina Ando
+        </span>
         <div class="d-flex gap-16">
           <a href="#" class="lp-footer__link f-s-12">Confidentialité</a>
           <a href="#" class="lp-footer__link f-s-12">Conditions d'utilisation</a>

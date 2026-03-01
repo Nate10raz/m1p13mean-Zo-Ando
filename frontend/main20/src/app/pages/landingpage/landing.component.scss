@@ -164,6 +164,37 @@
   gap: 8px !important;
 }
 
+.lp-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 135, 255, 0.2);
+  background: var(--mat-sys-primary-fixed-dim);
+  color: var(--mat-sys-primary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  max-width: 220px;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+
+  &:hover {
+    background: var(--mat-sys-primary);
+    border-color: var(--mat-sys-primary);
+    color: #fff;
+  }
+}
+
+.lp-user-pill__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 // ─── Hero ────────────────────────────────────────────────────────────
 .lp-hero {
   position: relative;
@@ -675,6 +706,15 @@
   border-bottom: 1px dashed var(--mat-sys-outline-variant);
 }
 
+.lp-plan-cta-disabled {
+  width: 100%;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--mat-sys-outline-variant);
+  font-weight: 600;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -837,6 +877,12 @@
   }
 }
 
+.lp-footer__link--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: default;
+}
+
 .lp-social-btn {
   width: 34px;
   height: 34px;
@@ -860,6 +906,17 @@
   border-top: 1px solid var(--mat-sys-outline-variant);
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.lp-footer__names {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--mat-sys-on-background);
+  background: linear-gradient(90deg, rgba(93, 135, 255, 0.18), rgba(68, 183, 247, 0.12));
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 135, 255, 0.2);
 }
 
 // ─── Spacing utilitaires (pour les cas non couverts par le template) ─
