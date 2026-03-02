@@ -65,7 +65,7 @@ export interface Boutique {
 export class BoutiqueService {
   private readonly apiRootUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getMyBoutique(): Observable<ApiResponse<Boutique>> {
     return this.http.get<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/me`);

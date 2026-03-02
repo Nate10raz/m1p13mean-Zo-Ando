@@ -137,36 +137,36 @@ router.get(
  *       403: { description: Forbidden }
  *       404: { description: Boutique introuvable }
  *//**
-* @openapi
-* /boutiques/me:
-*   patch:
-*     tags: [Boutiques]
-*     summary: Mettre a jour la boutique de l'utilisateur connecte
-*     security:
-*       - bearerAuth: []
-*     requestBody:
-*       required: true
-*       content:
-*         application/json:
-*           schema:
-*             type: object
-*             properties:
-*               nom: { type: string }
-*               description: { type: string }
-*               logo: { type: string, format: uri }
-*               banner: { type: string, format: uri }
-*               adresse: { type: string }
-*               horaires: { type: array }
-*               telephone: { type: string }
-*               email: { type: string, format: email }
-*               clickCollectActif: { type: boolean }
-*               plage_livraison_boutique: { type: array }
-*               accepteLivraisonJourJ: { type: boolean }
-*     responses:
-*       200: { description: Boutique mise a jour }
-*       403: { description: Forbidden }
-*       404: { description: Boutique introuvable }
-*/
+ * @openapi
+ * /boutiques/me:
+ *   patch:
+ *     tags: [Boutiques]
+ *     summary: Mettre a jour la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               description: { type: string }
+ *               logo: { type: string, format: uri }
+ *               banner: { type: string, format: uri }
+ *               adresse: { type: string }
+ *               horaires: { type: array }
+ *               telephone: { type: string }
+ *               email: { type: string, format: email }
+ *               clickCollectActif: { type: boolean }
+ *               plage_livraison_boutique: { type: array }
+ *               accepteLivraisonJourJ: { type: boolean }
+ *     responses:
+ *       200: { description: Boutique mise a jour }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ */
 
 /**
  * @openapi

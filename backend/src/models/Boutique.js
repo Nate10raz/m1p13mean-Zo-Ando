@@ -104,7 +104,7 @@ boutiqueSchema.virtual('isOpen').get(function () {
 });
 
 boutiqueSchema.virtual('statusReason').get(function () {
-  if (!this.isActive) return 'Boutique suspendue par l\'administration';
+  if (!this.isActive) return "Boutique suspendue par l'administration";
   if (!this.manualSwitchOpen) return 'Boutique fermée manuellement par le propriétaire';
 
   const now = new Date();
@@ -113,7 +113,7 @@ boutiqueSchema.virtual('statusReason').get(function () {
   const currentDay = days[now.getDay()];
 
   const dayHoraires = (this.horaires || []).filter((h) => h.jour === currentDay);
-  if (dayHoraires.length === 0) return 'Fermé aujourd\'hui';
+  if (dayHoraires.length === 0) return "Fermé aujourd'hui";
 
   const currentTimeNum = now.getHours() * 100 + now.getMinutes();
   const isCurrentlyOpen = dayHoraires.some((h) => {
@@ -133,7 +133,7 @@ boutiqueSchema.virtual('statusReason').get(function () {
     });
 
     if (nextToday) return `Ouvre à ${nextToday.ouverture}`;
-    return 'Fermé pour aujourd\'hui';
+    return "Fermé pour aujourd'hui";
   }
 
   return null;

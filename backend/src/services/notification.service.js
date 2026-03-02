@@ -30,12 +30,13 @@ export const createNotification = async (data) => {
                     <div style="padding: 20px; background-color: #f9f9f9; color: #333; line-height: 1.6;">
                       <p style="font-size: 16px;">Bonjour,</p>
                       <p style="font-size: 16px;">${data.message}</p>
-                      ${data.data && data.data.url
-            ? `<div style="text-align: center; margin-top: 30px;">
+                      ${
+                        data.data && data.data.url
+                          ? `<div style="text-align: center; margin-top: 30px;">
                         <a href="${data.data.url}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Voir les détails</a>
                       </div>`
-            : ''
-          }
+                          : ''
+                      }
                     </div>
                     <div style="background-color: #eee; padding: 10px; text-align: center; font-size: 12px; color: #777;">
                       <p>Ceci est une notification automatique, merci de ne pas répondre.</p>

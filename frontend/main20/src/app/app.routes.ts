@@ -203,12 +203,10 @@ export const routes: Routes = [
         canActivate: [RoleGuard],
         data: { roles: ['admin', 'boutique'] },
         loadComponent: () =>
-          import("./pages/commandes/gestion-commande/gestion-commande.component").then(
-            (m) => m.GestionCommandeComponent
+          import('./pages/commandes/gestion-commande/gestion-commande.component').then(
+            (m) => m.GestionCommandeComponent,
           ),
       },
-
-
 
       {
         path: 'commandes/details/:id',
@@ -219,7 +217,6 @@ export const routes: Routes = [
             (m) => m.DetailsCommandeComponent,
           ),
       },
-
     ],
   },
   {

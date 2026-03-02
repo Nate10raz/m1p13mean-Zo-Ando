@@ -901,7 +901,7 @@ export const updateFraisLivraisonSupermarche = async (userId, data) => {
     type: data.type || 'fixe',
     creePar: userId,
     estActif: true,
-    description: data.description || 'Mis à jour par l\'administrateur'
+    description: data.description || "Mis à jour par l'administrateur",
   });
 
   await newFee.save();
@@ -927,6 +927,6 @@ export const getFraisLivraisonHistory = async ({ page = 1, limit = 10 } = {}) =>
     total,
     page: parsedPage,
     limit: parsedLimit,
-    totalPages: Math.ceil(total / parsedLimit)
+    totalPages: Math.ceil(total / parsedLimit),
   };
 };

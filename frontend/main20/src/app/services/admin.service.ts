@@ -298,7 +298,7 @@ export interface FraisLivraisonHistoryResponse {
 export class AdminService {
   private readonly apiRootUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getUsers(params: AdminUsersQuery = {}): Observable<ApiResponse<AdminUsersResponse>> {
     return this.http.get<ApiResponse<AdminUsersResponse>>(`${this.apiRootUrl}/admin/users`, {
@@ -369,23 +369,29 @@ export class AdminService {
 
   getFraisLivraisonSupermarche(): Observable<ApiResponse<FraisLivraison>> {
     return this.http.get<ApiResponse<FraisLivraison>>(
-      `${this.apiRootUrl}/admin/frais-livraison-supermarche`
+      `${this.apiRootUrl}/admin/frais-livraison-supermarche`,
     );
   }
 
-  updateFraisLivraisonSupermarche(payload: { montant: number; type?: string; description?: string }): Observable<ApiResponse<FraisLivraison>> {
+  updateFraisLivraisonSupermarche(payload: {
+    montant: number;
+    type?: string;
+    description?: string;
+  }): Observable<ApiResponse<FraisLivraison>> {
     return this.http.post<ApiResponse<FraisLivraison>>(
       `${this.apiRootUrl}/admin/frais-livraison-supermarche`,
-      payload
+      payload,
     );
   }
 
-  getFraisLivraisonHistory(params: { page?: number; limit?: number } = {}): Observable<ApiResponse<FraisLivraisonHistoryResponse>> {
+  getFraisLivraisonHistory(
+    params: { page?: number; limit?: number } = {},
+  ): Observable<ApiResponse<FraisLivraisonHistoryResponse>> {
     return this.http.get<ApiResponse<FraisLivraisonHistoryResponse>>(
       `${this.apiRootUrl}/admin/frais-livraison-supermarche/history`,
       {
         params: this.buildParams(params),
-      }
+      },
     );
   }
 

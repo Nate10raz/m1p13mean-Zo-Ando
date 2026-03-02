@@ -549,5 +549,5 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   `,
 })
 export class ConfirmMergeDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 }

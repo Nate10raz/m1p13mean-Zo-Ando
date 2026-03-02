@@ -14,12 +14,17 @@
 
         <mat-list *ngIf="!loading && notifications.length > 0">
           <div *ngFor="let notif of notifications; last as isLast">
-            <mat-list-item class="notification-item p-y-16" [class.unread]="!notif.lu"
-              (click)="!notif.lu && markAsRead(notif._id)">
+            <mat-list-item
+              class="notification-item p-y-16"
+              [class.unread]="!notif.lu"
+              (click)="!notif.lu && markAsRead(notif._id)"
+            >
               <div matListItemIcon class="m-r-16">
-                <div class="icon-circle d-flex align-items-center justify-content-center rounded-circle"
+                <div
+                  class="icon-circle d-flex align-items-center justify-content-center rounded-circle"
                   [ngClass]="notif.lu ? 'bg-light text-muted' : 'bg-light-primary text-primary'"
-                  style="width: 40px; height: 40px;">
+                  style="width: 40px; height: 40px"
+                >
                   <mat-icon>{{ notif.lu ? 'notifications' : 'notifications_active' }}</mat-icon>
                 </div>
               </div>
@@ -35,8 +40,12 @@
               </div>
 
               <div matListItemMeta>
-                <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteNotification(notif._id)"
-                  matTooltip="Supprimer">
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="$event.stopPropagation(); deleteNotification(notif._id)"
+                  matTooltip="Supprimer"
+                >
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
@@ -45,8 +54,13 @@
           </div>
         </mat-list>
 
-        <div *ngIf="!loading && notifications.length === 0" class="p-48 text-center bg-light rounded m-24">
-          <mat-icon class="text-muted f-s-48 m-b-16" style="width: 48px; height: 48px;">notifications_none</mat-icon>
+        <div
+          *ngIf="!loading && notifications.length === 0"
+          class="p-48 text-center bg-light rounded m-24"
+        >
+          <mat-icon class="text-muted f-s-48 m-b-16" style="width: 48px; height: 48px"
+            >notifications_none</mat-icon
+          >
           <p class="text-muted m-0">Vous n'avez aucune notification pour le moment.</p>
         </div>
       </mat-card-content>

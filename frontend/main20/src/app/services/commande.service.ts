@@ -44,7 +44,7 @@ export interface Commande {
 export class CommandeService {
   private apiUrl = `${environment.apiUrl}/commande`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   createCommande(deliveryData: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, deliveryData);
@@ -95,4 +95,3 @@ export class CommandeService {
     return this.http.post(`${this.apiUrl}/confirm-receipt/${id}`, {});
   }
 }
-

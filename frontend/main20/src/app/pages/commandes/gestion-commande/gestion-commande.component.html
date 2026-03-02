@@ -1,75 +1,85 @@
 <div class="gestion-commandes-container p-24">
-    <div class="d-flex align-items-center justify-content-between m-b-24">
-        <div>
-            <h4 class="f-s-24 f-w-700 m-b-4">Gestion des Commandes</h4>
-            <p class="text-muted m-0" *ngIf="userRole === 'admin'">Vue d'ensemble de toutes les commandes du supermarché
-            </p>
-            <p class="text-muted m-0" *ngIf="userRole === 'boutique'">Toutes les commandes concernant votre boutique</p>
-        </div>
-        <button mat-flat-button color="primary" (click)="fetchCommandes()">
-            <i-tabler name="refresh" class="icon-18 m-r-8"></i-tabler> Actualiser
-        </button>
+  <div class="d-flex align-items-center justify-content-between m-b-24">
+    <div>
+      <h4 class="f-s-24 f-w-700 m-b-4">Gestion des Commandes</h4>
+      <p class="text-muted m-0" *ngIf="userRole === 'admin'">
+        Vue d'ensemble de toutes les commandes du supermarché
+      </p>
+      <p class="text-muted m-0" *ngIf="userRole === 'boutique'">
+        Toutes les commandes concernant votre boutique
+      </p>
     </div>
+    <button mat-flat-button color="primary" (click)="fetchCommandes()">
+      <i-tabler name="refresh" class="icon-18 m-r-8"></i-tabler> Actualiser
+    </button>
+  </div>
 
-    <div class="m-b-24 d-flex align-items-center gap-16">
-        <mat-form-field appearance="outline" class="w-100 hide-hint">
-            <mat-label>Rechercher par N° Commande</mat-label>
-            <input matInput [(ngModel)]="searchTerm" placeholder="Ex: CMD...">
-            <mat-icon matPrefix class="op-5">search</mat-icon>
-        </mat-form-field>
-    </div>
+  <div class="m-b-24 d-flex align-items-center gap-16">
+    <mat-form-field appearance="outline" class="w-100 hide-hint">
+      <mat-label>Rechercher par N° Commande</mat-label>
+      <input matInput [(ngModel)]="searchTerm" placeholder="Ex: CMD..." />
+      <mat-icon matPrefix class="op-5">search</mat-icon>
+    </mat-form-field>
+  </div>
 
-    <mat-card class="cardWithShadow">
-        <mat-card-content class="p-0">
-            <div *ngIf="loading" class="d-flex justify-content-center p-48">
-                <mat-spinner diameter="40"></mat-spinner>
-            </div>
+  <mat-card class="cardWithShadow">
+    <mat-card-content class="p-0">
+      <div *ngIf="loading" class="d-flex justify-content-center p-48">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
 
-            <div *ngIf="!loading && filteredCommandes.length === 0" class="p-48 text-center bg-light">
-                <i-tabler name="mood-empty" class="icon-48 text-muted m-b-16"></i-tabler>
-                <h6 class="f-s-18 f-w-600">Aucune commande trouvée{{ searchTerm ? ' pour "' + searchTerm + '"' : '' }}
-                </h6>
-            </div>
+      <div *ngIf="!loading && filteredCommandes.length === 0" class="p-48 text-center bg-light">
+        <i-tabler name="mood-empty" class="icon-48 text-muted m-b-16"></i-tabler>
+        <h6 class="f-s-18 f-w-600">
+          Aucune commande trouvée{{ searchTerm ? ' pour "' + searchTerm + '"' : '' }}
+        </h6>
+      </div>
 
-            <div class="table-responsive" *ngIf="!loading && filteredCommandes.length > 0">
-                <table class="table m-0">
-                    <thead>
-                        <tr>
-                            <th class="p-16 f-s-12 text-muted">N° COMMANDE</th>
-                            <th class="p-16 f-s-12 text-muted" *ngIf="userRole === 'admin'">CLIENT</th>
-                            <th class="p-16 f-s-12 text-muted">DATE</th>
-                            <th class="p-16 f-s-12 text-muted">TOTAL</th>
-                            <th class="p-16 f-s-12 text-muted">MODE</th>
-                            <th class="p-16 f-s-12 text-muted">STATUT</th>
-                            <th class="p-16 f-s-12 text-muted text-center">ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let cmd of filteredCommandes">
-                            <td class="p-16 f-w-700">{{ cmd.numeroCommande }}</td>
-                            <td class="p-16" *ngIf="userRole === 'admin'">
-                                {{ cmd.clientId?.nom }} {{ cmd.clientId?.prenom }}
-                            </td>
-                            <td class="p-16 text-muted">{{ cmd.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                            <td class="p-16 f-w-600">{{ cmd.total | currency: 'MGA' : 'Ar ' : '1.0-0' }}</td>
-                            <td class="p-16">
-                                <span class="badge bg-light text-dark f-s-11">{{ cmd.typedelivery | titlecase }}</span>
-                            </td>
-                            <td class="p-16">
-                                <span class="badge f-s-12" [ngClass]="'bg-' + getStatusColor(cmd.statusLivraison)">
-                                    {{ getStatusLabel(cmd.statusLivraison) }}
-                                </span>
-                            </td>
-                            <td class="p-16 text-center">
-                                <button mat-icon-button color="primary" [routerLink]="['/commandes/details', cmd._id]"
-                                    matTooltip="Voir les détails">
-                                    <i-tabler name="eye" class="icon-20"></i-tabler>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </mat-card-content>
-    </mat-card>
+      <div class="table-responsive" *ngIf="!loading && filteredCommandes.length > 0">
+        <table class="table m-0">
+          <thead>
+            <tr>
+              <th class="p-16 f-s-12 text-muted">N° COMMANDE</th>
+              <th class="p-16 f-s-12 text-muted" *ngIf="userRole === 'admin'">CLIENT</th>
+              <th class="p-16 f-s-12 text-muted">DATE</th>
+              <th class="p-16 f-s-12 text-muted">TOTAL</th>
+              <th class="p-16 f-s-12 text-muted">MODE</th>
+              <th class="p-16 f-s-12 text-muted">STATUT</th>
+              <th class="p-16 f-s-12 text-muted text-center">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cmd of filteredCommandes">
+              <td class="p-16 f-w-700">{{ cmd.numeroCommande }}</td>
+              <td class="p-16" *ngIf="userRole === 'admin'">
+                {{ cmd.clientId?.nom }} {{ cmd.clientId?.prenom }}
+              </td>
+              <td class="p-16 text-muted">{{ cmd.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="p-16 f-w-600">{{ cmd.total | currency: 'MGA' : 'Ar ' : '1.0-0' }}</td>
+              <td class="p-16">
+                <span class="badge bg-light text-dark f-s-11">{{
+                  cmd.typedelivery | titlecase
+                }}</span>
+              </td>
+              <td class="p-16">
+                <span class="badge f-s-12" [ngClass]="'bg-' + getStatusColor(cmd.statusLivraison)">
+                  {{ getStatusLabel(cmd.statusLivraison) }}
+                </span>
+              </td>
+              <td class="p-16 text-center">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [routerLink]="['/commandes/details', cmd._id]"
+                  matTooltip="Voir les détails"
+                >
+                  <i-tabler name="eye" class="icon-20"></i-tabler>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

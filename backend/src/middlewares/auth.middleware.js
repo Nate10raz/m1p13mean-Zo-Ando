@@ -28,9 +28,9 @@ export const requireAuth = (req, res, next) => {
 
 export const requireRole =
   (...roles) =>
-    (req, res, next) => {
-      if (!req.user || !roles.includes(req.user.role)) {
-        return forbiddenResponse(req, res, 'Forbidden');
-      }
-      return next();
-    };
+  (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return forbiddenResponse(req, res, 'Forbidden');
+    }
+    return next();
+  };

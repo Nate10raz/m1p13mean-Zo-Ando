@@ -517,11 +517,11 @@ export const getLandingProduits = async ({ limit = 6 } = {}) => {
   const remaining = Math.max(0, resolvedLimit - selectedIds.size);
   const others = remaining
     ? await pickInStockProducts({
-      filter: baseFilter,
-      sort: { publishedAt: -1, createdAt: -1 },
-      limit: remaining,
-      excludeIds: Array.from(selectedIds),
-    })
+        filter: baseFilter,
+        sort: { publishedAt: -1, createdAt: -1 },
+        limit: remaining,
+        excludeIds: Array.from(selectedIds),
+      })
     : [];
 
   const result = {

@@ -405,11 +405,7 @@ router.get(
  *       200: { description: Liste clients }
  */
 
-router.get(
-  '/frais-livraison-supermarche',
-  ...adminGuard,
-  getFraisLivraisonSupermarcheController
-);
+router.get('/frais-livraison-supermarche', ...adminGuard, getFraisLivraisonSupermarcheController);
 
 router.post(
   '/frais-livraison-supermarche',
@@ -420,7 +416,7 @@ router.post(
     body('description').optional().isString(),
   ],
   validateRequest,
-  updateFraisLivraisonSupermarcheController
+  updateFraisLivraisonSupermarcheController,
 );
 
 router.get(
@@ -431,7 +427,7 @@ router.get(
     query('limit').optional().isInt({ min: 1 }).toInt(),
   ],
   validateRequest,
-  getFraisLivraisonHistoryController
+  getFraisLivraisonHistoryController,
 );
 
 export default router;

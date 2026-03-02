@@ -13,7 +13,11 @@ router.post('/admin/confirm-depot/:id', requireRole('admin'), commandeController
 // Boutique routes
 router.get('/boutique/all', requireRole('boutique'), commandeController.getBoutiqueCommandes);
 router.post('/boutique/accept/:id', requireRole('boutique'), commandeController.acceptOrder);
-router.post('/boutique/start-delivery/:id', requireRole('boutique'), commandeController.startBoutiqueDelivery);
+router.post(
+  '/boutique/start-delivery/:id',
+  requireRole('boutique'),
+  commandeController.startBoutiqueDelivery,
+);
 router.post('/boutique/mark-depot/:id', requireRole('boutique'), commandeController.markDepot);
 
 // Client routes
@@ -27,4 +31,3 @@ router.post('/cancel-item/:id/:produitId', commandeController.cancelItem);
 router.post('/confirm-receipt/:id', commandeController.confirmFinal);
 
 export default router;
-

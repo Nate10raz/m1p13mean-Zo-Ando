@@ -91,7 +91,7 @@ const commandeSchema = new mongoose.Schema({
   fraisLivraison: {
     montant: { type: Number, default: 0 },
     valeur: { type: Number, default: 0 },
-    type: { type: String, enum: ['fixe', 'pourcentage'], default: 'fixe' }
+    type: { type: String, enum: ['fixe', 'pourcentage'], default: 'fixe' },
   },
   total: { type: Number, required: true, min: 0 },
   notes: String,

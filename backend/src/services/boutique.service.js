@@ -116,7 +116,9 @@ export const getMyBoutique = async (userId) => {
     FermetureBoutique.find({ boutiqueId: boutique._id, isActive: true }),
   ]);
   boutique.fraisLivraison = latestFee ? latestFee.montant : 0;
-  boutique.fraisLivraisonData = latestFee ? { montant: latestFee.montant, type: latestFee.type || 'fixe' } : null;
+  boutique.fraisLivraisonData = latestFee
+    ? { montant: latestFee.montant, type: latestFee.type || 'fixe' }
+    : null;
   boutique.fermeureBoutique = closures;
   return boutique;
 };
@@ -140,7 +142,9 @@ export const getBoutiqueById = async (id) => {
     FermetureBoutique.find({ boutiqueId: boutique._id, isActive: true }),
   ]);
   boutique.fraisLivraison = latestFee ? latestFee.montant : 0;
-  boutique.fraisLivraisonData = latestFee ? { montant: latestFee.montant, type: latestFee.type || 'fixe' } : null;
+  boutique.fraisLivraisonData = latestFee
+    ? { montant: latestFee.montant, type: latestFee.type || 'fixe' }
+    : null;
   boutique.fermeureBoutique = closures;
   return boutique;
 };
@@ -523,10 +527,10 @@ export const getBoutiqueSalesDashboard = async (
       },
       nextDue: nextDue
         ? {
-          dueDate: nextDue.dueDate,
-          amount: nextDue.montant || 0,
-          reference: nextDue.reference || null,
-        }
+            dueDate: nextDue.dueDate,
+            amount: nextDue.montant || 0,
+            reference: nextDue.reference || null,
+          }
         : null,
     },
     display: {
