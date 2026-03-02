@@ -181,37 +181,38 @@ export class DetailsCommandeComponent implements OnInit {
   }
 
   getStatusColor(status: string): string {
+    if (!status) return 'primary';
     switch (status) {
       case 'en_preparation':
         return 'primary';
       case 'en_livraison':
         return 'accent';
       case 'peut_etre_collecte':
-        return 'warn';
-      case 'annulee':
-        return 'danger';
       case 'pret_a_collecte':
         return 'success';
+      case 'annulee':
+      case 'non_acceptee':
+        return 'danger';
       case 'en_attente_validation':
         return 'warning';
       case 'livree':
-        return 'success';
       case 'terminee':
         return 'success';
-      case 'non_acceptee':
-        return 'danger';
       default:
         return 'primary';
     }
   }
 
   getStatusLabel(status: string): string {
+    if (!status) return 'INCONNU';
     const labels: { [key: string]: string } = {
       en_attente_validation: 'En attente de confirmation',
       en_preparation: 'En préparation',
       peut_etre_collecte: 'Prêt au retrait',
+      pret_a_collecte: 'Prêt au retrait',
       en_livraison: 'En cours de livraison',
       terminee: 'Terminée',
+      livree: 'Livrée',
       annulee: 'Annulée',
       non_acceptee: 'Refusée',
     };

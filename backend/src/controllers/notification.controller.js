@@ -27,9 +27,27 @@ export const markAsRead = async (req, res, next) => {
   }
 };
 
+export const markAllAsRead = async (req, res, next) => {
+  try {
+    await notificationService.markAllNotificationsAsRead(req.user.id);
+    res.status(200).json({ message: 'All notifications marked as read' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteNotification = async (req, res, next) => {
   try {
     await notificationService.deleteNotification(req.params.id);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAllNotifications = async (req, res, next) => {
+  try {
+    await notificationService.deleteAllNotifications(req.user.id);
     res.status(204).end();
   } catch (error) {
     next(error);

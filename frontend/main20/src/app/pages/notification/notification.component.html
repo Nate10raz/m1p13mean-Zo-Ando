@@ -2,9 +2,33 @@
   <div class="col-12">
     <mat-card class="cardWithShadow">
       <mat-card-header class="d-flex align-items-center justify-content-between p-24">
-        <mat-card-title class="m-b-0">Mes Notifications</mat-card-title>
-        <div class="badge bg-light-primary text-primary p-x-12 p-y-4 rounded-pill f-s-12 f-w-600">
-          {{ getUnreadCount() }} nouvelle{{ getUnreadCount() > 1 ? 's' : '' }}
+        <div class="d-flex align-items-center">
+          <mat-card-title class="m-b-0">Mes Notifications</mat-card-title>
+          <div
+            class="badge bg-light-primary text-primary p-x-12 p-y-4 rounded-pill f-s-12 f-w-600 m-l-12"
+          >
+            {{ getUnreadCount() }} nouvelle{{ getUnreadCount() > 1 ? 's' : '' }}
+          </div>
+        </div>
+        <div class="d-flex gap-8">
+          <button
+            mat-stroked-button
+            color="primary"
+            class="f-s-12"
+            (click)="markAllRead()"
+            [disabled]="getUnreadCount() === 0"
+          >
+            <mat-icon class="icon-18">done_all</mat-icon> Tout lu
+          </button>
+          <button
+            mat-stroked-button
+            color="warn"
+            class="f-s-12"
+            (click)="deleteAllNotifications()"
+            [disabled]="notifications.length === 0"
+          >
+            <mat-icon class="icon-18">delete_sweep</mat-icon> Tout supprimer
+          </button>
         </div>
       </mat-card-header>
       <mat-card-content class="p-0">
@@ -15,24 +39,28 @@
         <mat-list *ngIf="!loading && notifications.length > 0">
           <div *ngFor="let notif of notifications; last as isLast">
             <mat-list-item
-              class="notification-item p-y-16"
+              class="notification-item p-y-24"
               [class.unread]="!notif.lu"
               (click)="!notif.lu && markAsRead(notif._id)"
             >
-              <div matListItemIcon class="m-r-16">
+              <div matListItemIcon>
                 <div
-                  class="icon-circle d-flex align-items-center justify-content-center rounded-circle"
+                  class="icon-circle d-flex align-items-center justify-content-center rounded-circle shadow-sm"
                   [ngClass]="notif.lu ? 'bg-light text-muted' : 'bg-light-primary text-primary'"
-                  style="width: 40px; height: 40px"
+                  style="width: 48px; height: 48px"
                 >
-                  <mat-icon>{{ notif.lu ? 'notifications' : 'notifications_active' }}</mat-icon>
+                  <mat-icon *ngIf="notif.lu">notifications_none</mat-icon>
+                  <mat-icon *ngIf="!notif.lu">notifications_active</mat-icon>
                 </div>
               </div>
 
-              <div class="notification-content-wrapper w-100">
-                <div class="d-flex align-items-baseline justify-content-between m-b-4">
+              <div class="notification-content-wrapper w-100 m-l-16">
+                <div class="d-flex align-items-center justify-content-between m-b-4">
                   <span class="f-w-600 f-s-16 text-dark">{{ notif.titre }}</span>
                   <span class="f-s-12 text-muted f-w-400 m-l-16 time-stamp">
+                    <mat-icon class="icon-12 m-r-4" style="vertical-align: middle"
+                      >schedule</mat-icon
+                    >
                     {{ notif.createdAt | date: 'dd/MM/yyyy HH:mm' }}
                   </span>
                 </div>
@@ -45,23 +73,29 @@
                   color="warn"
                   (click)="$event.stopPropagation(); deleteNotification(notif._id)"
                   matTooltip="Supprimer"
+                  class="delete-btn"
                 >
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
             </mat-list-item>
-            <mat-divider *ngIf="!isLast"></mat-divider>
+            <mat-divider></mat-divider>
           </div>
         </mat-list>
 
         <div
           *ngIf="!loading && notifications.length === 0"
-          class="p-48 text-center bg-light rounded m-24"
+          class="p-48 text-center bg-light rounded m-24 border d-flex flex-column align-items-center justify-content-center"
         >
-          <mat-icon class="text-muted f-s-48 m-b-16" style="width: 48px; height: 48px"
-            >notifications_none</mat-icon
-          >
-          <p class="text-muted m-0">Vous n'avez aucune notification pour le moment.</p>
+          <div class="bg-white p-24 rounded-circle shadow-sm m-b-16">
+            <mat-icon class="text-muted" style="width: 48px; height: 48px; font-size: 48px"
+              >notifications_off</mat-icon
+            >
+          </div>
+          <h6 class="f-s-18 f-w-600 m-b-4">Aucune notification</h6>
+          <p class="text-muted m-0">
+            Vous êtes à jour ! Vous n'avez aucune notification pour le moment.
+          </p>
         </div>
       </mat-card-content>
     </mat-card>

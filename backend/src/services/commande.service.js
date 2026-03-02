@@ -239,7 +239,7 @@ export const createCommande = async (userId, deliveryData) => {
   await createNotification({
     userId: userId,
     type: 'commande_creee',
-    titre: `📦 Commande #${newCommande.numeroCommande} reçue`,
+    titre: `Commande #${newCommande.numeroCommande} reçue`,
     message: `Votre commande ${newCommande.numeroCommande} est enregistrée. Elle attend d'être acceptée par les boutiques.`,
     channel: 'all',
   });
@@ -248,13 +248,13 @@ export const createCommande = async (userId, deliveryData) => {
   for (const bId of boutiqueIds) {
     await notifyBoutiqueUsers(
       bId,
-      `🔔 Nouvelle Commande #${newCommande.numeroCommande}`,
+      `Nouvelle Commande #${newCommande.numeroCommande}`,
       `Une nouvelle commande ${newCommande.numeroCommande} nécessite votre attention.`,
       { commandeId: newCommande._id },
     );
   }
   await notifyAdmins(
-    `🆕 Commande #${newCommande.numeroCommande} passée`,
+    `Commande #${newCommande.numeroCommande} passée`,
     `Une nouvelle commande ${newCommande.numeroCommande} a été passée par un client.`,
     { commandeId: newCommande._id },
   );
@@ -329,7 +329,7 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
   await createNotification({
     userId: commande.clientId,
     type: 'order_accepted',
-    titre: `✅ Lot accepté - #${commande.numeroCommande}`,
+    titre: `Lot accepté - #${commande.numeroCommande}`,
     message: `La boutique ${commande.boutiques[bIndex].name} a accepté votre lot.`,
     channel: 'all',
   });
@@ -359,7 +359,7 @@ export const startBoutiqueDelivery = async (commandeId, boutiqueId) => {
   await createNotification({
     userId: commande.clientId,
     type: 'order_in_delivery',
-    titre: `🚚 Commande #${commande.numeroCommande} en cours de livraison`,
+    titre: `Commande #${commande.numeroCommande} en cours de livraison`,
     message: `Votre lot est maintenant en cours de livraison par la boutique ${commande.boutiques[bIndex].name}.`,
     channel: 'all',
   });
@@ -399,7 +399,7 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
       await createNotification({
         userId: commande.clientId,
         type: 'order_ready_collect',
-        titre: `🏁 Commande prète au dépôt`,
+        titre: `Commande prète au dépôt`,
         message: `Votre commande #${commande.numeroCommande} est prête à être récupérée au dépôt.`,
         channel: 'all',
       });
@@ -408,7 +408,7 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
       await createNotification({
         userId: commande.clientId,
         type: 'order_in_delivery',
-        titre: `🚚 Commande en livraison`,
+        titre: `Commande en livraison`,
         message: `Tous les articles de votre commande #${commande.numeroCommande} sont arrivés au dépôt et sont maintenant en cours de livraison.`,
         channel: 'all',
       });
@@ -437,7 +437,7 @@ export const adminMarkAsShipped = async (commandeId, adminId) => {
   await createNotification({
     userId: commande.clientId,
     type: 'order_shipped_admin',
-    titre: `📦 Livraison en cours`,
+    titre: `Livraison en cours`,
     message: `Votre commande #${commande.numeroCommande} a quitté le dépôt. Veuillez confirmer dès réception.`,
     channel: 'all',
   });
@@ -505,7 +505,7 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
     await createNotification({
       userId: pId,
       type: 'order_cancelled',
-      titre: `❌ Commande #${commande.numeroCommande} annulée`,
+      titre: `Commande #${commande.numeroCommande} annulée`,
       message: `La commande ${commande.numeroCommande} a été annulée (${role === 'boutique' ? 'partiellement' : 'totalement'}). Motif: ${reason}`,
       channel: 'all',
     });
@@ -572,7 +572,7 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
   await createNotification({
     userId: commande.clientId,
     type: 'order_item_cancelled',
-    titre: `⚠️ Article retiré - #${commande.numeroCommande}`,
+    titre: `Article retiré - #${commande.numeroCommande}`,
     message: `L'article "${item.nomProduit}" a été retiré de votre commande ${commande.numeroCommande}.`,
     channel: 'all',
   });

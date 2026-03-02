@@ -45,7 +45,15 @@ export class NotificationService {
     return this.http.put<Notification>(`${this.apiUrl}/${id}/read`, {});
   }
 
+  markAllAsRead(): Observable<any> {
+    return this.http.put(`${this.apiUrl}/read-all`, {});
+  }
+
   deleteNotification(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  deleteAll(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/all`);
   }
 }

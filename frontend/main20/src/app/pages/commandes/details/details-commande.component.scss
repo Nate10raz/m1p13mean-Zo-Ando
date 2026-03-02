@@ -178,33 +178,33 @@
   letter-spacing: 0.05em;
 
   &.badge-primary {
-    background: #ecf2ff;
-    color: #5d87ff;
+    background: #ecf2ff !important;
+    color: #2a50bc !important;
   }
 
   &.badge-success {
-    background: #e6fffa;
-    color: #13deb9;
+    background: #e6fffa !important;
+    color: #0b9d82 !important;
   }
 
   &.badge-accent {
-    background: #eaf1f6;
-    color: #0085db;
+    background: #eaf1f6 !important;
+    color: #005691 !important;
   }
 
   &.badge-warn {
-    background: #fef5e5;
-    color: #ffa117;
+    background: #fef5e5 !important;
+    color: #a66a00 !important;
   }
 
   &.badge-danger {
-    background: #fdedf1;
-    color: #fa5a7d;
+    background: #fdedf1 !important;
+    color: #c02d4d !important;
   }
 
   &.badge-warning {
-    background: #fef5e5;
-    color: #ffae1f;
+    background: #fff8ec !important;
+    color: #a66a00 !important;
   }
 }
 

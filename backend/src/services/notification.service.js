@@ -76,6 +76,14 @@ export const markNotificationAsRead = async (notificationId) => {
   );
 };
 
+export const markAllNotificationsAsRead = async (userId) => {
+  return Notification.updateMany({ userId, lu: false }, { lu: true, lueAt: new Date() });
+};
+
 export const deleteNotification = async (notificationId) => {
   return Notification.findByIdAndDelete(notificationId);
+};
+
+export const deleteAllNotifications = async (userId) => {
+  return Notification.deleteMany({ userId });
 };

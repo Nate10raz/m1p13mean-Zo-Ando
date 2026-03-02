@@ -68,6 +68,28 @@ export class NotificationComponent implements OnInit {
     }
   }
 
+  markAllRead(): void {
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.notifications = this.notifications.map((n) => ({ ...n, lu: true }));
+        this.notificationService.refresh();
+      },
+      error: (err) => console.error('Error marking all as read:', err),
+    });
+  }
+
+  deleteAllNotifications(): void {
+    if (confirm('Voulez-vous supprimer toutes vos notifications ?')) {
+      this.notificationService.deleteAll().subscribe({
+        next: () => {
+          this.notifications = [];
+          this.notificationService.refresh();
+        },
+        error: (err) => console.error('Error deleting all notifications:', err),
+      });
+    }
+  }
+
   getUnreadCount(): number {
     return this.notifications.filter((n) => !n.lu).length;
   }
