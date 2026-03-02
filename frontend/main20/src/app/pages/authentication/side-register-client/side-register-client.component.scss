@@ -3,12 +3,21 @@
 // Variables Material : var(--mat-sys-primary), bg-light-primary, etc.
 // ════════════════════════════════════════════════════════════════════
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 @keyframes auth-blob {
-  0%, 100% { transform: scale(1) translate(0, 0); }
-  40%       { transform: scale(1.08) translate(28px, -20px); }
-  70%       { transform: scale(0.94) translate(-20px, 14px); }
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+  40% {
+    transform: scale(1.08) translate(28px, -20px);
+  }
+  70% {
+    transform: scale(0.94) translate(-20px, 14px);
+  }
 }
 
 // ─── Wrapper plein écran ─────────────────────────────────────────────
@@ -33,14 +42,18 @@
   animation: auth-blob 18s ease-in-out infinite;
 
   &--1 {
-    width: 420px; height: 420px;
+    width: 420px;
+    height: 420px;
     background: rgba(93, 135, 255, 0.1);
-    top: -80px; right: -60px;
+    top: -80px;
+    right: -60px;
   }
   &--2 {
-    width: 280px; height: 280px;
+    width: 280px;
+    height: 280px;
     background: rgba(68, 183, 247, 0.08);
-    bottom: -40px; left: -60px;
+    bottom: -40px;
+    left: -60px;
     animation-delay: -7s;
   }
 }
@@ -60,7 +73,9 @@
   .mat-mdc-card-content {
     padding: 36px 40px !important;
 
-    @media (max-width: 480px) { padding: 28px 22px !important; }
+    @media (max-width: 480px) {
+      padding: 28px 22px !important;
+    }
   }
 }
 
@@ -146,7 +161,9 @@
     background: rgba(0, 0, 0, 0.04);
     color: var(--mat-sys-on-background);
 
-    .profile-tab__icon { opacity: 0.85; }
+    .profile-tab__icon {
+      opacity: 0.85;
+    }
   }
 
   &.active {
@@ -154,8 +171,12 @@
     color: var(--mat-sys-on-background);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 
-    .profile-tab__icon { opacity: 1; }
-    .profile-tab__label { color: var(--mat-sys-on-background); }
+    .profile-tab__icon {
+      opacity: 1;
+    }
+    .profile-tab__label {
+      color: var(--mat-sys-on-background);
+    }
   }
 }
 
@@ -203,8 +224,12 @@
   font-weight: 500;
   color: rgba(42, 53, 71, 0.7);
 
-  a { font-size: 13px; }
+  a {
+    font-size: 13px;
+  }
 }
 
 // ─── Utilitaires ─────────────────────────────────────────────────────
-.w-100 { width: 100%; }
+.w-100 {
+  width: 100%;
+}

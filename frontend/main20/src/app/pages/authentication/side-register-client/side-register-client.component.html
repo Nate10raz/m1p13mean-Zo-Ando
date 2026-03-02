@@ -1,5 +1,4 @@
 <div class="auth-wrapper">
-
   <!-- Blobs décoratifs fond -->
   <div class="auth-blob auth-blob--1"></div>
   <div class="auth-blob auth-blob--2"></div>
@@ -7,7 +6,6 @@
   <div class="auth-card-wrap">
     <mat-card class="cardWithShadow auth-card">
       <mat-card-content>
-
         <!-- ── Logo ── -->
         <div class="auth-logo">
           <a [routerLink]="['/']" class="app-brand">
@@ -42,16 +40,24 @@
 
         <!-- ── Formulaire ── -->
         <form [formGroup]="form" (ngSubmit)="submit()">
-
           <!-- Nom + Prénom -->
           <div class="row">
             <div class="col-12 col-sm-6">
               <div class="auth-field">
                 <mat-label class="auth-field__label">Nom</mat-label>
                 <mat-form-field appearance="outline" class="w-100" color="primary">
-                  <input matInput formControlName="nom" autocomplete="family-name" placeholder="Rakoto" />
-                  <mat-error *ngIf="f.nom.touched && f.nom.hasError('required')">Le nom est requis.</mat-error>
-                  <mat-error *ngIf="f.nom.touched && f.nom.hasError('minlength')">2 caractères minimum.</mat-error>
+                  <input
+                    matInput
+                    formControlName="nom"
+                    autocomplete="family-name"
+                    placeholder="Rakoto"
+                  />
+                  <mat-error *ngIf="f.nom.touched && f.nom.hasError('required')"
+                    >Le nom est requis.</mat-error
+                  >
+                  <mat-error *ngIf="f.nom.touched && f.nom.hasError('minlength')"
+                    >2 caractères minimum.</mat-error
+                  >
                 </mat-form-field>
               </div>
             </div>
@@ -59,9 +65,18 @@
               <div class="auth-field">
                 <mat-label class="auth-field__label">Prénom</mat-label>
                 <mat-form-field appearance="outline" class="w-100" color="primary">
-                  <input matInput formControlName="prenom" autocomplete="given-name" placeholder="Jean" />
-                  <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('required')">Le prénom est requis.</mat-error>
-                  <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('minlength')">2 caractères minimum.</mat-error>
+                  <input
+                    matInput
+                    formControlName="prenom"
+                    autocomplete="given-name"
+                    placeholder="Jean"
+                  />
+                  <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('required')"
+                    >Le prénom est requis.</mat-error
+                  >
+                  <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('minlength')"
+                    >2 caractères minimum.</mat-error
+                  >
                 </mat-form-field>
               </div>
             </div>
@@ -71,10 +86,25 @@
           <div class="auth-field">
             <mat-label class="auth-field__label">Adresse email</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <i-tabler name="mail" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-              <input matInput type="email" formControlName="email" autocomplete="email" placeholder="vous@exemple.com" />
-              <mat-error *ngIf="f.email.touched && f.email.hasError('required')">L'email est requis.</mat-error>
-              <mat-error *ngIf="f.email.touched && f.email.hasError('email')">Format d'email invalide.</mat-error>
+              <i-tabler
+                name="mail"
+                class="icon-18 d-flex"
+                matPrefix
+                style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+              ></i-tabler>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="vous@exemple.com"
+              />
+              <mat-error *ngIf="f.email.touched && f.email.hasError('required')"
+                >L'email est requis.</mat-error
+              >
+              <mat-error *ngIf="f.email.touched && f.email.hasError('email')"
+                >Format d'email invalide.</mat-error
+              >
             </mat-form-field>
           </div>
 
@@ -82,10 +112,25 @@
           <div class="auth-field">
             <mat-label class="auth-field__label">Téléphone</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <i-tabler name="phone" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-              <input matInput type="tel" formControlName="telephone" placeholder="+261340000000" autocomplete="tel" />
-              <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('required')">Le téléphone est requis.</mat-error>
-              <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('pattern')">Format attendu : +261340000000 ou 0327283840.</mat-error>
+              <i-tabler
+                name="phone"
+                class="icon-18 d-flex"
+                matPrefix
+                style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+              ></i-tabler>
+              <input
+                matInput
+                type="tel"
+                formControlName="telephone"
+                placeholder="+261340000000"
+                autocomplete="tel"
+              />
+              <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('required')"
+                >Le téléphone est requis.</mat-error
+              >
+              <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('pattern')"
+                >Format attendu : +261340000000 ou 0327283840.</mat-error
+              >
             </mat-form-field>
           </div>
 
@@ -93,13 +138,33 @@
           <div class="auth-field">
             <mat-label class="auth-field__label">Mot de passe</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <i-tabler name="lock" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" placeholder="••••••••" />
-              <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+              <i-tabler
+                name="lock"
+                class="icon-18 d-flex"
+                matPrefix
+                style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+              ></i-tabler>
+              <input
+                matInput
+                [type]="hidePassword ? 'password' : 'text'"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="••••••••"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="hidePassword = !hidePassword"
+              >
                 <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-              <mat-error *ngIf="f.password.touched && f.password.hasError('required')">Le mot de passe est requis.</mat-error>
-              <mat-error *ngIf="f.password.touched && f.password.hasError('minlength')">Au moins 6 caractères.</mat-error>
+              <mat-error *ngIf="f.password.touched && f.password.hasError('required')"
+                >Le mot de passe est requis.</mat-error
+              >
+              <mat-error *ngIf="f.password.touched && f.password.hasError('minlength')"
+                >Au moins 6 caractères.</mat-error
+              >
             </mat-form-field>
           </div>
 
@@ -107,13 +172,36 @@
           <div class="auth-field">
             <mat-label class="auth-field__label">Confirmer le mot de passe</mat-label>
             <mat-form-field appearance="outline" class="w-100" color="primary">
-              <i-tabler name="lock-check" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-              <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••" />
-              <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+              <i-tabler
+                name="lock-check"
+                class="icon-18 d-flex"
+                matPrefix
+                style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+              ></i-tabler>
+              <input
+                matInput
+                [type]="hideConfirmPassword ? 'password' : 'text'"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                placeholder="••••••••"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="hideConfirmPassword = !hideConfirmPassword"
+              >
                 <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-              <mat-error *ngIf="f.confirmPassword.touched && f.confirmPassword.hasError('required')">Confirmez le mot de passe.</mat-error>
-              <mat-error *ngIf="form.hasError('passwordsMismatch') && (f.confirmPassword.touched || f.password.touched)">
+              <mat-error *ngIf="f.confirmPassword.touched && f.confirmPassword.hasError('required')"
+                >Confirmez le mot de passe.</mat-error
+              >
+              <mat-error
+                *ngIf="
+                  form.hasError('passwordsMismatch') &&
+                  (f.confirmPassword.touched || f.password.touched)
+                "
+              >
                 Les mots de passe doivent être identiques.
               </mat-error>
             </mat-form-field>
@@ -135,7 +223,6 @@
           >
             {{ isSubmitting ? 'Création en cours…' : 'Créer mon compte client' }}
           </button>
-
         </form>
 
         <!-- ── Lien login ── -->
@@ -145,9 +232,7 @@
             Se connecter
           </a>
         </div>
-
       </mat-card-content>
     </mat-card>
   </div>
-
 </div>

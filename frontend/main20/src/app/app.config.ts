@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideClientHydration } from '@angular/platform-browser';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -33,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideClientHydration(),
     provideAnimationsAsync(),
+    provideNativeDateAdapter(),
     importProvidersFrom(
       FormsModule,
       ReactiveFormsModule,

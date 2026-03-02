@@ -9,7 +9,7 @@ const panierSchema = new mongoose.Schema({
       variationId: { type: mongoose.Schema.Types.ObjectId, ref: 'VariationProduit' },
       boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique', required: true },
       quantite: { type: Number, required: true, min: 1 },
-      prixId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prix', required: true },
+      prixId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prix' }, // Optionnel pour le moment
       prixUnitaire: { type: Number, required: true, min: 0 },
       nomProduit: String,
       imageProduit: String,

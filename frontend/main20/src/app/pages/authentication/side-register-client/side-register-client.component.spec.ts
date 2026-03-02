@@ -89,4 +89,3 @@ describe('AppSideRegisterClientComponent', () => {
     expect(component.serverError).toBe('');
   });
 });
-

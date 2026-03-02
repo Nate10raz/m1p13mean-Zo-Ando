@@ -13,6 +13,8 @@ import boxRoutes from './box.routes.js';
 import demandeLocationBoxRoutes from './demande-location-box.routes.js';
 import payementBoxRoutes from './payement-box.routes.js';
 import uploadRoutes from './upload.routes.js';
+import panierRoutes from './panier.routes.js';
+import commandeRoutes from './commande.routes.js';
 
 const router = Router();
 
@@ -46,6 +48,8 @@ router.use('/boxes', boxRoutes);
 router.use('/demandes-location-box', demandeLocationBoxRoutes);
 router.use('/payements-box', payementBoxRoutes);
 router.use('/uploads', uploadRoutes);
+router.use('/panier', panierRoutes);
+router.use('/commande', commandeRoutes);
 
 /**
  * @openapi

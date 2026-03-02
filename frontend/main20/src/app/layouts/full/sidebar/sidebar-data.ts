@@ -11,6 +11,12 @@ export const navItems: NavItem[] = [
     roles: ['client'],
   },
   {
+    displayName: 'Mes Commandes',
+    iconName: 'list-details',
+    route: '/commandes/mes-commandes',
+    roles: ['client'],
+  },
+  {
     displayName: 'Dashboard',
     iconName: 'layout-grid-add',
     route: '/dashboard',
@@ -39,6 +45,12 @@ export const navItems: NavItem[] = [
         roles: ['admin'],
       },
     ],
+  },
+  {
+    displayName: 'Frais de livraison',
+    iconName: 'truck-delivery',
+    route: '/admin/frais-livraison',
+    roles: ['admin'],
   },
   {
     navCap: 'Gestion Box',
@@ -79,7 +91,7 @@ export const navItems: NavItem[] = [
     roles: ['boutique'],
   },
   {
-    displayName: 'Mon Ã©tablissement',
+    displayName: 'Mon établissement',
     iconName: 'building-store',
     route: '/dashboard/boutique',
     roles: ['boutique'],
@@ -147,41 +159,9 @@ export const navItems: NavItem[] = [
     roles: ['admin', 'boutique'],
   },
   {
-    navCap: 'Auth',
-  },
-  {
-    displayName: 'Login',
-    iconName: 'login',
-    route: '/authentication',
-    children: [
-      {
-        displayName: 'Login',
-        iconName: 'point',
-        route: '/client/login',
-      },
-    ],
-  },
-  {
-    displayName: 'Register',
-    iconName: 'user-plus',
-    route: '/authentication',
-    children: [
-      {
-        displayName: 'Register',
-        iconName: 'point',
-        route: '/authentication/register',
-      },
-      {
-        displayName: 'Register Client',
-        iconName: 'point',
-        route: '/authentication/register-client',
-      },
-      {
-        displayName: 'Register Boutique',
-        iconName: 'point',
-        route: '/authentication/register-boutique',
-      },
-    ],
+    displayName: 'Gestion Commandes',
+    iconName: 'shopping-cart',
+    route: '/commandes/gestion',
+    roles: ['admin', 'boutique'],
   },
 ];
-

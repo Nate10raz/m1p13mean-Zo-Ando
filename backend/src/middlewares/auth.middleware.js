@@ -18,6 +18,7 @@ export const requireAuth = (req, res, next) => {
     req.user = {
       id: payload.sub,
       role: payload.role,
+      boutiqueId: payload.boutiqueId,
     };
     return next();
   } catch (error) {

@@ -12,6 +12,9 @@ import {
   getUserByIdController,
   listClientsController,
   getAdminFinanceDashboardController,
+  getFraisLivraisonSupermarcheController,
+  updateFraisLivraisonSupermarcheController,
+  getFraisLivraisonHistoryController,
   resetUserPasswordController,
 } from '../controllers/admin.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
@@ -439,5 +442,30 @@ router.get(
  *     responses:
  *       200: { description: Liste clients }
  */
+
+router.get('/frais-livraison-supermarche', ...adminGuard, getFraisLivraisonSupermarcheController);
+
+router.post(
+  '/frais-livraison-supermarche',
+  ...adminGuard,
+  [
+    body('montant').isNumeric().withMessage('Le montant doit être un nombre'),
+    body('type').optional().isIn(['fixe', 'pourcentage']).withMessage('Type invalide'),
+    body('description').optional().isString(),
+  ],
+  validateRequest,
+  updateFraisLivraisonSupermarcheController,
+);
+
+router.get(
+  '/frais-livraison-supermarche/history',
+  ...adminGuard,
+  [
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1 }).toInt(),
+  ],
+  validateRequest,
+  getFraisLivraisonHistoryController,
+);
 
 export default router;

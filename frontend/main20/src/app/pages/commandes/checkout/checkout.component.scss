@@ -1,0 +1,58 @@
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.delivery-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.delivery-option-card {
+  border: 2px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8fafc;
+  }
+
+  &:hover:not(.disabled) {
+    border-color: #5d87ff;
+    background: rgba(93, 135, 255, 0.02);
+  }
+}
+
+::ng-deep .delivery-option-card {
+  .mat-mdc-radio-button {
+    width: 100%;
+  }
+
+  .mdc-form-field {
+    width: 100%;
+  }
+}
+
+.alert-info {
+  background: rgba(93, 135, 255, 0.1);
+  border: 1px solid rgba(93, 135, 255, 0.2);
+}
+
+.sticky-top {
+  position: sticky;
+  top: 24px;
+}
+
+.border-primary {
+  border: 1px solid #5d87ff !important;
+}
+
+.f-s-22 {
+  font-size: 22px;
+}

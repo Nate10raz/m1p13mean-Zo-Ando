@@ -9,28 +9,31 @@
   </button>
 
   <!-- Notifications -->
-  <button mat-icon-button aria-label="Notifications" routerLink="/notification">
-    <i-tabler
-      class="d-flex"
-      name="bell"
-      [matBadge]="unreadCount"
-      matBadgeColor="primary"
-      [matBadgeHidden]="unreadCount === 0"
-    ></i-tabler>
+  <button
+    mat-icon-button
+    aria-label="Notifications"
+    routerLink="/notification"
+    [matBadge]="(unreadCount$ | async) !== 0 ? (unreadCount$ | async) : null"
+    matBadgeColor="primary"
+    [matBadgeHidden]="(unreadCount$ | async) === 0"
+  >
+    <i-tabler class="d-flex" name="bell"></i-tabler>
+  </button>
+
+  <!-- Cart (Only for Clients) -->
+  <button
+    *ngIf="!isBoutique && roleLabel === 'Client'"
+    mat-icon-button
+    aria-label="Cart"
+    routerLink="/panier"
+    [matBadge]="cartService.totalItems !== 0 ? cartService.totalItems : null"
+    matBadgeColor="warn"
+    [matBadgeHidden]="cartService.totalItems === 0"
+  >
+    <i-tabler class="d-flex" name="basket"></i-tabler>
   </button>
 
   <span class="flex-1-auto"></span>
-
-  <!-- ── Dark Mode Toggle ── -->
-  <button
-    mat-icon-button
-    (click)="toggleTheme()"
-    [attr.aria-label]="(isDark$ | async) ? 'Switch to light mode' : 'Switch to dark mode'"
-    class="theme-toggle-btn"
-    [matTooltip]="(isDark$ | async) ? 'Light mode' : 'Dark mode'"
-  >
-    <i-tabler class="d-flex icon-20" [name]="(isDark$ | async) ? 'sun' : 'moon'"></i-tabler>
-  </button>
 
   <!-- Profile Dropdown -->
   <button mat-mini-fab [matMenuTriggerFor]="profilemenu" aria-label="Profile">

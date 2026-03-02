@@ -10,6 +10,9 @@ import {
   getUserById,
   listClients,
   getAdminFinanceDashboard,
+  getFraisLivraisonSupermarche,
+  updateFraisLivraisonSupermarche,
+  getFraisLivraisonHistory,
   resetUserPassword,
 } from '../services/admin.service.js';
 import { apiResponse } from '../utils/response.util.js';
@@ -197,6 +200,51 @@ export const getAdminFinanceDashboardController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Dashboard financier admin',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFraisLivraisonSupermarcheController = async (req, res, next) => {
+  try {
+    const result = await getFraisLivraisonSupermarche();
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Frais livraison supermarche actuel',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateFraisLivraisonSupermarcheController = async (req, res, next) => {
+  try {
+    const result = await updateFraisLivraisonSupermarche(req.user.id, req.body);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Frais livraison supermarche mis à jour',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFraisLivraisonHistoryController = async (req, res, next) => {
+  try {
+    const result = await getFraisLivraisonHistory(req.query);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Historique des frais livraison supermarche',
       data: result,
     });
   } catch (error) {

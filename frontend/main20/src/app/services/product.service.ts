@@ -11,6 +11,13 @@ export interface ProductCreateResponse {
   boutique?: {
     _id?: string;
     nom?: string;
+    isActive?: boolean;
+    isOpen?: boolean;
+    statusReason?: string | null;
+  };
+  categorie?: {
+    _id?: string;
+    nom?: string;
   };
   titre: string;
   slug?: string;

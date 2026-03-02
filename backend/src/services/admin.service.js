@@ -8,6 +8,7 @@ import DemandeLocationBox from '../models/DemandeLocationBox.js';
 import PayementBox from '../models/PayementBox.js';
 import PasswordReset from '../models/PasswordReset.js';
 import User from '../models/User.js';
+import FraisLivraison from '../models/FraisLivraison.js';
 import { createNotification } from './notification.service.js';
 import { ENV } from '../config/env.js';
 
@@ -961,5 +962,54 @@ export const getAdminFinanceDashboard = async (
       satisfactionNote: roundNumber(avisInfo.avgNote || 0, 2),
       avgDecisionDays: roundNumber(demandesDecision.avgDecisionDays || 0, 2),
     },
+  };
+};
+
+export const getFraisLivraisonSupermarche = async () => {
+  return await FraisLivraison.findOne({ boutiqueId: null, estActif: true }).sort({ createdAt: -1 });
+};
+
+export const updateFraisLivraisonSupermarche = async (userId, data) => {
+  if (data.montant === undefined || data.montant === null) {
+    throw createError('Le montant est requis', 400);
+  }
+
+  // Deactivate old global fees
+  await FraisLivraison.updateMany({ boutiqueId: null, estActif: true }, { estActif: false });
+
+  // Create new global fee
+  const newFee = new FraisLivraison({
+    boutiqueId: null,
+    montant: parseFloat(data.montant),
+    type: data.type || 'fixe',
+    creePar: userId,
+    estActif: true,
+    description: data.description || "Mis à jour par l'administrateur",
+  });
+
+  await newFee.save();
+  return newFee;
+};
+
+export const getFraisLivraisonHistory = async ({ page = 1, limit = 10 } = {}) => {
+  const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+  const parsedLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+
+  const filter = { boutiqueId: null };
+  const items = await FraisLivraison.find(filter)
+    .sort({ createdAt: -1 })
+    .skip((parsedPage - 1) * parsedLimit)
+    .limit(parsedLimit)
+    .populate('creePar', 'nom prenom')
+    .lean();
+
+  const total = await FraisLivraison.countDocuments(filter);
+
+  return {
+    items,
+    total,
+    page: parsedPage,
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
   };
 };

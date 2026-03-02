@@ -4,6 +4,7 @@ import { AppAdminAcheteurComponent } from './acheteur/acheteur.component';
 import { AppAdminAcheteurDetailComponent } from './acheteur-detail/acheteur-detail.component';
 import { AppAdminBoutiqueComponent } from './boutique/boutique.component';
 import { AppAdminCategorieComponent } from './categorie/categorie.component';
+import { AppAdminFraisLivraisonComponent } from './frais-livraison/frais-livraison.component';
 
 export const AdminRoutes: Routes = [
   {
@@ -24,6 +25,10 @@ export const AdminRoutes: Routes = [
       {
         path: 'categorie',
         component: AppAdminCategorieComponent,
+      },
+      {
+        path: 'frais-livraison',
+        component: AppAdminFraisLivraisonComponent,
       },
     ],
   },

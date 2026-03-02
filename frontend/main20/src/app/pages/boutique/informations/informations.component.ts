@@ -56,12 +56,12 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       banner: [''],
       horaires: this.fb.array([]),
       plage_livraison_boutique: this.fb.array([]),
-      fermeturesExceptionnelles: this.fb.array([]),
+      fermeureBoutique: this.fb.array([]),
       clickCollectActif: [false],
       accepteLivraisonJourJ: [false],
       livraisonStatus: [true],
       fraisLivraison: [0, [Validators.min(0)]],
-      livraisonGratuiteApres: [0, [Validators.min(0)]],
+      fraisLivraisonType: ['fixe'],
       manualSwitchOpen: [true],
     });
   }
@@ -75,7 +75,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   }
 
   get closuresFormArray() {
-    return this.form.get('fermeturesExceptionnelles') as FormArray;
+    return this.form.get('fermeureBoutique') as FormArray;
   }
 
   get isCustomer(): boolean {
@@ -89,7 +89,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
     }
 
     const now = new Date();
-    const closures = this.form.get('fermeturesExceptionnelles')?.value || [];
+    const closures = this.form.get('fermeureBoutique')?.value || [];
 
     // Check for exceptional closures
     const activeClosure = closures.find((c: any) => {
@@ -252,7 +252,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       accepteLivraisonJourJ: boutique.accepteLivraisonJourJ,
       livraisonStatus: boutique.livraisonStatus ?? true,
       fraisLivraison: boutique.fraisLivraison ?? 0,
-      livraisonGratuiteApres: boutique.livraisonGratuiteApres ?? 0,
+      fraisLivraisonType: boutique.fraisLivraisonData?.type || 'fixe',
       manualSwitchOpen: boutique.manualSwitchOpen ?? true,
     });
 
@@ -279,8 +279,8 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
 
     // Fill exceptional closures
     this.closuresFormArray.clear();
-    if (boutique.fermeturesExceptionnelles) {
-      boutique.fermeturesExceptionnelles.forEach((c) => {
+    if (boutique.fermeureBoutique) {
+      boutique.fermeureBoutique.forEach((c: any) => {
         this.closuresFormArray.push(
           this.fb.group({
             debut: [this.formatDateForInput(c.debut), Validators.required],

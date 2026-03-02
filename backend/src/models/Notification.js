@@ -5,9 +5,10 @@ const notificationSchema = new mongoose.Schema({
   type: { type: String, required: true },
   channel: {
     type: String,
-    enum: ['in_app', 'email'],
+    enum: ['in_app', 'email', 'all'],
     default: 'in_app',
   },
+
   emailStatus: {
     type: String,
     enum: ['pending', 'sent', 'failed'],

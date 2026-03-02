@@ -1,0 +1,73 @@
+.commande-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table {
+  th {
+    border-bottom: 2px solid #e2e8f0 !important;
+    background: #f8fafc;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 20px 16px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle;
+  }
+}
+
+.hover-row {
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #f1f5f9;
+    cursor: pointer;
+  }
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  color: white;
+}
+
+.bg-primary {
+  background-color: #5d87ff !important;
+}
+
+.bg-accent {
+  background-color: #0085db !important;
+}
+
+.bg-warn {
+  background-color: #ffa117 !important;
+}
+
+.bg-danger {
+  background-color: #fa5a7d !important;
+}
+
+.bg-success {
+  background-color: #13deb9 !important;
+}
+
+.empty-icon {
+  i-tabler {
+    width: 80px;
+    height: 80px;
+    opacity: 0.2;
+  }
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}

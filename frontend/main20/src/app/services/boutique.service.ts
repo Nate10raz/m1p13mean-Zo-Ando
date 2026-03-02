@@ -45,10 +45,13 @@ export interface Boutique {
   boxIds?: any[];
   motifSuspension?: string;
   dateValidation?: string;
-  fermeturesExceptionnelles?: BoutiqueFermetureExceptionnelle[];
+  fermeureBoutique?: BoutiqueFermetureExceptionnelle[];
   livraisonStatus?: boolean;
   fraisLivraison?: number;
-  livraisonGratuiteApres?: number;
+  fraisLivraisonData?: {
+    montant: number;
+    type: 'fixe' | 'pourcentage';
+  };
   isActive?: boolean;
   isOpen?: boolean;
   manualSwitchOpen?: boolean;
@@ -78,5 +81,17 @@ export class BoutiqueService {
 
   updateBoutique(id: string, data: Partial<Boutique>): Observable<ApiResponse<Boutique>> {
     return this.http.put<ApiResponse<Boutique>>(`${this.apiRootUrl}/boutiques/${id}`, data);
+  }
+
+  getMarketplaceFee(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiRootUrl}/boutiques/frais-livraison/supermarche`,
+    );
+  }
+
+  getSupermarketClosures(): Observable<ApiResponse<BoutiqueFermetureExceptionnelle[]>> {
+    return this.http.get<ApiResponse<BoutiqueFermetureExceptionnelle[]>>(
+      `${this.apiRootUrl}/boutiques/closures/supermarket`,
+    );
   }
 }

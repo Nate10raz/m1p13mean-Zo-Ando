@@ -3,6 +3,7 @@ import {
   sendNotification,
   getUserNotifications,
   markAsRead,
+  deleteNotification,
 } from '../controllers/notification.controller.js';
 import { requireAuth } from '../middlewares/auth.middleware.js';
 
@@ -20,6 +21,7 @@ router.use(requireAuth); // Auth required for all notification routes
 router.post('/send', sendNotification);
 router.get('/', getUserNotifications);
 router.put('/:id/read', markAsRead);
+router.delete('/:id', deleteNotification);
 
 /**
  * @openapi

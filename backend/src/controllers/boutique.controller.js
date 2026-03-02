@@ -4,8 +4,41 @@ import {
   getBoutiqueById,
   updateBoutique,
   getBoutiqueSalesDashboard,
+  getLatestFraisLivraison,
 } from '../services/boutique.service.js';
 import { apiResponse } from '../utils/response.util.js';
+
+import FermetureBoutique from '../models/FermetureBoutique.js';
+
+export const getMarketplaceFeeController = async (req, res, next) => {
+  try {
+    const result = await getLatestFraisLivraison(null);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Frais de livraison supermarché',
+      data: result || { montant: 5.0 },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSupermarketClosuresController = async (req, res, next) => {
+  try {
+    const closures = await FermetureBoutique.find({ boutiqueId: null, isActive: true });
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Fermetures exceptionnelles supermarché',
+      data: closures,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getMyBoutiqueController = async (req, res, next) => {
   try {

@@ -1,5 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* Global styles */
 html,
 body {
   height: 100%;
@@ -28,4 +27,17 @@ body {
   font-size: 17px;
   font-weight: 700;
   color: var(--mat-sys-on-background);
+}
+
+// ── Indication pour les badges Material (Global) ──
+// On évite le !important sur 'display' pour laisser matBadgeHidden fonctionner
+.mat-badge-content,
+.mat-mdc-badge-content {
+  background-color: #f44336 !important; // Rouge vif
+  color: white !important;
+
+  // Utilisation de flex pour le centrage sans casser le 'display: none' interne de Material
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

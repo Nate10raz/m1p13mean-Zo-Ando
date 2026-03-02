@@ -245,9 +245,17 @@ export class AccueilClientComponent implements OnInit, OnDestroy, AfterViewInit 
       title: item.titre,
       price: Number(item.prixBaseActuel) || 0,
       boutique: boutiqueLabel,
+      boutiqueId: item.boutique?._id || item.boutiqueId,
       categorieId: item.categorieId,
+      categorieNom: item.categorie?.nom,
+      description: item.descriptionCourte || item.description,
       stock: item.stock?.quantite ?? 0,
+      rating: item.noteMoyenne,
       createdAt: item.createdAt,
+      boutiqueStatus: {
+        isOpen: item.boutique?.isOpen,
+        statusReason: item.boutique?.statusReason,
+      },
     };
   }
 

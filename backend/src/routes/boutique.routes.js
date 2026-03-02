@@ -6,11 +6,16 @@ import {
   getBoutiqueByIdController,
   updateBoutiqueController,
   getBoutiqueSalesDashboardController,
+  getMarketplaceFeeController,
+  getSupermarketClosuresController,
 } from '../controllers/boutique.controller.js';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
 
 const router = Router();
+
+router.get('/frais-livraison/supermarche', getMarketplaceFeeController);
+router.get('/closures/supermarket', getSupermarketClosuresController);
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);

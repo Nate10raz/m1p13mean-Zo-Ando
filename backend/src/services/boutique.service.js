@@ -4,6 +4,8 @@ import Avis from '../models/Avis.js';
 import Category from '../models/Category.js';
 import Commande from '../models/Commande.js';
 import Boutique from '../models/Boutique.js';
+import FraisLivraison from '../models/FraisLivraison.js';
+import FermetureBoutique from '../models/FermetureBoutique.js';
 import Panier from '../models/Panier.js';
 import PayementBox from '../models/PayementBox.js';
 import Produit from '../models/Produit.js';
@@ -14,6 +16,10 @@ const createError = (message, status = 400, data = null) => {
   err.status = status;
   err.data = data;
   return err;
+};
+
+export const getLatestFraisLivraison = async (boutiqueId = null) => {
+  return await FraisLivraison.findOne({ boutiqueId, estActif: true }).sort({ createdAt: -1 });
 };
 
 const clampTopN = (value, fallback = 5) => {
@@ -30,7 +36,7 @@ const roundNumber = (value, digits = 0) => {
 
 const formatMGA = (value) => {
   const rounded = roundNumber(value, 0);
-  return `${rounded.toLocaleString('fr-FR')} MGA`;
+  return `Ar ${rounded.toLocaleString('fr-FR')}`;
 };
 
 const formatPercent = (value) => `${roundNumber(Number(value || 0) * 100, 2)}%`;
@@ -100,10 +106,20 @@ const requireBoutiqueUser = async (userId) => {
 
 export const getMyBoutique = async (userId) => {
   const user = await requireBoutiqueUser(userId);
-  const boutique = await Boutique.findById(user.boutiqueId).populate('boxIds').lean();
-  if (!boutique) {
+  const boutiqueDoc = await Boutique.findById(user.boutiqueId).populate('boxIds');
+  if (!boutiqueDoc) {
     throw createError('Boutique introuvable', 404);
   }
+  const boutique = boutiqueDoc.toObject();
+  const [latestFee, closures] = await Promise.all([
+    getLatestFraisLivraison(boutique._id),
+    FermetureBoutique.find({ boutiqueId: boutique._id, isActive: true }),
+  ]);
+  boutique.fraisLivraison = latestFee ? latestFee.montant : 0;
+  boutique.fraisLivraisonData = latestFee
+    ? { montant: latestFee.montant, type: latestFee.type || 'fixe' }
+    : null;
+  boutique.fermeureBoutique = closures;
   return boutique;
 };
 
@@ -113,14 +129,30 @@ export const updateMyBoutique = async (userId, data) => {
 };
 
 export const getBoutiqueById = async (id) => {
-  const boutique = await Boutique.findById(id).populate('boxIds').lean();
-  if (!boutique) {
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw createError('ID de boutique invalide', 400);
+  }
+  const boutiqueDoc = await Boutique.findById(id).populate('boxIds');
+  if (!boutiqueDoc) {
     throw createError('Boutique introuvable', 404);
   }
+  const boutique = boutiqueDoc.toObject();
+  const [latestFee, closures] = await Promise.all([
+    getLatestFraisLivraison(boutique._id),
+    FermetureBoutique.find({ boutiqueId: boutique._id, isActive: true }),
+  ]);
+  boutique.fraisLivraison = latestFee ? latestFee.montant : 0;
+  boutique.fraisLivraisonData = latestFee
+    ? { montant: latestFee.montant, type: latestFee.type || 'fixe' }
+    : null;
+  boutique.fermeureBoutique = closures;
   return boutique;
 };
 
 export const updateBoutique = async (id, userId, data) => {
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw createError('ID de boutique invalide', 400);
+  }
   const boutique = await Boutique.findById(id);
   if (!boutique) {
     throw createError('Boutique introuvable', 404);
@@ -145,12 +177,36 @@ export const updateBoutique = async (id, userId, data) => {
     'plage_livraison_boutique',
     'accepteLivraisonJourJ',
     'boxIds',
-    'fermeturesExceptionnelles',
     'livraisonStatus',
-    'fraisLivraison',
-    'livraisonGratuiteApres',
     'manualSwitchOpen',
   ];
+
+  // Handle FraisLivraison separately
+  if (data.fraisLivraison !== undefined) {
+    await FraisLivraison.create({
+      boutiqueId: boutique._id,
+      montant: parseFloat(data.fraisLivraison),
+      type: data.fraisLivraisonType || 'fixe',
+      creePar: userId,
+      estActif: true,
+    });
+  }
+
+  // Handle FermetureBoutique if provided
+  if (data.fermeureBoutique !== undefined) {
+    // Delete old ones or set isActive: false? Usually delete or replace for simplicity in this type of patch.
+    await FermetureBoutique.deleteMany({ boutiqueId: boutique._id });
+    if (Array.isArray(data.fermeureBoutique) && data.fermeureBoutique.length > 0) {
+      const docs = data.fermeureBoutique.map((c) => ({
+        boutiqueId: boutique._id,
+        debut: c.debut,
+        fin: c.fin,
+        motif: c.motif,
+        isActive: true,
+      }));
+      await FermetureBoutique.insertMany(docs);
+    }
+  }
 
   Object.keys(data).forEach((key) => {
     if (allowedUpdates.includes(key)) {

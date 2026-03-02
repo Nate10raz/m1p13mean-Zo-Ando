@@ -158,10 +158,7 @@ export class AuthService {
       );
   }
 
-  loginWithRole(
-    payload: LoginPayload,
-    expectedRole: string,
-  ): Observable<ApiResponse<LoginData>> {
+  loginWithRole(payload: LoginPayload, expectedRole: string): Observable<ApiResponse<LoginData>> {
     const expected = expectedRole.toLowerCase().trim();
     return this.http
       .post<ApiResponse<LoginData>>(`${this.apiBaseUrl}/login`, payload, { withCredentials: true })

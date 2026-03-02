@@ -93,7 +93,7 @@ export class LandingComponent implements OnInit {
     {
       id: 1,
       name: 'Sac artisanal',
-      price: '35 000 Ar',
+      price: 'Ar 35 000',
       icon: 'shopping-bag',
       bg: 'rgba(93,135,255,0.18)',
       stock: '75%',
@@ -101,7 +101,7 @@ export class LandingComponent implements OnInit {
     {
       id: 2,
       name: 'Tissu soie',
-      price: '18 000 Ar',
+      price: 'Ar 18 000',
       icon: 'sparkles',
       bg: 'rgba(68,183,247,0.18)',
       stock: '45%',
@@ -109,7 +109,7 @@ export class LandingComponent implements OnInit {
     {
       id: 3,
       name: 'Chaussures',
-      price: '52 000 Ar',
+      price: 'Ar 52 000',
       icon: 'circle-dot',
       bg: 'rgba(19,222,185,0.18)',
       stock: '88%',
@@ -301,7 +301,7 @@ export class LandingComponent implements OnInit {
     if (!Number.isFinite(num)) {
       return '-';
     }
-    return `${new Intl.NumberFormat('fr-FR').format(num)} Ar`;
+    return `Ar ${new Intl.NumberFormat('fr-FR').format(num)}`;
   }
 
   private formatRating(value: number | undefined | null): string {
@@ -396,7 +396,7 @@ export class LandingComponent implements OnInit {
     {
       key: 'vendeur',
       name: 'Vendeur Standard',
-      price: '150 000 Ar',
+      price: 'Ar 150 000',
       period: '/ mois',
       desc: 'Pour les entrepreneurs qui veulent démarrer leur activité dans notre marché.',
       features: [
@@ -414,7 +414,7 @@ export class LandingComponent implements OnInit {
     {
       key: 'premium',
       name: 'Vendeur Premium',
-      price: '280 000 Ar',
+      price: 'Ar 280 000',
       period: '/ mois',
       desc: 'Pour les boutiques qui veulent plus de visibilité et de fonctionnalités.',
       features: [

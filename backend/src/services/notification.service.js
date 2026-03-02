@@ -75,3 +75,7 @@ export const markNotificationAsRead = async (notificationId) => {
     { new: true },
   );
 };
+
+export const deleteNotification = async (notificationId) => {
+  return Notification.findByIdAndDelete(notificationId);
+};

@@ -178,7 +178,7 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
       return '-';
     }
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(value);
-    return `${formatted} Ar`;
+    return `Ar ${formatted}`;
   }
 
   private mapProduct(item: ProductCreateResponse, index: number): ProductRow {

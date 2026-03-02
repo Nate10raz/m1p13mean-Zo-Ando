@@ -1,0 +1,134 @@
+<mat-card class="cardWithShadow m-24">
+  <mat-card-content class="p-24">
+    <div class="d-flex align-items-center justify-content-between m-b-24">
+      <mat-card-title class="f-s-24 f-w-700"
+        >Votre Panier ({{ totalItems }} articles)</mat-card-title
+      >
+      @if (totalItems > 0) {
+        <button mat-stroked-button color="warn" (click)="clearCart()">
+          <i-tabler name="trash" class="icon-18 m-r-4"></i-tabler> Vider le panier
+        </button>
+      }
+    </div>
+
+    @if (cartService.cart$ | async; as cart) {
+      @if (cart.items.length > 0) {
+        <div class="table-responsive">
+          <table class="table v-middle m-0">
+            <thead>
+              <tr class="f-s-14 f-w-600 text-muted">
+                <th class="p-l-0">Produit</th>
+                <th>Boutique</th>
+                <th class="text-center">Quantité</th>
+                <th class="text-end">Prix Unitaire</th>
+                <th class="text-end">Sous-total</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of cart.items; track item.produitId) {
+                <tr>
+                  <td class="p-l-0">
+                    <div class="d-flex align-items-center gap-12">
+                      <img
+                        [src]="item.imageProduit || 'assets/images/products/product-1.png'"
+                        width="60"
+                        class="rounded object-cover"
+                        height="60"
+                      />
+                      <div>
+                        <h6 class="f-s-16 f-w-600 m-0">{{ item.nomProduit }}</h6>
+                        @if (item.variationId) {
+                          <span class="f-s-12 text-muted">Variation: {{ item.variationId }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="f-s-14">{{ item.boutiqueId?.nom || '-' }}</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="qty-picker">
+                      <button
+                        mat-icon-button
+                        (click)="updateQuantity(item, -1)"
+                        class="qty-btn"
+                        matTooltip="Diminuer"
+                      >
+                        <i-tabler name="minus"></i-tabler>
+                      </button>
+                      <span class="qty-value f-s-14 f-w-700">{{ item.quantite }}</span>
+                      <button
+                        mat-icon-button
+                        (click)="updateQuantity(item, 1)"
+                        class="qty-btn"
+                        matTooltip="Augmenter"
+                      >
+                        <i-tabler name="plus"></i-tabler>
+                      </button>
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <span class="f-s-14">{{
+                      item.prixUnitaire | currency: 'MGA' : 'Ar ' : '1.0-0'
+                    }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="f-s-14 f-w-600">{{
+                      item.prixUnitaire * item.quantite | currency: 'MGA' : 'Ar ' : '1.0-0'
+                    }}</span>
+                  </td>
+                  <td class="text-end">
+                    <button mat-icon-button color="warn" (click)="removeFromCart(item)">
+                      <i-tabler name="trash" class="icon-18"></i-tabler>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <mat-divider class="m-t-24 m-b-24"></mat-divider>
+
+        <div class="row justify-content-end">
+          <div class="col-md-4">
+            <div class="cart-summary bg-light p-24 rounded shadow-sm border-0">
+              <div class="d-flex align-items-center justify-content-between m-b-24">
+                <span class="f-s-20 f-w-700">Total TTC</span>
+                <span class="f-s-24 f-w-800 text-primary">{{
+                  totalPrice | currency: 'MGA' : 'Ar ' : '1.0-0'
+                }}</span>
+              </div>
+              <button
+                mat-flat-button
+                color="primary"
+                class="w-100 h-54 f-s-16 f-w-600 rounded-pill shadow-lg m-b-12"
+                routerLink="/commander"
+              >
+                COMMANDER <i-tabler name="chevron-right" class="icon-20 m-l-4"></i-tabler>
+              </button>
+              <button mat-button class="w-100 f-s-14 text-muted" routerLink="/accueil">
+                <i-tabler name="arrow-narrow-left" class="icon-18 m-r-4"></i-tabler> Continuer les
+                courses
+              </button>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="text-center p-48">
+          <div class="empty-cart-icon m-b-24">
+            <i-tabler name="shopping-cart-x" class="icon-80 text-muted"></i-tabler>
+          </div>
+          <h3 class="f-s-24 f-w-700 m-b-8">Votre panier est vide</h3>
+          <p class="f-s-16 text-muted m-b-24">
+            Il semble que vous n'ayez pas encore ajouté d'articles à votre panier.
+          </p>
+          <button mat-raised-button color="primary" routerLink="/accueil">
+            Découvrir nos produits
+          </button>
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>
