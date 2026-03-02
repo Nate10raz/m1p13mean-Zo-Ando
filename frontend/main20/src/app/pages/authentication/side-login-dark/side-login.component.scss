@@ -147,38 +147,20 @@
     font-weight: 500;
     font-family: 'DM Sans', sans-serif;
     letter-spacing: 0.01em;
+    background: var(--surface2) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
     transition:
       transform 0.2s ease,
       box-shadow 0.2s ease,
       background 0.2s ease,
       border-color 0.2s ease !important;
 
-    // Google button
-    &:first-child {
-      background: var(--surface2) !important;
-      border-color: var(--border) !important;
-      color: var(--text) !important;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.06) !important;
-        border-color: rgba(255, 255, 255, 0.14) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
-      }
-    }
-
-    // Facebook button
-    &:last-child {
-      background: rgba(24, 119, 242, 0.12) !important;
-      border-color: rgba(24, 119, 242, 0.25) !important;
-      color: #5b9bf8 !important;
-
-      &:hover {
-        background: rgba(24, 119, 242, 0.2) !important;
-        border-color: rgba(24, 119, 242, 0.4) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(24, 119, 242, 0.15) !important;
-      }
+    &:hover {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(255, 255, 255, 0.14) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
     }
 
     img {

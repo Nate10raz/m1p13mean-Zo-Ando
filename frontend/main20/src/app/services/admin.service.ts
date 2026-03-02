@@ -59,9 +59,6 @@ export interface AdminSuspendUserResponse {
   };
 }
 
-export interface AdminResetPasswordResponse {
-  user: AdminUser;
-}
 
 export interface AdminReactivateUserResponse {
   user: AdminUser & {
@@ -329,13 +326,6 @@ export class AdminService {
     return this.http.patch<ApiResponse<AdminSuspendUserResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/suspend`,
       payload,
-    );
-  }
-
-  resetUserPassword(userId: string): Observable<ApiResponse<AdminResetPasswordResponse>> {
-    return this.http.patch<ApiResponse<AdminResetPasswordResponse>>(
-      `${this.apiRootUrl}/admin/users/${userId}/password`,
-      {},
     );
   }
 

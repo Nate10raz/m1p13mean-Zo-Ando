@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
 import {
   loginController,
+  googleLoginController,
   logoutController,
   refreshController,
   registerBoutiqueController,
@@ -9,8 +11,10 @@ import {
   registerAdminController,
   resetPasswordController,
 } from '../controllers/auth.controller.js';
-import { ENV } from '../config/env.js';
 import { badRequestResponse, forbiddenResponse } from '../utils/response.util.js';
+import passport from '../config/passport.js';
+import { ENV } from '../config/env.js';
+import { signAccessToken, signRefreshToken, storeRefreshToken } from '../services/auth.service.js'; // voir note ci-dessous
 
 const router = Router();
 
@@ -62,6 +66,11 @@ const clientValidation = [
 const loginValidation = [
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
   body('password').isString().notEmpty().withMessage('Mot de passe requis'),
+];
+
+const googleLoginValidation = [
+  body('idToken').isString().notEmpty().withMessage('Token Google requis'),
+  body('role').isIn(['client']).withMessage('Role invalide'),
 ];
 
 const resetPasswordValidation = [
@@ -217,6 +226,27 @@ router.post('/login', loginValidation, validateRequest, loginController);
 
 /**
  * @openapi
+ * /auth/google:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Connexion/inscription via Google (idToken)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken, role]
+ *             properties:
+ *               idToken: { type: string }
+ *               role: { type: string, enum: [client] }
+ *     responses:
+ *       200: { description: Connexion Google reussie }
+ */
+router.post('/google', googleLoginValidation, validateRequest, googleLoginController);
+
+/**
+ * @openapi
  * /auth/reset-password:
  *   post:
  *     tags: [Auth]
@@ -261,5 +291,41 @@ router.post('/refresh', refreshController);
  *       200: { description: Deconnexion reussie }
  */
 router.post('/logout', logoutController);
+
+// Redirige vers Google
+router.get(
+    '/google',
+    passport.authenticate('google', { scope: ['profile', 'email'], session: false }),
+);
+
+// Callback Google
+router.get(
+    '/google/callback',
+    passport.authenticate('google', { session: false, failureRedirect: `${ENV.FRONTEND_URL}/login?error=google` }),
+    async (req, res) => {
+      try {
+        const user = req.user;
+        const accessToken = signAccessToken(user);
+        const refreshToken = signRefreshToken(user);
+        await storeRefreshToken(user._id, refreshToken);
+
+        // Cookie refresh token
+        const isProd = ENV.NODE_ENV === 'production';
+        const decoded = jwt.decode(refreshToken);
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: isProd,
+          sameSite: isProd ? 'none' : 'lax',
+          path: '/auth',
+          expires: decoded?.exp ? new Date(decoded.exp * 1000) : undefined,
+        });
+
+        // Redirige vers le frontend avec l'accessToken en query param
+        res.redirect(`${ENV.FRONTEND_URL}/auth/google/success?token=${accessToken}`);
+      } catch (err) {
+        res.redirect(`${ENV.FRONTEND_URL}/login?error=google`);
+      }
+    },
+);
 
 export default router;

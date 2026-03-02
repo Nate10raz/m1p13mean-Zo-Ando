@@ -181,6 +181,53 @@
 }
 
 // ─── Champs formulaire ───────────────────────────────────────────────
+// Google button
+.auth-social {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.auth-social__google {
+  flex: 1;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > div {
+    width: 100%;
+  }
+}
+
+// Divider
+.auth-divider {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+
+  span {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    padding: 0 12px;
+    font-size: 12px;
+    color: rgba(42, 53, 71, 0.45);
+    font-weight: 500;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--mat-sys-outline-variant, #d7dde2);
+    transform: translateY(-50%);
+  }
+}
+
 .auth-field {
   margin-bottom: 4px;
 

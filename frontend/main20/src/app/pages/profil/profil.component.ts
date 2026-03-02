@@ -199,6 +199,10 @@ export class ProfilComponent implements OnInit, OnDestroy {
     return (this.user?.role ?? '').toLowerCase() === 'client';
   }
 
+  get isGoogleAccount(): boolean {
+    return Boolean(this.user?.googleId);
+  }
+
   get statusLabel(): string {
     const status = this.formatStatus(this.user?.status);
     if (status) {
@@ -307,6 +311,9 @@ export class ProfilComponent implements OnInit, OnDestroy {
   }
 
   startPasswordChange(): void {
+    if (this.isGoogleAccount) {
+      return;
+    }
     if (this.isChangingPassword) {
       return;
     }

@@ -94,7 +94,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private isAuthEndpoint(url: string): boolean {
-    return /\/auth\/(login|refresh|register|logout)/.test(url);
+    return /\/auth\/(login|refresh|register|logout|google)/.test(url);
   }
 
   private isAssetRequest(url: string): boolean {

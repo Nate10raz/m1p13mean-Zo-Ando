@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   panierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Panier' },
   isEmailVerified: { type: Boolean, default: false },
   lastLogin: Date,
+  googleId: { type: String, default: null },
   preferences: {
     notifications: {
       email: { type: Boolean, default: true },

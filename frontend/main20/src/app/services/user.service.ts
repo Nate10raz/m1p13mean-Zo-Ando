@@ -17,6 +17,7 @@ export interface UserMe {
   telephone: string;
   avatar?: string;
   adresseLivraison?: string;
+  googleId?: string;
   isEmailVerified: boolean;
   preferences: {
     notifications: NotificationPreference;

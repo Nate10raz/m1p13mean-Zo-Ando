@@ -13,6 +13,7 @@ export interface StoredUser {
   email?: string;
   nom?: string;
   prenom?: string;
+  googleId?: string;
 }
 
 @Injectable({

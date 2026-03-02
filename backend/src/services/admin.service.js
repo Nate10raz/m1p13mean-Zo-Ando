@@ -52,6 +52,9 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
+const isGoogleAccount = (user) =>
+  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
+
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const clampTopN = (value, fallback = 5) => {
@@ -474,6 +477,9 @@ export const resetUserPassword = async (userId, payload = {}) => {
   const user = await User.findById(userId);
   if (!user) {
     throw createError('User not found', 404);
+  }
+  if (isGoogleAccount(user)) {
+    throw createError('Mot de passe indisponible pour les comptes Google', 403);
   }
   if (user.status && user.status !== 'active') {
     throw createError('User not active', 403);

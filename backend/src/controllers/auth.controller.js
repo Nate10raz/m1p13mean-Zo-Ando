@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import {
   login,
+  loginWithGoogle,
   logoutSession,
   refreshSession,
   resetPasswordWithToken,
@@ -96,6 +97,27 @@ export const loginController = async (req, res, next) => {
       res,
       status: 200,
       message: 'Connexion reussie',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleLoginController = async (req, res, next) => {
+  try {
+    const result = await loginWithGoogle(req.body);
+    if (result.refreshToken) {
+      setRefreshCookie(res, result.refreshToken);
+    }
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: result.message || 'Connexion Google reussie',
       data: {
         user: result.user,
         accessToken: result.accessToken,

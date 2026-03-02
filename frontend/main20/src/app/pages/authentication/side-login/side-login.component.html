@@ -52,18 +52,11 @@
         </div>
 
         <!-- ── Séparateur social ── -->
-        <div class="auth-social">
-          <button mat-stroked-button class="auth-social__btn">
-            <img src="/assets/images/svgs/google-icon.svg" alt="google" width="16" />
-            <span>Google</span>
-          </button>
-          <button mat-stroked-button class="auth-social__btn">
-            <img src="/assets/images/svgs/facebook-icon.svg" alt="facebook" width="18" />
-            <span>Facebook</span>
-          </button>
+        <div class="auth-social" *ngIf="role === 'client' && googleEnabled">
+          <div class="auth-social__google" #googleBtn></div>
         </div>
 
-        <div class="auth-divider">
+        <div class="auth-divider" *ngIf="role === 'client' && googleEnabled">
           <span>ou connectez-vous avec votre email</span>
         </div>
 

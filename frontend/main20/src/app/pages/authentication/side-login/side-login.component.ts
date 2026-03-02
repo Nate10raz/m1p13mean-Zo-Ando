@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -16,6 +16,8 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 
 import { MaterialModule } from 'src/app/material.module';
 import { AuthService, LoginPayload } from 'src/app/services/auth.service';
+import { GoogleAuthService } from 'src/app/services/google-auth.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-side-login',
@@ -33,10 +35,13 @@ import { AuthService, LoginPayload } from 'src/app/services/auth.service';
   templateUrl: './side-login.component.html',
   styleUrl: './side-login.component.scss',
 })
-export class AppSideLoginComponent implements OnInit {
+export class AppSideLoginComponent implements OnInit, AfterViewInit {
+  @ViewChild('googleBtn', { static: false }) googleBtn?: ElementRef<HTMLDivElement>;
+
   isSubmitting = false;
   serverError = '';
   hidePassword = true;
+  googleEnabled = Boolean(environment.googleClientId);
   role: 'client' | 'boutique' | 'admin' = 'client';
   roleLabel = 'Client';
   pageTitle = 'Connexion client';
@@ -45,6 +50,7 @@ export class AppSideLoginComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private googleAuthService: GoogleAuthService,
     private snackBar: MatSnackBar,
     private router: Router,
     private route: ActivatedRoute,
@@ -93,6 +99,13 @@ export class AppSideLoginComponent implements OnInit {
     this.form.setValue(defaults[this.role]);
   }
 
+  ngAfterViewInit(): void {
+    if (this.role !== 'client' || !this.googleEnabled) {
+      return;
+    }
+    this.initGoogleButton();
+  }
+
   submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -118,6 +131,61 @@ export class AppSideLoginComponent implements OnInit {
             this.authService.logout().subscribe();
           } else {
             this.serverError = error?.error?.message ?? 'Connexion impossible. Veuillez réessayer.';
+          }
+          this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });
+        },
+      });
+  }
+
+  private initGoogleButton(): void {
+    const container = this.googleBtn?.nativeElement;
+    if (!container) {
+      return;
+    }
+
+    this.googleAuthService
+      .renderButton(
+        container,
+        (credential) => this.handleGoogleCredential(credential),
+        { text: 'signin_with' },
+      )
+      .catch(() => {
+        this.serverError = 'Connexion Google indisponible pour le moment.';
+        this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });
+      });
+  }
+
+  private handleGoogleCredential(credential: string): void {
+    if (this.role !== 'client') {
+      this.serverError = 'Connexion Google reservee aux clients.';
+      this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.serverError = '';
+
+    this.authService
+      .loginWithGoogle({ idToken: credential, role: 'client' })
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: (response) => {
+          const message = response?.message ?? 'Connexion Google reussie';
+          this.snackBar.open(message, 'Fermer', { duration: 3000 });
+          const accessToken = response?.data?.accessToken;
+          if (accessToken) {
+            const target = this.role === 'client' ? '/accueil' : '/dashboard';
+            this.router.navigate([target]);
+          } else {
+            this.router.navigate(['/boutique/login']);
+          }
+        },
+        error: (error) => {
+          if (error?.error?.message === 'ROLE_MISMATCH') {
+            this.serverError = 'Profil incorrect pour cette page de connexion.';
+            this.authService.logout().subscribe();
+          } else {
+            this.serverError = error?.error?.message ?? 'Connexion Google impossible.';
           }
           this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });
         },

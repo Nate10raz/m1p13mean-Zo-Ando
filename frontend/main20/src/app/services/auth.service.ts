@@ -17,6 +17,11 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface GoogleAuthPayload {
+  idToken: string;
+  role: 'client';
+}
+
 export interface ApiResponse<T> {
   route: string;
   status: number;
@@ -33,6 +38,7 @@ export interface UserEntity {
   prenom: string;
   telephone: string;
   isEmailVerified: boolean;
+  googleId?: string;
   preferences: {
     notifications: boolean;
   };
@@ -100,6 +106,11 @@ export interface LoginData {
   accessToken: string;
 }
 
+export interface GoogleAuthData {
+  user: UserEntity;
+  accessToken?: string | null;
+}
+
 export interface RefreshData {
   accessToken: string;
 }
@@ -153,6 +164,25 @@ export class AuthService {
           const user = response?.data?.user;
           if (user) {
             this.tokenService.setUser(user);
+          }
+        }),
+      );
+  }
+
+  loginWithGoogle(payload: GoogleAuthPayload): Observable<ApiResponse<GoogleAuthData>> {
+    return this.http
+      .post<ApiResponse<GoogleAuthData>>(`${this.apiBaseUrl}/google`, payload, {
+        withCredentials: true,
+      })
+      .pipe(
+        tap((response) => {
+          const accessToken = response?.data?.accessToken || null;
+          if (accessToken) {
+            this.tokenService.setAccessToken(accessToken);
+            const user = response?.data?.user;
+            if (user) {
+              this.tokenService.setUser(user);
+            }
           }
         }),
       );

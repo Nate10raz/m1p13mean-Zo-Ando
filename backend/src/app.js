@@ -6,6 +6,7 @@ import { notFoundMiddleware } from './middlewares/notFound.middleware.js';
 import { ENV } from './config/env.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
+import passport from './config/passport.js';
 
 // Routes
 import indexRoutes from './routes/index.routes.js';
@@ -18,6 +19,7 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.use(cookieParser());
+app.use(passport.initialize());
 app.use(
   cors({
     origin: ENV.FRONTEND_URL,

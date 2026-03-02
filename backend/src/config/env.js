@@ -4,6 +4,7 @@ dotenv.config();
 export const ENV = {
   PORT: process.env.PORT || 3000,
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:4200',
+  BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:3000',
   NODE_ENV: process.env.NODE_ENV || 'development',
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/mydb',
   JWT_SECRET: process.env.JWT_SECRET || 'changeme',
@@ -11,6 +12,8 @@ export const ENV = {
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'changeme',
   ADMIN_REGISTRATION_SECRET: process.env.ADMIN_REGISTRATION_SECRET || '',
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',

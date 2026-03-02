@@ -224,6 +224,18 @@
 }
 
 // ─── Séparateur "ou" ─────────────────────────────────────────────────
+.auth-social__google {
+  flex: 1;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > div {
+    width: 100%;
+  }
+}
+
 .auth-divider {
   position: relative;
   text-align: center;

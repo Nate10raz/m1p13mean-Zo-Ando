@@ -1,8 +1,11 @@
+import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { ENV } from '../config/env.js';
 import PasswordReset from '../models/PasswordReset.js';
+import Panier from '../models/Panier.js';
 import User from '../models/User.js';
 import UserToken from '../models/UserToken.js';
 import Boutique from '../models/Boutique.js';
@@ -21,10 +24,15 @@ const normalizeEmail = (email) =>
     .trim()
     .toLowerCase();
 
+const isTruthy = (value) => value === true || value === 'true' || value === 1 || value === '1';
+
 const sanitizeUser = (user) => {
   const { passwordHash, __v, ...safe } = user.toObject();
   return safe;
 };
+
+const isGoogleAccount = (user) =>
+  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -33,7 +41,32 @@ const generateJti = () =>
     ? crypto.randomUUID()
     : crypto.randomBytes(16).toString('hex');
 
-const signAccessToken = (user) => {
+const verifyGoogleIdToken = async (idToken) => {
+  if (!ENV.GOOGLE_CLIENT_ID) {
+    throw createError('Google client not configured', 500);
+  }
+
+  try {
+    const response = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+      params: { id_token: idToken },
+    });
+    const data = response?.data || {};
+    if (data.aud !== ENV.GOOGLE_CLIENT_ID) {
+      throw createError('Invalid Google token', 401);
+    }
+    if (!data.email) {
+      throw createError('No email in Google token', 400);
+    }
+    return data;
+  } catch (error) {
+    if (error?.status) {
+      throw error;
+    }
+    throw createError('Invalid Google token', 401);
+  }
+};
+
+export const signAccessToken = (user) => {
   const payload = { sub: user._id.toString(), role: user.role, type: 'access' };
   if (user.role === 'boutique' && user.boutiqueId) {
     payload.boutiqueId = user.boutiqueId.toString();
@@ -43,7 +76,7 @@ const signAccessToken = (user) => {
   });
 };
 
-const signRefreshToken = (user) =>
+export const signRefreshToken = (user) =>
   jwt.sign(
     { sub: user._id.toString(), type: 'refresh', jti: generateJti() },
     ENV.JWT_REFRESH_SECRET,
@@ -52,7 +85,7 @@ const signRefreshToken = (user) =>
     },
   );
 
-const getTokenExpiresAt = (token) => {
+export const getTokenExpiresAt = (token) => {
   const decoded = jwt.decode(token);
   if (!decoded || !decoded.exp) {
     throw createError('Invalid token', 401);
@@ -60,7 +93,7 @@ const getTokenExpiresAt = (token) => {
   return new Date(decoded.exp * 1000);
 };
 
-const storeRefreshToken = async (userId, refreshToken) => {
+export const storeRefreshToken = async (userId, refreshToken) => {
   const tokenHash = hashToken(refreshToken);
   const expiresAt = getTokenExpiresAt(refreshToken);
   await UserToken.create({
@@ -124,6 +157,131 @@ export const login = async ({ email, password }) => {
     user: sanitizeUser(user),
     accessToken,
     refreshToken,
+  };
+};
+
+export const loginWithGoogle = async (payload = {}) => {
+  const idToken = payload?.idToken;
+  const role = String(payload?.role || '').trim().toLowerCase();
+
+  if (!idToken || typeof idToken !== 'string') {
+    throw createError('Token Google requis', 400);
+  }
+  if (role !== 'client') {
+    throw createError('Connexion Google reservee aux clients', 400);
+  }
+
+  const tokenInfo = await verifyGoogleIdToken(idToken);
+  const email = normalizeEmail(tokenInfo.email);
+
+  let user = await User.findOne({ email });
+  let isNewUser = false;
+  if (user) {
+    if (user.role !== role) {
+      throw createError('ROLE_MISMATCH', 403);
+    }
+
+    let changed = false;
+    if (!user.googleId && tokenInfo.sub) {
+      user.googleId = tokenInfo.sub;
+      changed = true;
+    }
+    if (!user.avatar && tokenInfo.picture) {
+      user.avatar = tokenInfo.picture;
+      changed = true;
+    }
+    if (!user.nom && tokenInfo.family_name) {
+      user.nom = tokenInfo.family_name;
+      changed = true;
+    }
+    if (!user.prenom && tokenInfo.given_name) {
+      user.prenom = tokenInfo.given_name;
+      changed = true;
+    }
+    if (!user.isEmailVerified && isTruthy(tokenInfo.email_verified)) {
+      user.isEmailVerified = true;
+      changed = true;
+    }
+    if (changed) {
+      await user.save();
+    }
+  } else {
+    isNewUser = true;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const createdUsers = await User.create(
+        [
+          {
+            email,
+            passwordHash: 'GOOGLE_OAUTH',
+            role: 'client',
+            nom: tokenInfo.family_name || '',
+            prenom: tokenInfo.given_name || '',
+            telephone: '',
+            avatar: tokenInfo.picture || '',
+            googleId: tokenInfo.sub || null,
+            isActive: true,
+            status: 'active',
+            isEmailVerified: isTruthy(tokenInfo.email_verified),
+          },
+        ],
+        { session },
+      );
+
+      user = createdUsers[0];
+
+      const panier = await Panier.create(
+        [
+          {
+            clientId: user._id,
+          },
+        ],
+        { session },
+      );
+
+      user.panierId = panier[0]._id;
+      await user.save({ session });
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+  if (user.isActive === false) {
+    throw createError('User disabled', 403);
+  }
+
+  let accessToken = null;
+  let refreshToken = null;
+
+  accessToken = signAccessToken(user);
+  refreshToken = signRefreshToken(user);
+  await storeRefreshToken(user._id, refreshToken);
+
+  let message = 'Connexion Google reussie';
+  if (isNewUser) {
+    message = 'Inscription Google reussie';
+  }
+
+  return {
+    user: sanitizeUser(user),
+    accessToken,
+    refreshToken,
+    message,
   };
 };
 
@@ -213,6 +371,9 @@ export const resetPasswordWithToken = async ({ token, newPassword }) => {
   const user = await User.findById(resetRecord.userId);
   if (!user) {
     throw createError('User not found', 404);
+  }
+  if (isGoogleAccount(user)) {
+    throw createError('Mot de passe indisponible pour les comptes Google', 403);
   }
   if (user.status && user.status !== 'active') {
     throw createError('User not active', 403);

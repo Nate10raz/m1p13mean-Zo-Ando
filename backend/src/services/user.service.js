@@ -36,6 +36,9 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
+const isGoogleAccount = (user) =>
+  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
+
 const createStatusError = (message, status = 400, data = null) => {
   const err = new Error(message);
   err.status = status;
@@ -340,6 +343,9 @@ export const changeMyPassword = async (userId, payload = {}) => {
   const user = await User.findById(userId);
   if (!user) {
     throw createStatusError('Utilisateur introuvable', 404);
+  }
+  if (isGoogleAccount(user)) {
+    throw createStatusError('Mot de passe indisponible pour les comptes Google', 403);
   }
   if (user.status && user.status !== 'active') {
     throw createStatusError('Utilisateur non actif', 403);

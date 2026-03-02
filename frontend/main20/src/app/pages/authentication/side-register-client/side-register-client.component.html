@@ -38,6 +38,16 @@
           </a>
         </div>
 
+        <!-- Google -->
+        <div class="auth-social" *ngIf="googleEnabled">
+          <div class="auth-social__google" #googleBtn></div>
+        </div>
+
+        <div class="auth-divider" *ngIf="googleEnabled">
+          <span>ou inscrivez-vous avec votre email</span>
+        </div>
+
+
         <!-- ── Formulaire ── -->
         <form [formGroup]="form" (ngSubmit)="submit()">
           <!-- Nom + Prénom -->
@@ -236,3 +246,7 @@
     </mat-card>
   </div>
 </div>
+
+
+
+
