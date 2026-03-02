@@ -102,4 +102,3 @@ export const authInterceptorProvider = {
   useClass: AuthInterceptor,
   multi: true,
 };
-

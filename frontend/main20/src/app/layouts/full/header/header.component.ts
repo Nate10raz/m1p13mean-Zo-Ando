@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit {
     public cartService: CartService,
   ) {
     this.unreadCount$ = this.notificationService.notifications$.pipe(
-      map(notifications => notifications.filter(n => !n.lu).length)
+      map((notifications) => notifications.filter((n) => !n.lu).length),
     );
   }
 

@@ -1,0 +1,403 @@
+.commande-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shadow-glow {
+  box-shadow: 0 10px 25px -5px rgba(93, 135, 255, 0.4);
+}
+
+// Status Card
+.status-card {
+  position: relative;
+  border: none;
+  background: white;
+
+  .status-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+
+    &.bg-primary {
+      background: linear-gradient(90deg, #5d87ff, #b794f4) !important;
+    }
+
+    &.bg-accent {
+      background: linear-gradient(90deg, #0085db, #63b3ed) !important;
+    }
+
+    &.bg-warn {
+      background: linear-gradient(90deg, #ffa117, #f6e05e) !important;
+    }
+
+    &.bg-danger {
+      background: linear-gradient(90deg, #fa5a7d, #feb2b2) !important;
+    }
+
+    &.bg-success {
+      background: linear-gradient(90deg, #13deb9, #68d391) !important;
+    }
+
+    &.bg-warning {
+      background: linear-gradient(90deg, #ffae1f, #fbd38d) !important;
+    }
+  }
+}
+
+.status-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+// Timeline
+.status-timeline-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 20px;
+  margin-top: 40px;
+
+  .timeline-track {
+    position: absolute;
+    top: 15px;
+    left: 40px;
+    right: 40px;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 1;
+  }
+
+  .step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      color: #94a3b8;
+    }
+
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    &.active {
+      .step-dot {
+        border-color: #5d87ff;
+        color: #5d87ff;
+        box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.1);
+      }
+
+      .step-label {
+        color: #5d87ff;
+      }
+    }
+
+    &.completed {
+      .step-dot {
+        background: #5d87ff;
+        border-color: #5d87ff;
+        color: white;
+      }
+
+      .step-label {
+        color: #1e293b;
+      }
+    }
+  }
+}
+
+// Boutique Sections
+.boutique-section {
+  position: relative;
+
+  .shop-accent-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    z-index: 10;
+  }
+}
+
+.shop-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5d87ff;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  i-tabler {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.boutique-header {
+  border-bottom: 1px border-subtle;
+  background: linear-gradient(to right, #ffffff, #fafcfe);
+}
+
+// Badge Versions
+.badge-v2 {
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.badge-primary {
+    background: #ecf2ff;
+    color: #5d87ff;
+  }
+
+  &.badge-success {
+    background: #e6fffa;
+    color: #13deb9;
+  }
+
+  &.badge-accent {
+    background: #eaf1f6;
+    color: #0085db;
+  }
+
+  &.badge-warn {
+    background: #fef5e5;
+    color: #ffa117;
+  }
+
+  &.badge-danger {
+    background: #fdedf1;
+    color: #fa5a7d;
+  }
+
+  &.badge-warning {
+    background: #fef5e5;
+    color: #ffae1f;
+  }
+}
+
+.badge-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+// Product Items
+.product-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.item-row {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #fafcfe;
+  }
+
+  &.item-cancelled {
+    background: #fff8f8;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.4);
+      pointer-events: none;
+    }
+
+    td {
+      opacity: 0.7;
+    }
+  }
+
+  td {
+    padding: 20px 16px !important;
+    vertical-align: middle;
+  }
+}
+
+.table {
+  th {
+    border: none;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px 24px !important;
+  }
+}
+
+// Sidebar Cards
+.avatar-info {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.logistics-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bg-light-primary {
+  background: #ecf2ff !important;
+}
+
+.bg-light-accent {
+  background: #eaf1f6 !important;
+}
+
+.bg-light-info {
+  background: #e8f7ff !important;
+}
+
+.bg-light-warning {
+  background: #fef5e5 !important;
+}
+
+.bg-light-success {
+  background: #e6fffa !important;
+}
+
+.bg-light-danger {
+  background: #fdedf1 !important;
+}
+
+.text-primary {
+  color: #5d87ff !important;
+}
+
+.text-accent {
+  color: #0085db !important;
+}
+
+.text-info {
+  color: #539bff !important;
+}
+
+.text-success {
+  color: #13deb9 !important;
+}
+
+.text-warning {
+  color: #ffae1f !important;
+}
+
+.text-danger {
+  color: #fa5a7d !important;
+}
+
+.op-5 {
+  opacity: 0.5;
+}
+
+.op-7 {
+  opacity: 0.7;
+}
+
+.op-2 {
+  opacity: 0.2;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+.italic {
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .status-timeline-container {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    padding-left: 40px;
+
+    .timeline-track {
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      height: 100%;
+    }
+
+    .step {
+      flex-direction: row;
+      width: 100%;
+      gap: 15px;
+
+      .step-dot {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

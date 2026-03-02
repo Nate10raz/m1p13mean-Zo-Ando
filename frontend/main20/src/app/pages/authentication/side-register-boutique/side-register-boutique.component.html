@@ -1,5 +1,4 @@
 <div class="auth-wrapper auth-wrapper--wide">
-
   <!-- Blobs décoratifs fond -->
   <div class="auth-blob auth-blob--1"></div>
   <div class="auth-blob auth-blob--2"></div>
@@ -7,7 +6,6 @@
   <div class="auth-card-wrap auth-card-wrap--wide">
     <mat-card class="cardWithShadow auth-card">
       <mat-card-content>
-
         <!-- ── Logo ── -->
         <div class="auth-logo">
           <a [routerLink]="['/']" class="app-brand">
@@ -21,7 +19,9 @@
         <!-- ── Titre ── -->
         <div class="auth-title">
           <h2 class="f-s-20 f-w-700 m-0">Créer un compte boutique</h2>
-          <p class="text-muted f-s-13 m-0 m-t-4">Remplissez les informations ci-dessous pour créer votre boutique</p>
+          <p class="text-muted f-s-13 m-0 m-t-4">
+            Remplissez les informations ci-dessous pour créer votre boutique
+          </p>
         </div>
 
         <!-- ── Switcher Client / Boutique ── -->
@@ -43,11 +43,9 @@
         <!-- ── Formulaire 2 colonnes ── -->
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="row g-4">
-
             <!-- ── Colonne gauche : Infos utilisateur ── -->
             <div class="col-12 col-lg-6">
               <div class="auth-section">
-
                 <div class="auth-section__header">
                   <div class="dashboard-badge bg-light-primary text-primary">
                     <i-tabler name="user" class="icon-20 d-flex"></i-tabler>
@@ -64,9 +62,18 @@
                     <div class="auth-field">
                       <mat-label class="auth-field__label">Nom</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput formControlName="nom" autocomplete="family-name" placeholder="Rakoto" />
-                        <mat-error *ngIf="f.nom.touched && f.nom.hasError('required')">Le nom est requis.</mat-error>
-                        <mat-error *ngIf="f.nom.touched && f.nom.hasError('minlength')">2 caractères minimum.</mat-error>
+                        <input
+                          matInput
+                          formControlName="nom"
+                          autocomplete="family-name"
+                          placeholder="Rakoto"
+                        />
+                        <mat-error *ngIf="f.nom.touched && f.nom.hasError('required')"
+                          >Le nom est requis.</mat-error
+                        >
+                        <mat-error *ngIf="f.nom.touched && f.nom.hasError('minlength')"
+                          >2 caractères minimum.</mat-error
+                        >
                       </mat-form-field>
                     </div>
                   </div>
@@ -74,9 +81,18 @@
                     <div class="auth-field">
                       <mat-label class="auth-field__label">Prénom</mat-label>
                       <mat-form-field appearance="outline" class="w-100" color="primary">
-                        <input matInput formControlName="prenom" autocomplete="given-name" placeholder="Jean" />
-                        <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('required')">Le prénom est requis.</mat-error>
-                        <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('minlength')">2 caractères minimum.</mat-error>
+                        <input
+                          matInput
+                          formControlName="prenom"
+                          autocomplete="given-name"
+                          placeholder="Jean"
+                        />
+                        <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('required')"
+                          >Le prénom est requis.</mat-error
+                        >
+                        <mat-error *ngIf="f.prenom.touched && f.prenom.hasError('minlength')"
+                          >2 caractères minimum.</mat-error
+                        >
                       </mat-form-field>
                     </div>
                   </div>
@@ -86,10 +102,25 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Adresse email</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="mail" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-                    <input matInput type="email" formControlName="email" autocomplete="email" placeholder="vous@exemple.com" />
-                    <mat-error *ngIf="f.email.touched && f.email.hasError('required')">L'email est requis.</mat-error>
-                    <mat-error *ngIf="f.email.touched && f.email.hasError('email')">Format d'email invalide.</mat-error>
+                    <i-tabler
+                      name="mail"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      type="email"
+                      formControlName="email"
+                      autocomplete="email"
+                      placeholder="vous@exemple.com"
+                    />
+                    <mat-error *ngIf="f.email.touched && f.email.hasError('required')"
+                      >L'email est requis.</mat-error
+                    >
+                    <mat-error *ngIf="f.email.touched && f.email.hasError('email')"
+                      >Format d'email invalide.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -97,10 +128,25 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Téléphone</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="phone" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-                    <input matInput type="tel" formControlName="telephone" placeholder="+261320000000" autocomplete="tel" />
-                    <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('required')">Le téléphone est requis.</mat-error>
-                    <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('pattern')">Format attendu : +261320000000 ou 0320000000.</mat-error>
+                    <i-tabler
+                      name="phone"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      type="tel"
+                      formControlName="telephone"
+                      placeholder="+261320000000"
+                      autocomplete="tel"
+                    />
+                    <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('required')"
+                      >Le téléphone est requis.</mat-error
+                    >
+                    <mat-error *ngIf="f.telephone.touched && f.telephone.hasError('pattern')"
+                      >Format attendu : +261320000000 ou 0320000000.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -108,13 +154,33 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Mot de passe</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="lock" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-                    <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" placeholder="••••••••" />
-                    <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+                    <i-tabler
+                      name="lock"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      [type]="hidePassword ? 'password' : 'text'"
+                      formControlName="password"
+                      autocomplete="new-password"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="hidePassword = !hidePassword"
+                    >
                       <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                     </button>
-                    <mat-error *ngIf="f.password.touched && f.password.hasError('required')">Le mot de passe est requis.</mat-error>
-                    <mat-error *ngIf="f.password.touched && f.password.hasError('minlength')">Au moins 6 caractères.</mat-error>
+                    <mat-error *ngIf="f.password.touched && f.password.hasError('required')"
+                      >Le mot de passe est requis.</mat-error
+                    >
+                    <mat-error *ngIf="f.password.touched && f.password.hasError('minlength')"
+                      >Au moins 6 caractères.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -122,25 +188,49 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Confirmer le mot de passe</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="lock-check" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-primary); opacity:.7"></i-tabler>
-                    <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••" />
-                    <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
-                      <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    <i-tabler
+                      name="lock-check"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-primary); opacity: 0.7"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      [type]="hideConfirmPassword ? 'password' : 'text'"
+                      formControlName="confirmPassword"
+                      autocomplete="new-password"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="hideConfirmPassword = !hideConfirmPassword"
+                    >
+                      <mat-icon>{{
+                        hideConfirmPassword ? 'visibility_off' : 'visibility'
+                      }}</mat-icon>
                     </button>
-                    <mat-error *ngIf="f.confirmPassword.touched && f.confirmPassword.hasError('required')">Confirmez le mot de passe.</mat-error>
-                    <mat-error *ngIf="form.hasError('passwordsMismatch') && (f.confirmPassword.touched || f.password.touched)">
+                    <mat-error
+                      *ngIf="f.confirmPassword.touched && f.confirmPassword.hasError('required')"
+                      >Confirmez le mot de passe.</mat-error
+                    >
+                    <mat-error
+                      *ngIf="
+                        form.hasError('passwordsMismatch') &&
+                        (f.confirmPassword.touched || f.password.touched)
+                      "
+                    >
                       Les mots de passe doivent être identiques.
                     </mat-error>
                   </mat-form-field>
                 </div>
-
               </div>
             </div>
 
             <!-- ── Colonne droite : Infos boutique ── -->
             <div class="col-12 col-lg-6" formGroupName="boutique">
               <div class="auth-section auth-section--alt">
-
                 <div class="auth-section__header">
                   <div class="dashboard-badge bg-light-warning text-warning">
                     <i-tabler name="building-store" class="icon-20 d-flex"></i-tabler>
@@ -155,10 +245,19 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Nom de la boutique</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="building-store" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-secondary); opacity:.8"></i-tabler>
+                    <i-tabler
+                      name="building-store"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-secondary); opacity: 0.8"
+                    ></i-tabler>
                     <input matInput formControlName="nom" placeholder="Ma boutique" />
-                    <mat-error *ngIf="b['nom'].touched && b['nom'].hasError('required')">Le nom est requis.</mat-error>
-                    <mat-error *ngIf="b['nom'].touched && b['nom'].hasError('minlength')">2 caractères minimum.</mat-error>
+                    <mat-error *ngIf="b['nom'].touched && b['nom'].hasError('required')"
+                      >Le nom est requis.</mat-error
+                    >
+                    <mat-error *ngIf="b['nom'].touched && b['nom'].hasError('minlength')"
+                      >2 caractères minimum.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -166,10 +265,24 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Adresse</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="map-pin" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-secondary); opacity:.8"></i-tabler>
-                    <input matInput formControlName="adresse" autocomplete="street-address" placeholder="Zone A, Box 101" />
-                    <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('required')">L'adresse est requise.</mat-error>
-                    <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('minlength')">3 caractères minimum.</mat-error>
+                    <i-tabler
+                      name="map-pin"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-secondary); opacity: 0.8"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      formControlName="adresse"
+                      autocomplete="street-address"
+                      placeholder="Zone A, Box 101"
+                    />
+                    <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('required')"
+                      >L'adresse est requise.</mat-error
+                    >
+                    <mat-error *ngIf="b['adresse'].touched && b['adresse'].hasError('minlength')"
+                      >3 caractères minimum.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -177,10 +290,25 @@
                 <div class="auth-field">
                   <mat-label class="auth-field__label">Téléphone de la boutique</mat-label>
                   <mat-form-field appearance="outline" class="w-100" color="primary">
-                    <i-tabler name="device-phone" class="icon-18 d-flex" matPrefix style="margin-right:8px; color: var(--mat-sys-secondary); opacity:.8"></i-tabler>
-                    <input matInput type="tel" formControlName="telephone" placeholder="+261320000000" autocomplete="tel" />
-                    <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('required')">Le téléphone est requis.</mat-error>
-                    <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('pattern')">Format attendu : +261320000000 ou 0320000000.</mat-error>
+                    <i-tabler
+                      name="device-phone"
+                      class="icon-18 d-flex"
+                      matPrefix
+                      style="margin-right: 8px; color: var(--mat-sys-secondary); opacity: 0.8"
+                    ></i-tabler>
+                    <input
+                      matInput
+                      type="tel"
+                      formControlName="telephone"
+                      placeholder="+261320000000"
+                      autocomplete="tel"
+                    />
+                    <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('required')"
+                      >Le téléphone est requis.</mat-error
+                    >
+                    <mat-error *ngIf="b['telephone'].touched && b['telephone'].hasError('pattern')"
+                      >Format attendu : +261320000000 ou 0320000000.</mat-error
+                    >
                   </mat-form-field>
                 </div>
 
@@ -191,12 +319,12 @@
                   </div>
                   <div>
                     <div class="f-s-13 f-w-600 m-b-4">Information importante</div>
-                    <p class="text-muted f-s-12 m-0" style="line-height:1.6">
-                      Ces informations seront visibles par vos clients et pourront être modifiées plus tard depuis votre tableau de bord.
+                    <p class="text-muted f-s-12 m-0" style="line-height: 1.6">
+                      Ces informations seront visibles par vos clients et pourront être modifiées
+                      plus tard depuis votre tableau de bord.
                     </p>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -217,7 +345,6 @@
           >
             {{ isSubmitting ? 'Création en cours…' : 'Créer ma boutique' }}
           </button>
-
         </form>
 
         <!-- ── Lien login ── -->
@@ -227,9 +354,7 @@
             Se connecter
           </a>
         </div>
-
       </mat-card-content>
     </mat-card>
   </div>
-
 </div>

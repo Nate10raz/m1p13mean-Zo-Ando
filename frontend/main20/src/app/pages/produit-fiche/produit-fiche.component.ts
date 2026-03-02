@@ -218,7 +218,7 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
       return '-';
     }
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(value);
-    return `${formatted} Ar`;
+    return `Ar ${formatted}`;
   }
 
   formatRating(value: number | null | undefined): string {

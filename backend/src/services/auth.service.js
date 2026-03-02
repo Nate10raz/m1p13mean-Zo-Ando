@@ -30,10 +30,15 @@ const generateJti = () =>
     ? crypto.randomUUID()
     : crypto.randomBytes(16).toString('hex');
 
-const signAccessToken = (user) =>
-  jwt.sign({ sub: user._id.toString(), role: user.role, type: 'access' }, ENV.JWT_SECRET, {
+const signAccessToken = (user) => {
+  const payload = { sub: user._id.toString(), role: user.role, type: 'access' };
+  if (user.role === 'boutique' && user.boutiqueId) {
+    payload.boutiqueId = user.boutiqueId.toString();
+  }
+  return jwt.sign(payload, ENV.JWT_SECRET, {
     expiresIn: ENV.JWT_ACCESS_EXPIRES_IN,
   });
+};
 
 const signRefreshToken = (user) =>
   jwt.sign(

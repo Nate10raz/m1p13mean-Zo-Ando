@@ -33,7 +33,7 @@ export class NotificationService {
   refresh(): void {
     this.getNotifications().subscribe({
       next: (data) => this._notifications$.next(data),
-      error: (err) => console.error('Failed to refresh notifications', err)
+      error: (err) => console.error('Failed to refresh notifications', err),
     });
   }
 
@@ -43,5 +43,9 @@ export class NotificationService {
 
   markAsRead(id: string): Observable<Notification> {
     return this.http.put<Notification>(`${this.apiUrl}/${id}/read`, {});
+  }
+
+  deleteNotification(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

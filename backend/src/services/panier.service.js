@@ -1,6 +1,7 @@
 import Panier from '../models/Panier.js';
 import Produit from '../models/Produit.js';
 import VariationProduit from '../models/VariationProduit.js';
+import Prix from '../models/Prix.js';
 import mongoose from 'mongoose';
 
 const createError = (message, status = 400) => {
@@ -32,12 +33,19 @@ export const addToPanier = async (clientId, { produitId, variationId, quantite =
     let nomProduit = produit.titre;
     let imageProduit = (produit.images && produit.images.find(img => img.isMain)?.url) || (produit.images && produit.images[0]?.url);
 
+    // Get active price ID for history tracking
+    const activePrice = await Prix.findOne({
+        produitId: variationId ? undefined : produitId,
+        variationId: variationId || undefined,
+        estActif: true
+    }).sort({ createdAt: -1 }).lean();
+
+    const prixId = activePrice ? activePrice._id : undefined;
+
     if (variationId) {
         const variation = await VariationProduit.findById(variationId).lean();
         if (!variation) throw createError('Variation introuvable', 404);
         if (!variation.isActive) throw createError('Cette variation n\'est plus disponible', 400);
-        // On pourrait ajuster le prix ici si les variations ont leur propre prix
-        // Pour l'instant on garde le prix de base si pas de prix specifique
     }
 
     // Check if item already in cart
@@ -48,7 +56,8 @@ export const addToPanier = async (clientId, { produitId, variationId, quantite =
 
     if (itemIndex > -1) {
         panier.items[itemIndex].quantite += quantite;
-        panier.items[itemIndex].prixUnitaire = prixUnitaire; // Update to current price
+        panier.items[itemIndex].prixUnitaire = prixUnitaire;
+        panier.items[itemIndex].prixId = prixId;
     } else {
         panier.items.push({
             produitId,
@@ -56,13 +65,14 @@ export const addToPanier = async (clientId, { produitId, variationId, quantite =
             boutiqueId: produit.boutiqueId._id || produit.boutiqueId,
             quantite,
             prixUnitaire,
+            prixId,
             nomProduit,
             imageProduit
         });
     }
 
     await panier.save();
-    return getPanier(clientId); // Return populated cart
+    return getPanier(clientId);
 };
 
 export const updateItemQuantity = async (clientId, { produitId, variationId, quantite }) => {

@@ -1,0 +1,326 @@
+<div class="commande-details-container p-24">
+    <!-- Header with Back Button and Main Actions -->
+    <div class="m-b-32 d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div class="d-flex align-items-center gap-16">
+            <button mat-icon-button class="bg-white shadow-sm"
+                [routerLink]="userRole === 'client' ? '/commandes/mes-commandes' : '/commandes/gestion'">
+                <i-tabler name="arrow-left" class="icon-20"></i-tabler>
+            </button>
+            <div>
+                <h4 class="f-s-24 f-w-700 m-0">Détails Commande</h4>
+                <p class="text-muted m-0">#{{ commande?.numeroCommande }} • {{ commande?.createdAt | date: 'medium' }}
+                </p>
+            </div>
+        </div>
+
+        <div class="d-flex gap-12" *ngIf="commande && commande.statusLivraison !== 'annulee'">
+            <!-- Combined Actions for Role based visibility -->
+            @if (userRole === 'boutique' && !isBoutiqueAccepted()) {
+            <button mat-flat-button color="primary" class="rounded-pill p-x-24" (click)="onAcceptOrder()">
+                <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Accepter
+            </button>
+            <button mat-stroked-button color="warn" class="rounded-pill p-x-24" (click)="onCancelOrder()">
+                Annuler mon lot
+            </button>
+            }
+
+            @if (userRole === 'admin' && isOrderCancellable()) {
+            <button mat-stroked-button color="warn" class="rounded-pill p-x-24" (click)="onCancelOrder()">
+                <i-tabler name="trash" class="icon-18 m-r-8"></i-tabler> Annuler Commande
+            </button>
+            }
+
+            @if (userRole === 'client') {
+            @if (isOrderCancellable()) {
+            <button mat-stroked-button color="warn" class="rounded-pill p-x-24" (click)="onCancelOrder()">
+                Annuler la commande
+            </button>
+            }
+            @if (commande.statusLivraison === 'peut_etre_collecte' || commande.statusLivraison === 'en_livraison') {
+            <button mat-flat-button color="primary" class="rounded-pill p-x-24 shadow-glow" (click)="onConfirmFinal()">
+                <i-tabler name="package" class="icon-18 m-r-8"></i-tabler> Confirmer Réception
+            </button>
+            }
+            }
+        </div>
+    </div>
+
+    <!-- Status Stepper / Timeline -->
+    <mat-card class="cardWithShadow m-b-32 status-card overflow-hidden">
+        <div class="status-gradient" [ngClass]="'bg-' + getStatusColor(commande?.statusLivraison || '')"></div>
+        <mat-card-content class="p-24">
+            <div class="d-flex align-items-center justify-content-between m-b-32">
+                <div class="d-flex align-items-center gap-12">
+                    <div class="status-icon-circle shadow-sm"
+                        [ngClass]="'text-' + getStatusColor(commande?.statusLivraison || '')">
+                        <i-tabler [name]="commande?.statusLivraison === 'livree' ? 'circle-check' : 'rotate'"
+                            class="icon-32"></i-tabler>
+                    </div>
+                    <div>
+                        <h5 class="f-s-18 f-w-700 m-0 text-dark">{{ getStatusLabel(commande?.statusLivraison || '') }}
+                        </h5>
+                        <p class="text-muted m-0">Suivi en temps réel de votre commande</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="f-s-12 text-muted text-uppercase d-block">Mise à jour</span>
+                    <span class="f-w-600">{{ (commande?.updatedAt || commande?.createdAt) | date: 'shortTime' }}</span>
+                </div>
+            </div>
+
+            <!-- Stepper Container -->
+            <div class="status-timeline-container">
+                <div class="timeline-track"></div>
+                <div class="step" [class.active]="true"
+                    [class.completed]="commande?.statusLivraison !== 'en_attente_validation'">
+                    <div class="step-dot"><i-tabler name="note" class="icon-14"></i-tabler></div>
+                    <span class="step-label">Reçue</span>
+                </div>
+                <div class="step"
+                    [class.active]="['en_preparation', 'en_livraison', 'peut_etre_collecte', 'livree'].includes(commande?.statusLivraison || '')"
+                    [class.completed]="['en_livraison', 'peut_etre_collecte', 'livree'].includes(commande?.statusLivraison || '')">
+                    <div class="step-dot"><i-tabler name="settings" class="icon-14"></i-tabler></div>
+                    <span class="step-label">Préparation</span>
+                </div>
+                <!-- Logic for Depot / Delivery based on type -->
+                <div class="step"
+                    [class.active]="['en_livraison', 'peut_etre_collecte', 'livree'].includes(commande?.statusLivraison || '')"
+                    [class.completed]="['livree'].includes(commande?.statusLivraison || '')">
+                    <div class="step-dot"><i-tabler
+                            [name]="commande?.typedelivery === 'collect' ? 'building-warehouse' : 'truck'"
+                            class="icon-14"></i-tabler></div>
+                    <span class="step-label">{{ commande?.typedelivery === 'collect' ? 'Prêt Collecte' : 'En Livraison'
+                        }}</span>
+                </div>
+                <div class="step" [class.active]="commande?.statusLivraison === 'livree'"
+                    [class.completed]="commande?.statusLivraison === 'livree'">
+                    <div class="step-dot"><i-tabler name="flag" class="icon-14"></i-tabler></div>
+                    <span class="step-label">Terminée</span>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="loading" class="d-flex justify-content-center p-48">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading && commande" class="row">
+        <!-- Main Content: Shop sections and items -->
+        <div class="col-lg-8">
+            <div *ngFor="let shop of commande.boutiques" class="m-b-32 boutique-section">
+                <mat-card class="cardWithShadow overflow-hidden border-0">
+                    <div class="shop-accent-bar" [class.bg-success]="shop.estAccepte"
+                        [class.bg-warning]="!shop.estAccepte && shop.status !== 'annulee'"></div>
+                    <mat-card-header
+                        class="p-24 boutique-header d-flex align-items-center justify-content-between w-100">
+                        <div class="d-flex align-items-center gap-16">
+                            <div class="shop-avatar shadow-sm">
+                                <i-tabler name="building-store" class="icon-24"></i-tabler>
+                            </div>
+                            <div>
+                                <mat-card-title class="f-s-18 f-w-700 m-0">{{ shop.name }}</mat-card-title>
+                                <div class="d-flex align-items-center gap-8 mt-1">
+                                    <span class="f-s-12 text-muted">{{ shop.items.length }} article(s)</span>
+                                    <span *ngIf="shop.depotEntrepot?.estFait"
+                                        class="badge-status bg-light-success text-success d-flex align-items-center gap-4">
+                                        <i-tabler name="package" class="icon-10"></i-tabler> Déposé
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-16">
+                            <span class="badge-v2" [ngClass]="'badge-' + getStatusColor(shop.status)">
+                                {{ getStatusLabel(shop.status) }}
+                            </span>
+
+                            <!-- Admin specific button -->
+                            @if (userRole === 'admin' &&
+                            ['livraison_supermarche', 'collect'].includes(commande.typedelivery) &&
+                            shop.estAccepte &&
+                            shop.status !== 'annulee' &&
+                            !shop.depotEntrepot?.dateValidation) {
+                            <button mat-flat-button color="primary" (click)="onConfirmDepot(shop.boutiqueId)"
+                                class="rounded-pill shadow-sm">
+                                <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Confirmer Réception
+                            </button>
+                            }
+                        </div>
+                    </mat-card-header>
+                    <mat-card-content class="p-0">
+                        <div class="table-responsive">
+                            <table class="table m-0">
+                                <thead>
+                                    <tr>
+                                        <th class="p-x-24">Produit</th>
+                                        <th class="text-center">Quantité</th>
+                                        <th class="text-end">Prix Unitaire</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="p-x-24 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of shop.items" class="item-row"
+                                        [class.item-cancelled]="item.status === 'annulee'">
+                                        <td class="p-x-24">
+                                            <div class="d-flex align-items-center gap-16">
+                                                <div class="product-img-wrapper shadow-sm rounded-12 overflow-hidden">
+                                                    <img [src]="item.imageProduit" class="object-cover w-100 h-100" />
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="f-w-600 f-s-15 text-dark">{{ item.nomProduit }}</span>
+                                                    <span *ngIf="item.status === 'annulee'"
+                                                        class="badge-status bg-light-danger text-danger mt-1"
+                                                        style="width: fit-content;">
+                                                        Annulé
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="f-w-600">x{{ item.quantite }}</span>
+                                        </td>
+                                        <td class="text-end text-muted">
+                                            {{ item.prixUnitaire | currency: 'MGA' : 'Ar ' : '1.0-0' }}
+                                        </td>
+                                        <td class="text-end f-w-700 text-dark">
+                                            {{ item.prixUnitaire * item.quantite | currency: 'MGA' : 'Ar ' : '1.0-0' }}
+                                        </td>
+                                        <td class="p-x-24 text-end">
+                                            <button mat-icon-button color="warn" *ngIf="isItemCancellable(shop, item)"
+                                                (click)="onCancelItem(shop.boutiqueId, item)"
+                                                matTooltip="Retirer cet article" class="btn-cancel">
+                                                <i-tabler name="trash-x" class="icon-18"></i-tabler>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end p-x-24 p-y-20 border-0">
+                                            <span class="f-s-13 f-w-600 text-muted">Sous-total {{ shop.name }}</span>
+                                        </td>
+                                        <td class="text-end p-y-20 border-0">
+                                            <span class="f-s-16 f-w-700 text-primary">{{ calculateShopSubtotal(shop) |
+                                                currency: 'MGA' : 'Ar ' : '1.0-0' }}</span>
+                                        </td>
+                                        <td class="border-0"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Sidebar: Info cards -->
+        <div class="col-lg-4">
+            <!-- Client Info for Admin/Boutique -->
+            <mat-card class="cardWithShadow m-b-24 shadow-none border"
+                *ngIf="userRole !== 'client' && commande.clientInfo">
+                <mat-card-header class="m-b-16">
+                    <mat-card-title class="f-s-16 f-w-700">Information Client</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="d-flex align-items-center gap-12 m-b-16">
+                        <div class="avatar-info shadow-sm bg-light-primary text-primary">
+                            {{ (commande.clientInfo.prenom.charAt(0) || '') + (commande.clientInfo.nom.charAt(0) ||
+                            '') }}
+                        </div>
+                        <div>
+                            <h6 class="m-0 f-w-600 text-dark">{{ commande.clientInfo.prenom }} {{
+                                commande.clientInfo.nom }}</h6>
+                            <span class="f-s-12 text-muted">{{ commande.clientInfo.email }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-12 text-muted f-s-14">
+                        <i-tabler name="phone" class="icon-16"></i-tabler>
+                        <span>{{ commande.clientInfo.telephone || 'Non renseigné' }}</span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Order Summary Card -->
+            <mat-card class="cardWithShadow m-b-24 border-0 bg-primary text-white shadow-glow">
+                <mat-card-content class="p-24">
+                    <div class="d-flex justify-content-between align-items-start m-b-24">
+                        <div>
+                            <h5 class="f-s-18 f-w-700 m-0 text-white">Récapitulatif</h5>
+                            <span class="op-7 f-s-12">{{ commande.typedelivery | titlecase }}</span>
+                        </div>
+                        <i-tabler name="receipt" class="icon-28 op-5"></i-tabler>
+                    </div>
+
+                    <div class="d-flex justify-content-between m-b-12">
+                        <span class="op-7">Articles</span>
+                        <span class="f-w-600">{{ commande.baseTotal | currency: 'MGA' : 'Ar ' : '1.0-0' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between m-b-12">
+                        <span class="op-7">Livraison</span>
+                        <span class="f-w-600">{{ (commande.total - commande.baseTotal === 0) ? 'Gratuit' :
+                            (commande.total - commande.baseTotal | currency: 'MGA' : 'Ar ' : '1.0-0') }}</span>
+                    </div>
+
+                    <mat-divider class="m-b-16 op-2"></mat-divider>
+
+                    <div class="d-flex justify-content-between align-items-center m-b-16">
+                        <span class="f-s-20 f-w-700 text-white">Total</span>
+                        <span class="f-s-24 f-w-800 text-white">{{ commande.total | currency: 'MGA' : 'Ar ' : '1.0-0'
+                            }}</span>
+                    </div>
+
+                    <div class="payment-summary-badge d-flex align-items-center gap-8 p-x-12 p-y-8 rounded-pill"
+                        [style.background]="(commande.paiement.statut === 'paye' || commande.statusLivraison === 'livree') ? 'rgba(19, 222, 185, 0.2)' : 'rgba(255, 255, 255, 0.1)'">
+                        <i-tabler
+                            [name]="(commande.paiement.statut === 'paye' || commande.statusLivraison === 'livree') ? 'circle-check' : 'credit-card'"
+                            class="icon-16"
+                            [class.text-success]="commande.paiement.statut === 'paye' || commande.statusLivraison === 'livree'"></i-tabler>
+                        <span class="f-s-12 f-w-600">
+                            {{ (commande.paiement.statut === 'paye' || commande.statusLivraison === 'livree') ?
+                            'Paiement effectué' : (commande.paiement.methode | titlecase) }}
+                        </span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Delivery Details -->
+            <mat-card class="cardWithShadow m-b-24 border-0">
+                <mat-card-content class="p-24">
+                    <h6 class="f-s-14 f-w-700 m-b-16 text-uppercase letter-spacing-1">Logistique</h6>
+
+                    <div class="m-b-20 d-flex gap-12">
+                        <div class="logistics-icon bg-light-accent text-accent">
+                            <i-tabler name="map-pin" class="icon-20"></i-tabler>
+                        </div>
+                        <div>
+                            <span class="f-s-11 text-muted text-uppercase d-block m-b-4">Adresse de livraison</span>
+                            <span class="f-s-14 text-dark f-w-500">{{ commande.adresseLivraison }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-12" *ngIf="commande.dateDeliveryOrAbleCollect">
+                        <div class="logistics-icon bg-light-info text-info">
+                            <i-tabler name="calendar" class="icon-20"></i-tabler>
+                        </div>
+                        <div>
+                            <span class="f-s-11 text-muted text-uppercase d-block m-b-4">Date de réception prévue</span>
+                            <span class="f-s-14 text-dark f-w-500">{{ commande.dateDeliveryOrAbleCollect | date:
+                                'longDate' }}</span>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Notes -->
+            <mat-card *ngIf="commande.notes" class="cardWithShadow bg-light border-0 shadow-none">
+                <mat-card-content class="p-24">
+                    <div class="d-flex align-items-center gap-8 m-b-12">
+                        <i-tabler name="history" class="icon-18 text-muted"></i-tabler>
+                        <h6 class="f-s-13 f-w-700 m-0 text-uppercase letter-spacing-1">Historique des notes</h6>
+                    </div>
+                    <p class="f-s-14 m-0 text-muted italic" style="white-space: pre-wrap;">{{ commande.notes }}</p>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

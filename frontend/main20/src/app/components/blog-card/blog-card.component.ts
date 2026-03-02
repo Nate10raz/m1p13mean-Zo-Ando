@@ -49,28 +49,31 @@ export class AppBlogCardsComponent {
   constructor(
     private cartService: CartService,
     private snackBar: MatSnackBar,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   onAddToCart(product: ProductCard, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
     this.cartService.addToCart(product.id.toString()).subscribe({
       next: () => {
-        this.snackBar.open(`${product.title} ajouté au panier !`, 'Voir le panier', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'bottom',
-        }).onAction().subscribe(() => {
-          this.router.navigate(['/panier']);
-        });
+        this.snackBar
+          .open(`${product.title} ajouté au panier !`, 'Voir le panier', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+          })
+          .onAction()
+          .subscribe(() => {
+            this.router.navigate(['/panier']);
+          });
       },
       error: (err) => {
         console.error('Add to cart failed', err);
-        this.snackBar.open('Erreur lors de l\'ajout au panier. Vérifiez votre connexion.', 'OK', {
+        this.snackBar.open("Erreur lors de l'ajout au panier. Vérifiez votre connexion.", 'OK', {
           duration: 3000,
         });
-      }
+      },
     });
   }
 
@@ -127,6 +130,6 @@ export class AppBlogCardsComponent {
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(
       Number(value),
     );
-    return `${formatted} Ar`;
+    return `Ar ${formatted}`;
   }
 }

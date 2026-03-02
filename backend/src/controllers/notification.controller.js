@@ -26,3 +26,12 @@ export const markAsRead = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteNotification = async (req, res, next) => {
+  try {
+    await notificationService.deleteNotification(req.params.id);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};

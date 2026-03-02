@@ -116,9 +116,7 @@ export const routes: Routes = [
         canActivate: [RoleGuard],
         data: { roles: ['client'] },
         loadComponent: () =>
-          import('./pages/panier/panier.component').then(
-            (m) => m.PanierComponent,
-          ),
+          import('./pages/panier/panier.component').then((m) => m.PanierComponent),
       },
       {
         path: 'admin',
@@ -184,6 +182,44 @@ export const routes: Routes = [
             (m) => m.AppBoxPayementListComponent,
           ),
       },
+      {
+        path: 'commander',
+        canActivate: [RoleGuard],
+        data: { roles: ['client'] },
+        loadComponent: () =>
+          import('./pages/commandes/checkout/checkout.component').then((m) => m.CheckoutComponent),
+      },
+      {
+        path: 'commandes/mes-commandes',
+        canActivate: [RoleGuard],
+        data: { roles: ['client'] },
+        loadComponent: () =>
+          import('./pages/commandes/liste/liste-commandes.component').then(
+            (m) => m.ListeCommandesComponent,
+          ),
+      },
+      {
+        path: 'commandes/gestion',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin', 'boutique'] },
+        loadComponent: () =>
+          import("./pages/commandes/gestion-commande/gestion-commande.component").then(
+            (m) => m.GestionCommandeComponent
+          ),
+      },
+
+
+
+      {
+        path: 'commandes/details/:id',
+        canActivate: [RoleGuard],
+        data: { roles: ['client', 'admin', 'boutique'] },
+        loadComponent: () =>
+          import('./pages/commandes/details/details-commande.component').then(
+            (m) => m.DetailsCommandeComponent,
+          ),
+      },
+
     ],
   },
   {

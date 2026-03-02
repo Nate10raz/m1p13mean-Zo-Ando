@@ -61,16 +61,7 @@ const boutiqueSchema = new mongoose.Schema({
   noteMoyenne: { type: Number, min: 0, max: 5, default: 0 },
   nombreAvis: { type: Number, default: 0 },
   validatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  fermeturesExceptionnelles: [
-    {
-      debut: { type: Date, required: true },
-      fin: { type: Date, required: true },
-      motif: String,
-    },
-  ],
   livraisonStatus: { type: Boolean, default: true },
-  fraisLivraison: { type: Number, default: 0 },
-  livraisonGratuiteApres: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -95,19 +86,7 @@ boutiqueSchema.virtual('isOpen').get(function () {
 
   const now = new Date();
 
-  // 2. Priority: Exceptional Closures
-  if (this.fermeturesExceptionnelles && this.fermeturesExceptionnelles.length > 0) {
-    const activeClosure = this.fermeturesExceptionnelles.find((c) => {
-      const start = new Date(c.debut);
-      const end = new Date(c.fin);
-      start.setHours(0, 0, 0, 0);
-      end.setHours(23, 59, 59, 999);
-      return now >= start && now <= end;
-    });
-    if (activeClosure) return false;
-  }
-
-  // 3. Priority: Regular Hours
+  // 2. Priority: Regular Hours
   const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const currentDay = days[now.getDay()];
   const currentTimeNum = now.getHours() * 100 + now.getMinutes();
@@ -129,17 +108,6 @@ boutiqueSchema.virtual('statusReason').get(function () {
   if (!this.manualSwitchOpen) return 'Boutique fermée manuellement par le propriétaire';
 
   const now = new Date();
-
-  if (this.fermeturesExceptionnelles && this.fermeturesExceptionnelles.length > 0) {
-    const activeClosure = this.fermeturesExceptionnelles.find((c) => {
-      const start = new Date(c.debut);
-      const end = new Date(c.fin);
-      start.setHours(0, 0, 0, 0);
-      end.setHours(23, 59, 59, 999);
-      return now >= start && now <= end;
-    });
-    if (activeClosure) return activeClosure.motif || 'Fermeture exceptionnelle';
-  }
 
   const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const currentDay = days[now.getDay()];

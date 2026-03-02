@@ -1,55 +1,54 @@
 <div class="row">
   <div class="col-12">
     <mat-card class="cardWithShadow">
-      <mat-card-header>
-        <mat-card-title>Notifications</mat-card-title>
-        <mat-card-subtitle>
-          Vous avez {{ getUnreadCount() }} notification(s) non lue(s)
-        </mat-card-subtitle>
+      <mat-card-header class="d-flex align-items-center justify-content-between p-24">
+        <mat-card-title class="m-b-0">Mes Notifications</mat-card-title>
+        <div class="badge bg-light-primary text-primary p-x-12 p-y-4 rounded-pill f-s-12 f-w-600">
+          {{ getUnreadCount() }} nouvelle{{ getUnreadCount() > 1 ? 's' : '' }}
+        </div>
       </mat-card-header>
-      <mat-card-content>
-        <div *ngIf="loading" class="text-center p-4">Chargement...</div>
-
-        <div *ngIf="!loading && notifications.length === 0" class="text-center p-4">
-          Aucune notification.
+      <mat-card-content class="p-0">
+        <div *ngIf="loading" class="d-flex justify-content-center p-48">
+          <mat-spinner diameter="40"></mat-spinner>
         </div>
 
         <mat-list *ngIf="!loading && notifications.length > 0">
-          <div *ngFor="let notification of notifications">
-            <mat-list-item [class.unread]="!notification.lu" class="notification-item">
-              <div class="notification-content">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                  <h3 matListItemTitle class="m-0" [class.fw-bold]="!notification.lu">
-                    {{ notification.titre }}
-                  </h3>
-                  <button
-                    *ngIf="!notification.lu"
-                    mat-icon-button
-                    color="primary"
-                    (click)="markAsRead(notification._id)"
-                    matTooltip="Marquer comme lu"
-                  >
-                    <mat-icon>check_circle_outline</mat-icon>
-                  </button>
-                  <span *ngIf="notification.lu" class="text-success">
-                    <mat-icon>check_circle</mat-icon>
+          <div *ngFor="let notif of notifications; last as isLast">
+            <mat-list-item class="notification-item p-y-16" [class.unread]="!notif.lu"
+              (click)="!notif.lu && markAsRead(notif._id)">
+              <div matListItemIcon class="m-r-16">
+                <div class="icon-circle d-flex align-items-center justify-content-center rounded-circle"
+                  [ngClass]="notif.lu ? 'bg-light text-muted' : 'bg-light-primary text-primary'"
+                  style="width: 40px; height: 40px;">
+                  <mat-icon>{{ notif.lu ? 'notifications' : 'notifications_active' }}</mat-icon>
+                </div>
+              </div>
+
+              <div class="notification-content-wrapper w-100">
+                <div class="d-flex align-items-baseline justify-content-between m-b-4">
+                  <span class="f-w-600 f-s-16 text-dark">{{ notif.titre }}</span>
+                  <span class="f-s-12 text-muted f-w-400 m-l-16 time-stamp">
+                    {{ notif.createdAt | date: 'dd/MM/yyyy HH:mm' }}
                   </span>
                 </div>
-                <p matListItemLine class="notification-message">{{ notification.message }}</p>
-                <p matListItemLine class="text-muted small">
-                  {{ notification.createdAt | date: 'medium' }}
-                  <span
-                    *ngIf="notification.channel === 'email' || notification.channel === 'all'"
-                    class="ms-2 badge bg-light text-dark border"
-                  >
-                    Email: {{ notification.emailStatus }}
-                  </span>
-                </p>
+                <div class="text-muted f-s-14 wrap-text">{{ notif.message }}</div>
+              </div>
+
+              <div matListItemMeta>
+                <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteNotification(notif._id)"
+                  matTooltip="Supprimer">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
               </div>
             </mat-list-item>
-            <mat-divider></mat-divider>
+            <mat-divider *ngIf="!isLast"></mat-divider>
           </div>
         </mat-list>
+
+        <div *ngIf="!loading && notifications.length === 0" class="p-48 text-center bg-light rounded m-24">
+          <mat-icon class="text-muted f-s-48 m-b-16" style="width: 48px; height: 48px;">notifications_none</mat-icon>
+          <p class="text-muted m-0">Vous n'avez aucune notification pour le moment.</p>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>

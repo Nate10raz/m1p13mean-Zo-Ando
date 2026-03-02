@@ -462,7 +462,7 @@
               }
             </div>
 
-            <div formArrayName="fermeturesExceptionnelles" class="row p-x-12">
+            <div formArrayName="fermeureBoutique" class="row p-x-12">
               @for (ctrl of closuresFormArray.controls; track $index) {
                 <div [formGroupName]="$index" class="col-12 m-b-16 p-0">
                   <mat-card class="shadow-none border mb-0 bg-light-warning">
@@ -662,27 +662,12 @@
                     <mat-hint>Montant prélevé pour chaque livraison (ex: 5000)</mat-hint>
                   </mat-form-field>
                 </div>
-                <div class="col-lg-6 col-md-6">
-                  <mat-form-field appearance="outline" class="w-100">
-                    <mat-label>Livraison gratuite à partir de</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="livraisonGratuiteApres"
-                      [readonly]="!isOwner"
-                    />
-                    <span matSuffix class="f-w-600 p-r-8">Ar</span>
-                    <mat-icon matPrefix class="text-muted m-r-8">redeem</mat-icon>
-                    <mat-hint>Offrir la livraison si la commande dépasse ce montant</mat-hint>
-                  </mat-form-field>
-                </div>
-
                 <div class="col-12 m-t-8">
                   <div class="bg-light p-12 rounded border-dashed d-flex align-items-center gap-8">
                     <mat-icon class="text-muted icon-18">info_outline</mat-icon>
                     <span class="f-s-12 text-muted"
-                      >Aide : Laissez à <strong>0</strong> dans "Livraison gratuite" pour que les
-                      frais s'appliquent systématiquement.</span
+                      >Aide : Ce montant sera facturé pour chaque commande passée en mode livraison
+                      par boutique.</span
                     >
                   </div>
                 </div>

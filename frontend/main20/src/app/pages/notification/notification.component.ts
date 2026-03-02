@@ -1,15 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Notification, NotificationService } from '../../services/notification.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
+import { MaterialModule } from 'src/app/material.module';
 
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatListModule],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css'],
 })
@@ -17,7 +14,7 @@ export class NotificationComponent implements OnInit {
   notifications: Notification[] = [];
   loading = false;
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(private notificationService: NotificationService) { }
 
   ngOnInit(): void {
     this.fetchNotifications();
@@ -48,12 +45,27 @@ export class NotificationComponent implements OnInit {
             lu: true,
             lueAt: updatedNotification.lueAt,
           };
+          this.notificationService.refresh(); // Sync global count
         }
       },
       error: (err) => {
         console.error('Error marking as read:', err);
       },
     });
+  }
+
+  deleteNotification(id: string): void {
+    if (confirm('Voulez-vous supprimer cette notification ?')) {
+      this.notificationService.deleteNotification(id).subscribe({
+        next: () => {
+          this.notifications = this.notifications.filter((n) => n._id !== id);
+          this.notificationService.refresh(); // Refresh total count
+        },
+        error: (err) => {
+          console.error('Error deleting notification:', err);
+        },
+      });
+    }
   }
 
   getUnreadCount(): number {

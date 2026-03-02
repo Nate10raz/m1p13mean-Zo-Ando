@@ -60,7 +60,9 @@ export class AppSideLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const roleFromRoute = String(this.route.snapshot.data['role'] ?? '').toLowerCase().trim();
+    const roleFromRoute = String(this.route.snapshot.data['role'] ?? '')
+      .toLowerCase()
+      .trim();
     if (roleFromRoute === 'boutique' || roleFromRoute === 'admin' || roleFromRoute === 'client') {
       this.role = roleFromRoute;
     }

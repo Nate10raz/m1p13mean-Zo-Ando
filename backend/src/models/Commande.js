@@ -32,11 +32,12 @@ const commandeSchema = new mongoose.Schema({
           produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', required: true },
           variationId: { type: mongoose.Schema.Types.ObjectId, ref: 'VariationProduit' },
           boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique', required: true },
-          prixId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prix', required: true },
+          prixId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prix' },
           quantite: { type: Number, required: true, min: 1 },
           prixUnitaire: { type: Number, required: true, min: 0 },
           nomProduit: String,
           imageProduit: String,
+          status: { type: String, enum: ['valide', 'annulee'], default: 'valide' },
           couponOrPromotionsUtiliseIds: [
             { type: mongoose.Schema.Types.ObjectId, ref: 'CouponOrPromotion' },
           ],
@@ -109,6 +110,7 @@ const commandeSchema = new mongoose.Schema({
       'annulee',
       'en_attente_validation',
       'non_acceptee',
+      'livree',
     ],
     required: true,
     index: true,
@@ -123,7 +125,7 @@ commandeSchema.pre('save', function () {
 });
 
 // Générer un numéro de commande unique
-commandeSchema.pre('save', async function (next) {
+commandeSchema.pre('validate', async function () {
   if (!this.numeroCommande) {
     const count = await this.constructor.countDocuments();
     this.numeroCommande = `CMD${Date.now()}${String(count + 1).padStart(6, '0')}`;

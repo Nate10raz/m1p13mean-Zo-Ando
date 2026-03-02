@@ -18,6 +18,7 @@ export const requireAuth = (req, res, next) => {
     req.user = {
       id: payload.sub,
       role: payload.role,
+      boutiqueId: payload.boutiqueId,
     };
     return next();
   } catch (error) {
@@ -27,9 +28,9 @@ export const requireAuth = (req, res, next) => {
 
 export const requireRole =
   (...roles) =>
-  (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return forbiddenResponse(req, res, 'Forbidden');
-    }
-    return next();
-  };
+    (req, res, next) => {
+      if (!req.user || !roles.includes(req.user.role)) {
+        return forbiddenResponse(req, res, 'Forbidden');
+      }
+      return next();
+    };

@@ -67,7 +67,7 @@ export class AccueilClientComponent implements OnInit, OnDestroy, AfterViewInit 
     private productService: ProductService,
     private categoryService: CategoryService,
     private cdr: ChangeDetectorRef,
-  ) { }
+  ) {}
 
   @ViewChild('infiniteTrigger')
   set infiniteTrigger(element: ElementRef<HTMLElement> | undefined) {

@@ -6,14 +6,14 @@
 
   <!-- Notifications -->
   <button mat-icon-button aria-label="Notifications" routerLink="/notification"
-    [matBadge]="((unreadCount$ | async) !== 0) ? (unreadCount$ | async) : null" matBadgeColor="primary"
+    [matBadge]="(unreadCount$ | async) !== 0 ? (unreadCount$ | async) : null" matBadgeColor="primary"
     [matBadgeHidden]="(unreadCount$ | async) === 0">
     <i-tabler class="d-flex" name="bell"></i-tabler>
   </button>
 
-  <!-- Cart -->
-  <button mat-icon-button aria-label="Cart" routerLink="/panier"
-    [matBadge]="(cartService.totalItems !== 0) ? cartService.totalItems : null" matBadgeColor="warn"
+  <!-- Cart (Only for Clients) -->
+  <button *ngIf="!isBoutique && roleLabel === 'Client'" mat-icon-button aria-label="Cart" routerLink="/panier"
+    [matBadge]="cartService.totalItems !== 0 ? cartService.totalItems : null" matBadgeColor="warn"
     [matBadgeHidden]="cartService.totalItems === 0">
     <i-tabler class="d-flex" name="basket"></i-tabler>
   </button>

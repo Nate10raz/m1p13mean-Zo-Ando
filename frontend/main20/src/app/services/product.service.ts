@@ -85,7 +85,7 @@ export interface ProductListQuery {
 export class ProductService {
   private readonly apiRootUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   createProduct(payload: FormData): Observable<ApiResponse<ProductCreateResponse>> {
     return this.http.post<ApiResponse<ProductCreateResponse>>(
