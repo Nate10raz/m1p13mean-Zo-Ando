@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
 import {
   catchError,
   combineLatest,
@@ -57,6 +58,10 @@ interface SuspendUserDialogData {
   user: AcheteurRow;
 }
 
+interface ResetPasswordDialogData {
+  user: AcheteurRow;
+}
+
 @Component({
   selector: 'app-admin-acheteur',
   imports: [
@@ -69,6 +74,7 @@ interface SuspendUserDialogData {
     MatMenuModule,
     MatButtonModule,
     MatPaginatorModule,
+    RouterModule,
   ],
   templateUrl: './acheteur.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -269,6 +275,24 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
     });
   }
 
+  openResetPasswordDialog(user: AcheteurRow): void {
+    if (this.actionInProgress) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ResetUserPasswordDialogComponent, {
+      width: '420px',
+      data: { user },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
+      if (!confirmed) {
+        return;
+      }
+      this.resetUserPassword(user.userId);
+    });
+  }
+
   private reactivateUser(user: AcheteurRow): void {
     if (this.actionInProgress || user.statut !== 'suspendu') {
       return;
@@ -291,6 +315,29 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           const message = error?.error?.message ?? 'Reactivation impossible.';
+          this.snackBar.open(message, 'Fermer', { duration: 4000 });
+        },
+      });
+  }
+
+  private resetUserPassword(userId: string): void {
+    this.actionInProgress = true;
+
+    this.adminService
+      .resetUserPassword(userId)
+      .pipe(
+        finalize(() => {
+          this.actionInProgress = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          const message = response?.message ?? 'Lien de reinitialisation envoye';
+          this.snackBar.open(message, 'Fermer', { duration: 3000 });
+        },
+        error: (error) => {
+          const message = error?.error?.message ?? 'Reinitialisation impossible.';
           this.snackBar.open(message, 'Fermer', { duration: 4000 });
         },
       });
@@ -327,6 +374,41 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
 
   private normalizeSearch(value: string): string {
     return value.trim().toLocaleLowerCase().replace(/\s+/g, ' ');
+  }
+}
+
+@Component({
+  selector: 'app-reset-user-password-dialog',
+  imports: [CommonModule, MaterialModule],
+  template: `
+    <h2 mat-dialog-title>Reinitialiser le mot de passe</h2>
+    <div mat-dialog-content>
+      <p class="m-b-8">
+        Un lien de reinitialisation sera envoye a l'email de
+        <strong>{{ data.user.nom }}</strong>.
+      </p>
+      <p class="text-muted m-0">L'utilisateur choisira un nouveau mot de passe via ce lien.</p>
+    </div>
+    <div mat-dialog-actions align="end">
+      <button mat-button type="button" (click)="onCancel()">Annuler</button>
+      <button mat-flat-button color="primary" type="button" (click)="onConfirm()">
+        Envoyer le lien
+      </button>
+    </div>
+  `,
+})
+export class ResetUserPasswordDialogComponent {
+  constructor(
+    private dialogRef: MatDialogRef<ResetUserPasswordDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ResetPasswordDialogData,
+  ) {}
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  onConfirm(): void {
+    this.dialogRef.close(true);
   }
 }
 

@@ -35,6 +35,10 @@ export interface AdminUsersResponse {
   totalPages: number;
 }
 
+export interface AdminUserDetailResponse {
+  user: AdminUser;
+}
+
 export interface AdminUsersQuery {
   page?: number;
   limit?: number;
@@ -53,6 +57,10 @@ export interface AdminSuspendUserResponse {
     status?: AdminUserStatus;
     motifSuspension?: string;
   };
+}
+
+export interface AdminResetPasswordResponse {
+  user: AdminUser;
 }
 
 export interface AdminReactivateUserResponse {
@@ -306,6 +314,14 @@ export class AdminService {
     });
   }
 
+  getUserById(
+    userId: string,
+  ): Observable<ApiResponse<AdminUser | AdminUserDetailResponse>> {
+    return this.http.get<ApiResponse<AdminUser | AdminUserDetailResponse>>(
+      `${this.apiRootUrl}/admin/users/${userId}`,
+    );
+  }
+
   suspendUser(
     userId: string,
     payload: AdminSuspendUserPayload,
@@ -313,6 +329,13 @@ export class AdminService {
     return this.http.patch<ApiResponse<AdminSuspendUserResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/suspend`,
       payload,
+    );
+  }
+
+  resetUserPassword(userId: string): Observable<ApiResponse<AdminResetPasswordResponse>> {
+    return this.http.patch<ApiResponse<AdminResetPasswordResponse>>(
+      `${this.apiRootUrl}/admin/users/${userId}/password`,
+      {},
     );
   }
 

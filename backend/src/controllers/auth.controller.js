@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
-import { login, logoutSession, refreshSession } from '../services/auth.service.js';
+import {
+  login,
+  logoutSession,
+  refreshSession,
+  resetPasswordWithToken,
+} from '../services/auth.service.js';
 import { registerAdmin, registerBoutique, registerClient } from '../services/user.service.js';
 import { apiResponse } from '../utils/response.util.js';
 
@@ -134,6 +139,21 @@ export const logoutController = async (req, res, next) => {
       status: 200,
       message: 'Deconnexion reussie',
       data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPasswordController = async (req, res, next) => {
+  try {
+    const result = await resetPasswordWithToken(req.body);
+    apiResponse({
+      req,
+      res,
+      status: 200,
+      message: 'Mot de passe reinitialise',
+      data: result,
     });
   } catch (error) {
     next(error);

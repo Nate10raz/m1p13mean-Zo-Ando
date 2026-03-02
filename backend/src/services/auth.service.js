@@ -2,9 +2,12 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
+import PasswordReset from '../models/PasswordReset.js';
 import User from '../models/User.js';
 import UserToken from '../models/UserToken.js';
 import Boutique from '../models/Boutique.js';
+
+const SALT_ROUNDS = 10;
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -185,4 +188,54 @@ export const logoutSession = async (refreshToken) => {
   }
   const tokenHash = hashToken(refreshToken);
   await UserToken.deleteOne({ tokenHash, type: 'refresh' });
+};
+
+export const resetPasswordWithToken = async ({ token, newPassword }) => {
+  if (!token || typeof token !== 'string') {
+    throw createError('Token requis', 400);
+  }
+  if (!newPassword || typeof newPassword !== 'string') {
+    throw createError('Mot de passe requis', 400);
+  }
+  if (newPassword.length < 6) {
+    throw createError('Mot de passe trop court (min 6)', 400);
+  }
+
+  const tokenHash = hashToken(token);
+  const resetRecord = await PasswordReset.findOne({ token: tokenHash, used: false });
+  if (!resetRecord) {
+    throw createError('Token invalide ou expire', 400);
+  }
+  if (resetRecord.expiresAt && resetRecord.expiresAt <= new Date()) {
+    throw createError('Token invalide ou expire', 400);
+  }
+
+  const user = await User.findById(resetRecord.userId);
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+  if (user.isActive === false) {
+    throw createError('User disabled', 403);
+  }
+
+  const consumed = await PasswordReset.findOneAndUpdate(
+    { _id: resetRecord._id, used: false },
+    { used: true },
+    { new: true },
+  );
+  if (!consumed) {
+    throw createError('Token invalide ou deja utilise', 400);
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await user.save();
+  await UserToken.deleteMany({ userId: user._id, type: 'refresh' });
+  await PasswordReset.deleteMany({ userId: user._id, used: false });
+
+  return {
+    user: sanitizeUser(user),
+  };
 };

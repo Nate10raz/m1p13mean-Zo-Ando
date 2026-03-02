@@ -11,6 +11,7 @@ import {
   ProductCreateResponse,
   ProductService,
 } from 'src/app/services/product.service';
+import { UserService, UserMeData } from 'src/app/services/user.service';
 
 type LandingProductCategory = 'bestSeller' | 'newest' | 'others';
 type LandingCategoryKey = 'all' | LandingProductCategory;
@@ -71,9 +72,15 @@ interface HowStep {
   styleUrl: './landing.component.scss',
 })
 export class LandingComponent implements OnInit {
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private userService: UserService,
+  ) {}
 
   currentYear = new Date().getFullYear();
+  isAuthenticated = false;
+  profileName = 'Utilisateur';
+  userRole: string | null = null;
 
   // ─── Hero : 2 stats sobres (pas de chiffres excessifs) ────────────
   heroStats = [
@@ -141,6 +148,7 @@ export class LandingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLandingProducts();
+    this.loadCurrentUser();
   }
 
   get displayedProducts(): LandingProductCard[] {
@@ -152,6 +160,28 @@ export class LandingComponent implements OnInit {
 
   voirProduit(prod: LandingProductCard): void {
     console.log('Voir produit:', prod.name);
+  }
+
+  get userHomeRoute(): string {
+    if (!this.isAuthenticated) {
+      return '/client/login';
+    }
+    const role = (this.userRole ?? '').toLowerCase();
+    if (role === 'client') {
+      return '/accueil';
+    }
+    if (role === 'admin' || role === 'boutique') {
+      return '/dashboard';
+    }
+    return '/profil';
+  }
+
+  get homeCtaLabel(): string {
+    if (!this.isAuthenticated) {
+      return 'Voir tous les produits';
+    }
+    const role = (this.userRole ?? '').toLowerCase();
+    return role === 'client' ? 'Aller a mon espace' : 'Acceder au tableau de bord';
   }
 
   private loadLandingProducts(limit = 6): void {
@@ -174,6 +204,30 @@ export class LandingComponent implements OnInit {
           this.landingProducts = [];
         },
       });
+  }
+
+  private loadCurrentUser(): void {
+    this.userService.getMe({ silent: true }).subscribe({
+      next: (response) => {
+        const data = response?.data as UserMeData | undefined;
+        const user = data?.user;
+        if (!user) {
+          this.isAuthenticated = false;
+          this.userRole = null;
+          this.profileName = 'Utilisateur';
+          return;
+        }
+
+        this.isAuthenticated = true;
+        this.userRole = user.role ?? null;
+        this.profileName = this.resolveProfileName(user);
+      },
+      error: () => {
+        this.isAuthenticated = false;
+        this.userRole = null;
+        this.profileName = 'Utilisateur';
+      },
+    });
   }
 
   private mapLandingResponse(
@@ -256,6 +310,23 @@ export class LandingComponent implements OnInit {
       return '0.0';
     }
     return num.toFixed(1);
+  }
+
+  private resolveProfileName(user?: {
+    prenom?: string | null;
+    nom?: string | null;
+    email?: string | null;
+  }): string {
+    if (!user) {
+      return 'Utilisateur';
+    }
+    const prenom = (user.prenom ?? '').trim();
+    const nom = (user.nom ?? '').trim();
+    const full = [prenom, nom].filter(Boolean).join(' ');
+    if (full) {
+      return full;
+    }
+    return (user.email ?? '').trim() || 'Utilisateur';
   }
 
   // Comment ca marche

@@ -96,9 +96,9 @@
 
           <div class="auth-field">
             <div class="d-flex align-items-center justify-content-between m-b-8">
-              <mat-label class="auth-field__label" style="margin-bottom: 0">Mot de passe</mat-label>
+              <mat-label class="auth-field__label" style="margin-bottom:0">Mot de passe</mat-label>
               <a
-                [routerLink]="['/']"
+                [routerLink]="['/authentication/forgot-password']"
                 class="text-primary f-w-500 f-s-13 text-decoration-none auth-forgot"
               >
                 Mot de passe oublié ?
@@ -131,10 +131,6 @@
                 >Le mot de passe est requis.</mat-error
               >
             </mat-form-field>
-          </div>
-
-          <div class="d-flex align-items-center m-b-20">
-            <mat-checkbox color="primary" class="f-s-13">Se souvenir de moi</mat-checkbox>
           </div>
 
           <!-- Erreur serveur -->

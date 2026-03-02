@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from './auth.service';
+import { SKIP_AUTH_REDIRECT } from './http-context';
 
 export type NotificationPreference = boolean | { email?: boolean; inApp?: boolean };
 
@@ -83,6 +84,12 @@ export interface UpdateMePayload {
   };
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword?: string;
+}
+
 export type UpdateMeResponse = UserMeData | { user: UserMe };
 
 @Injectable({
@@ -93,11 +100,19 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getMe(): Observable<ApiResponse<UserMeData>> {
-    return this.http.get<ApiResponse<UserMeData>>(`${this.apiRootUrl}/users/me`);
+  getMe(options?: { silent?: boolean }): Observable<ApiResponse<UserMeData>> {
+    const context = options?.silent ? new HttpContext().set(SKIP_AUTH_REDIRECT, true) : undefined;
+
+    return this.http.get<ApiResponse<UserMeData>>(`${this.apiRootUrl}/users/me`, {
+      context,
+    });
   }
 
   updateMe(payload: UpdateMePayload): Observable<ApiResponse<UpdateMeResponse>> {
     return this.http.patch<ApiResponse<UpdateMeResponse>>(`${this.apiRootUrl}/users/me`, payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<ApiResponse<null>> {
+    return this.http.patch<ApiResponse<null>>(`${this.apiRootUrl}/users/me/password`, payload);
   }
 }

@@ -37,7 +37,15 @@
           Enregistrer
         </button>
       }
-      <button mat-flat-button color="primary" type="button">Changer mot de passe</button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="startPasswordChange()"
+        [disabled]="isChangingPassword"
+      >
+        Changer mot de passe
+      </button>
     </div>
   </div>
 
@@ -120,6 +128,107 @@
                   <mat-slide-toggle formControlName="inApp">In-app</mat-slide-toggle>
                 </div>
               </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (isChangingPassword) {
+      <mat-card class="cardWithShadow m-b-16">
+        <mat-card-content>
+          <div class="section-header">
+            <div>
+              <mat-card-title>Changer le mot de passe</mat-card-title>
+              <mat-card-subtitle>Mettre a jour vos identifiants</mat-card-subtitle>
+            </div>
+          </div>
+
+          <form [formGroup]="passwordForm" class="profile-form m-t-16">
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Mot de passe actuel</mat-label>
+                <input
+                  matInput
+                  [type]="showCurrentPassword ? 'text' : 'password'"
+                  formControlName="currentPassword"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="showCurrentPassword = !showCurrentPassword"
+                  [attr.aria-label]="showCurrentPassword ? 'Masquer' : 'Afficher'"
+                >
+                  <mat-icon>{{ showCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                  <mat-error>Mot de passe requis</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nouveau mot de passe</mat-label>
+                <input
+                  matInput
+                  [type]="showNewPassword ? 'text' : 'password'"
+                  formControlName="newPassword"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="showNewPassword = !showNewPassword"
+                  [attr.aria-label]="showNewPassword ? 'Masquer' : 'Afficher'"
+                >
+                  <mat-icon>{{ showNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (passwordForm.get('newPassword')?.hasError('required')) {
+                  <mat-error>Nouveau mot de passe requis</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Confirmer le mot de passe</mat-label>
+                <input
+                  matInput
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="showConfirmPassword = !showConfirmPassword"
+                  [attr.aria-label]="showConfirmPassword ? 'Masquer' : 'Afficher'"
+                >
+                  <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                  <mat-error>Confirmation requise</mat-error>
+                }
+                @if (
+                  passwordForm.hasError('passwordMismatch') &&
+                  passwordForm.get('confirmPassword')?.touched
+                ) {
+                  <mat-error>Les mots de passe ne correspondent pas</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="d-flex justify-content-end gap-16 m-t-16">
+              <button mat-stroked-button type="button" (click)="cancelPasswordChange()">
+                Annuler
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="savePassword()"
+                [disabled]="passwordForm.invalid || isSavingPassword"
+              >
+                Enregistrer
+              </button>
             </div>
           </form>
         </mat-card-content>

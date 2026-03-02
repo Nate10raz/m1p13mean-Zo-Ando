@@ -1,6 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Subscription } from 'rxjs';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -17,6 +25,7 @@ import {
   UserMeData,
   NotificationPreference,
   UpdateMePayload,
+  ChangePasswordPayload,
 } from 'src/app/services/user.service';
 
 type NotificationMode = {
@@ -36,15 +45,21 @@ export class ProfilComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
   isEditing = false;
+  isChangingPassword = false;
+  isSavingPassword = false;
   isLoadingBoutique = false;
   isSavingBoutique = false;
   isEditingBoutique = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
   errorMessage = '';
   boutiqueErrorMessage = '';
   profile: UserMeData | null = null;
   boutiqueDetails: Boutique | null = null;
   editForm: FormGroup;
   boutiqueForm: FormGroup;
+  passwordForm: FormGroup;
   jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
   private sub = new Subscription();
 
@@ -81,6 +96,15 @@ export class ProfilComponent implements OnInit, OnDestroy {
       plage_livraison_boutique: this.fb.array([]),
       accepteLivraisonJourJ: [false],
     });
+
+    this.passwordForm = this.fb.group(
+      {
+        currentPassword: ['', [Validators.required]],
+        newPassword: ['', [Validators.required]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: [this.passwordMatchValidator] },
+    );
   }
 
   ngOnInit(): void {
@@ -282,6 +306,59 @@ export class ProfilComponent implements OnInit, OnDestroy {
     );
   }
 
+  startPasswordChange(): void {
+    if (this.isChangingPassword) {
+      return;
+    }
+    this.isChangingPassword = true;
+    this.showCurrentPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
+    this.passwordForm.reset();
+  }
+
+  cancelPasswordChange(): void {
+    this.isChangingPassword = false;
+    this.showCurrentPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
+    this.passwordForm.reset();
+  }
+
+  savePassword(): void {
+    if (this.passwordForm.invalid || this.isSavingPassword) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+
+    const value = this.passwordForm.getRawValue();
+    const payload: ChangePasswordPayload = {
+      currentPassword: (value.currentPassword ?? '').trim(),
+      newPassword: (value.newPassword ?? '').trim(),
+      confirmPassword: (value.confirmPassword ?? '').trim(),
+    };
+
+    this.isSavingPassword = true;
+    this.sub.add(
+      this.userService
+        .changePassword(payload)
+        .pipe(finalize(() => (this.isSavingPassword = false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Mot de passe modifie', 'Fermer', { duration: 3000 });
+            this.cancelPasswordChange();
+          },
+          error: (err) => {
+            this.snackBar.open(
+              err?.error?.message || 'Erreur lors de la modification du mot de passe',
+              'Fermer',
+              { duration: 4000 },
+            );
+          },
+        }),
+    );
+  }
+
   startEditBoutique(): void {
     const boutique = this.boutiqueDetails ?? (this.boutiqueView as Boutique | null);
     if (!boutique) {
@@ -363,6 +440,18 @@ export class ProfilComponent implements OnInit, OnDestroy {
       return '-';
     }
     return value ? 'Oui' : 'Non';
+  }
+
+  private passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+    const current = group.get('currentPassword')?.value ?? '';
+    const next = group.get('newPassword')?.value ?? '';
+    const confirm = group.get('confirmPassword')?.value ?? '';
+
+    if (!current || !next || !confirm) {
+      return null;
+    }
+
+    return next === confirm ? null : { passwordMismatch: true };
   }
 
   addBoutiqueHoraire(h?: Partial<BoutiqueHoraire>): void {

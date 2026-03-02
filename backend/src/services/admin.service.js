@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import mongoose from 'mongoose';
 import Avis from '../models/Avis.js';
 import Box from '../models/Box.js';
@@ -5,8 +6,38 @@ import BoxType from '../models/BoxType.js';
 import Boutique from '../models/Boutique.js';
 import DemandeLocationBox from '../models/DemandeLocationBox.js';
 import PayementBox from '../models/PayementBox.js';
+import PasswordReset from '../models/PasswordReset.js';
 import User from '../models/User.js';
 import FraisLivraison from '../models/FraisLivraison.js';
+import { createNotification } from './notification.service.js';
+import { ENV } from '../config/env.js';
+
+const RESET_TOKEN_BYTES = 32;
+const RESET_TOKEN_EXPIRES_MINUTES = 60;
+
+const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const buildResetUrl = (token) => {
+  const base = String(ENV.FRONTEND_URL || 'http://localhost:4200').replace(/\/+$/, '');
+  return `${base}/reset-password?token=${encodeURIComponent(token)}`;
+};
+
+const createPasswordResetToken = async (userId) => {
+  await PasswordReset.deleteMany({ userId, used: false });
+  const rawToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+  const tokenHash = hashResetToken(rawToken);
+  const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRES_MINUTES * 60 * 1000);
+  await PasswordReset.create({
+    userId,
+    token: tokenHash,
+    expiresAt,
+  });
+  return {
+    token: rawToken,
+    expiresAt,
+    resetUrl: buildResetUrl(rawToken),
+  };
+};
 
 const createError = (message, status = 400, data = null) => {
   const err = new Error(message);
@@ -418,6 +449,58 @@ export const reactivateUser = async (userId) => {
 
   return {
     user: sanitizeUser(user),
+  };
+};
+
+export const getUserById = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+  if (user.role !== 'client') {
+    throw createError('Only client accounts can be fetched here', 400);
+  }
+
+  return {
+    user: sanitizeUser(user),
+  };
+};
+
+export const resetUserPassword = async (userId, payload = {}) => {
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw createError('Id utilisateur invalide', 400);
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+  if (user.status && user.status !== 'active') {
+    throw createError('User not active', 403);
+  }
+  if (user.isActive === false) {
+    throw createError('User disabled', 403);
+  }
+
+  const resetInfo = await createPasswordResetToken(user._id);
+  await createNotification({
+    userId: user._id,
+    type: 'password_reset',
+    channel: 'email',
+    titre: 'Reinitialisation du mot de passe',
+    message:
+      'Un administrateur a demande la reinitialisation de votre mot de passe. ' +
+      `Utilisez le lien suivant (valable ${RESET_TOKEN_EXPIRES_MINUTES} minutes).`,
+    data: {
+      url: resetInfo.resetUrl,
+    },
+  });
+
+  return {
+    user: sanitizeUser(user),
+    reset: {
+      expiresAt: resetInfo.expiresAt,
+    },
   };
 };
 
