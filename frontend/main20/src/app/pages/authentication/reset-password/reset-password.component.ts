@@ -80,8 +80,7 @@ export class AppResetPasswordComponent implements OnInit, OnDestroy {
 
   submit(): void {
     if (!this.token) {
-      this.serverError =
-        "Lien invalide ou expire. Utilisez le lien envoye par l'administrateur.";
+      this.serverError = "Lien invalide ou expire. Utilisez le lien envoye par l'administrateur.";
       return;
     }
 

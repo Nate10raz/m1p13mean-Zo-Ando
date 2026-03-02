@@ -36,8 +36,7 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
-const isGoogleAccount = (user) =>
-  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
+const isGoogleAccount = (user) => Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
 
 const createStatusError = (message, status = 400, data = null) => {
   const err = new Error(message);

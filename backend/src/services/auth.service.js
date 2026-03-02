@@ -31,8 +31,7 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
-const isGoogleAccount = (user) =>
-  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
+const isGoogleAccount = (user) => Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -162,7 +161,9 @@ export const login = async ({ email, password }) => {
 
 export const loginWithGoogle = async (payload = {}) => {
   const idToken = payload?.idToken;
-  const role = String(payload?.role || '').trim().toLowerCase();
+  const role = String(payload?.role || '')
+    .trim()
+    .toLowerCase();
 
   if (!idToken || typeof idToken !== 'string') {
     throw createError('Token Google requis', 400);

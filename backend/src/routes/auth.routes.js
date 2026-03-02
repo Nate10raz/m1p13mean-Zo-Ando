@@ -294,38 +294,41 @@ router.post('/logout', logoutController);
 
 // Redirige vers Google
 router.get(
-    '/google',
-    passport.authenticate('google', { scope: ['profile', 'email'], session: false }),
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false }),
 );
 
 // Callback Google
 router.get(
-    '/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: `${ENV.FRONTEND_URL}/login?error=google` }),
-    async (req, res) => {
-      try {
-        const user = req.user;
-        const accessToken = signAccessToken(user);
-        const refreshToken = signRefreshToken(user);
-        await storeRefreshToken(user._id, refreshToken);
+  '/google/callback',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: `${ENV.FRONTEND_URL}/login?error=google`,
+  }),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const accessToken = signAccessToken(user);
+      const refreshToken = signRefreshToken(user);
+      await storeRefreshToken(user._id, refreshToken);
 
-        // Cookie refresh token
-        const isProd = ENV.NODE_ENV === 'production';
-        const decoded = jwt.decode(refreshToken);
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: isProd,
-          sameSite: isProd ? 'none' : 'lax',
-          path: '/auth',
-          expires: decoded?.exp ? new Date(decoded.exp * 1000) : undefined,
-        });
+      // Cookie refresh token
+      const isProd = ENV.NODE_ENV === 'production';
+      const decoded = jwt.decode(refreshToken);
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        path: '/auth',
+        expires: decoded?.exp ? new Date(decoded.exp * 1000) : undefined,
+      });
 
-        // Redirige vers le frontend avec l'accessToken en query param
-        res.redirect(`${ENV.FRONTEND_URL}/auth/google/success?token=${accessToken}`);
-      } catch (err) {
-        res.redirect(`${ENV.FRONTEND_URL}/login?error=google`);
-      }
-    },
+      // Redirige vers le frontend avec l'accessToken en query param
+      res.redirect(`${ENV.FRONTEND_URL}/auth/google/success?token=${accessToken}`);
+    } catch (err) {
+      res.redirect(`${ENV.FRONTEND_URL}/login?error=google`);
+    }
+  },
 );
 
 export default router;

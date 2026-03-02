@@ -71,16 +71,16 @@ export class CommandeService {
     return this.http.post(`${this.apiUrl}/boutique/accept/${id}`, {});
   }
 
-  markDepot(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/boutique/mark-depot/${id}`, {});
-  }
-
   startBoutiqueDelivery(id: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/boutique/start-delivery/${id}`, {});
   }
 
   confirmDepot(id: string, boutiqueId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/admin/confirm-depot/${id}`, { boutiqueId });
+  }
+
+  adminMarkAsDelivered(id: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/mark-delivered/${id}`, {});
   }
 
   cancelOrder(id: string, reason: string): Observable<any> {

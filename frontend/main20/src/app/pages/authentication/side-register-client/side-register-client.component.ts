@@ -105,11 +105,9 @@ export class AppSideRegisterClientComponent implements AfterViewInit {
     }
 
     this.googleAuthService
-      .renderButton(
-        container,
-        (credential) => this.handleGoogleCredential(credential),
-        { text: 'signup_with' },
-      )
+      .renderButton(container, (credential) => this.handleGoogleCredential(credential), {
+        text: 'signup_with',
+      })
       .catch(() => {
         this.serverError = 'Inscription Google indisponible pour le moment.';
         this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });

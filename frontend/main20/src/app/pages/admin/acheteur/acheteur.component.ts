@@ -58,7 +58,6 @@ interface SuspendUserDialogData {
   user: AcheteurRow;
 }
 
-
 @Component({
   selector: 'app-admin-acheteur',
   imports: [
@@ -272,7 +271,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
     });
   }
 
-
   private reactivateUser(user: AcheteurRow): void {
     if (this.actionInProgress || user.statut !== 'suspendu') {
       return;
@@ -299,7 +297,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
         },
       });
   }
-
 
   private suspendUser(userId: string, payload: AdminSuspendUserPayload): void {
     this.actionInProgress = true;
@@ -334,7 +331,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
     return value.trim().toLocaleLowerCase().replace(/\s+/g, ' ');
   }
 }
-
 
 @Component({
   selector: 'app-suspend-user-dialog',

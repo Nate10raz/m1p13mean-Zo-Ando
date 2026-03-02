@@ -21,13 +21,11 @@ export const sendEmail = async (to, subject, html) => {
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log('Email sent successfully:', result.messageId);
     return { success: true, data: result };
-
   } catch (err) {
     console.error('Error sending email:', err);
     return { success: false, error: err.message };
   }
 };
-
 
 // **Dans Render → Environment :**
 // ```

@@ -19,37 +19,38 @@
 
     <div class="d-flex gap-12" *ngIf="commande && commande.statusLivraison !== 'annulee'">
       <!-- Combined Actions for Role based visibility -->
-      @if (userRole === 'boutique' && !isBoutiqueAccepted()) {
-        <button
-          mat-flat-button
-          color="primary"
-          class="rounded-pill p-x-24"
-          (click)="onAcceptOrder()"
-        >
-          <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Accepter
-        </button>
-        <button
-          mat-stroked-button
-          color="warn"
-          class="rounded-pill p-x-24"
-          (click)="onCancelOrder()"
-        >
-          Annuler mon lot
-        </button>
+
+      <!-- ADMIN MAIN ACTIONS -->
+      @if (userRole === 'admin') {
+        @if (
+          commande.typedelivery === 'livraison_supermarche' &&
+          commande.statusLivraison === 'en_livraison' &&
+          !commande.validationLivraison?.dateLivraison
+        ) {
+          <button
+            mat-flat-button
+            color="primary"
+            class="rounded-pill p-x-24 shadow-glow"
+            (click)="onAdminMarkDelivered()"
+          >
+            <i-tabler name="truck-delivery" class="icon-18 m-r-8"></i-tabler> Expédier la commande
+          </button>
+        }
+        @if (isOrderCancellable()) {
+          <button
+            mat-stroked-button
+            color="warn"
+            class="rounded-pill p-x-24"
+            (click)="onCancelOrder()"
+          >
+            <i-tabler name="trash" class="icon-18 m-r-8"></i-tabler> Annuler Commande
+          </button>
+        }
       }
 
-      @if (userRole === 'admin' && isOrderCancellable()) {
-        <button
-          mat-stroked-button
-          color="warn"
-          class="rounded-pill p-x-24"
-          (click)="onCancelOrder()"
-        >
-          <i-tabler name="trash" class="icon-18 m-r-8"></i-tabler> Annuler Commande
-        </button>
-      }
-
+      <!-- CLIENT MAIN ACTIONS -->
       @if (userRole === 'client') {
+        <!-- Annulation -->
         @if (isOrderCancellable()) {
           <button
             mat-stroked-button
@@ -60,9 +61,15 @@
             Annuler la commande
           </button>
         }
+        <!-- Confirmation Réception (Different triggers) -->
         @if (
-          commande.statusLivraison === 'peut_etre_collecte' ||
-          commande.statusLivraison === 'en_livraison'
+          (commande.typedelivery === 'collect' &&
+            commande.statusLivraison === 'peut_etre_collecte') ||
+          (commande.typedelivery === 'livraison_supermarche' &&
+            commande.statusLivraison === 'en_livraison' &&
+            !!commande.validationLivraison?.dateLivraison) ||
+          (commande.typedelivery === 'livraison_boutique' &&
+            commande.statusLivraison === 'en_livraison')
         ) {
           <button
             mat-flat-button
@@ -116,20 +123,31 @@
         <div
           class="step"
           [class.active]="true"
-          [class.completed]="commande?.statusLivraison !== 'en_attente_validation'"
+          [class.completed]="!['en_attente_validation'].includes(commande?.statusLivraison || '')"
         >
           <div class="step-dot"><i-tabler name="note" class="icon-14"></i-tabler></div>
           <span class="step-label">Reçue</span>
         </div>
+        <!-- STEP: Confirmation (All Shops must accept) -->
         <div
           class="step"
           [class.active]="
-            ['en_preparation', 'en_livraison', 'peut_etre_collecte', 'livree'].includes(
+            ['en_attente_validation', 'en_preparation'].includes(commande?.statusLivraison || '')
+          "
+          [class.completed]="!['en_attente_validation'].includes(commande?.statusLivraison || '')"
+        >
+          <div class="step-dot"><i-tabler name="check" class="icon-14"></i-tabler></div>
+          <span class="step-label">Confirmation</span>
+        </div>
+        <div
+          class="step"
+          [class.active]="
+            ['en_preparation', 'peut_etre_collecte', 'en_livraison', 'terminee'].includes(
               commande?.statusLivraison || ''
             )
           "
           [class.completed]="
-            ['en_livraison', 'peut_etre_collecte', 'livree'].includes(
+            ['peut_etre_collecte', 'en_livraison', 'terminee'].includes(
               commande?.statusLivraison || ''
             )
           "
@@ -137,15 +155,14 @@
           <div class="step-dot"><i-tabler name="settings" class="icon-14"></i-tabler></div>
           <span class="step-label">Préparation</span>
         </div>
-        <!-- Logic for Depot / Delivery based on type -->
         <div
           class="step"
           [class.active]="
-            ['en_livraison', 'peut_etre_collecte', 'livree'].includes(
+            ['peut_etre_collecte', 'en_livraison', 'terminee'].includes(
               commande?.statusLivraison || ''
             )
           "
-          [class.completed]="['livree'].includes(commande?.statusLivraison || '')"
+          [class.completed]="['terminee'].includes(commande?.statusLivraison || '')"
         >
           <div class="step-dot">
             <i-tabler
@@ -159,8 +176,8 @@
         </div>
         <div
           class="step"
-          [class.active]="commande?.statusLivraison === 'livree'"
-          [class.completed]="commande?.statusLivraison === 'livree'"
+          [class.active]="['terminee'].includes(commande?.statusLivraison || '')"
+          [class.completed]="commande?.statusLivraison === 'terminee'"
         >
           <div class="step-dot"><i-tabler name="flag" class="icon-14"></i-tabler></div>
           <span class="step-label">Terminée</span>
@@ -208,12 +225,12 @@
                 {{ getStatusLabel(shop.status) }}
               </span>
 
-              <!-- Admin specific button -->
+              <!-- Admin specific button: Depot reception -->
               @if (
                 userRole === 'admin' &&
                 ['livraison_supermarche', 'collect'].includes(commande.typedelivery) &&
                 shop.estAccepte &&
-                shop.status !== 'annulee' &&
+                shop.status === 'en_preparation' &&
                 !shop.depotEntrepot?.dateValidation
               ) {
                 <button
@@ -222,7 +239,7 @@
                   (click)="onConfirmDepot(shop.boutiqueId)"
                   class="rounded-pill shadow-sm"
                 >
-                  <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Confirmer Réception
+                  <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Réception Entrepôt
                 </button>
               }
 
@@ -232,37 +249,41 @@
                 shop.boutiqueId === boutiqueId &&
                 shop.status !== 'annulee'
               ) {
-                <!-- Case 1: Direct boutique delivery -->
-                @if (commande.typedelivery === 'livraison_boutique') {
-                  @if (shop.estAccepte && shop.status === 'en_preparation') {
-                    <button
-                      mat-flat-button
-                      color="accent"
-                      (click)="onStartDelivery()"
-                      class="rounded-pill shadow-sm"
-                    >
-                      <i-tabler name="truck-delivery" class="icon-18 m-r-8"></i-tabler> Commencer
-                      Livraison
-                    </button>
-                  }
+                <!-- Step 1: Accept -->
+                @if (!shop.estAccepte && shop.status === 'en_attente_validation') {
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="onAcceptOrder()"
+                    class="rounded-pill shadow-sm m-r-8"
+                  >
+                    <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Accepter
+                  </button>
+                  <button
+                    mat-stroked-button
+                    color="warn"
+                    (click)="onCancelOrder()"
+                    class="rounded-pill"
+                  >
+                    Refuser
+                  </button>
                 }
-                <!-- Case 2: Warehouse delivery (Marketplace or Collect) -->
-                @if (['livraison_supermarche', 'collect'].includes(commande.typedelivery)) {
-                  @if (
-                    shop.estAccepte &&
-                    shop.status === 'en_preparation' &&
-                    !shop.depotEntrepot?.estFait
-                  ) {
-                    <button
-                      mat-flat-button
-                      color="primary"
-                      (click)="onMarkDepot()"
-                      class="rounded-pill shadow-sm"
-                    >
-                      <i-tabler name="package-export" class="icon-18 m-r-8"></i-tabler> Marquer
-                      comme Déposé
-                    </button>
-                  }
+
+                <!-- Step 2: Start Delivery (Direct only) -->
+                @if (
+                  commande.typedelivery === 'livraison_boutique' &&
+                  shop.estAccepte &&
+                  shop.status === 'en_preparation'
+                ) {
+                  <button
+                    mat-flat-button
+                    color="accent"
+                    (click)="onStartDelivery()"
+                    class="rounded-pill shadow-sm"
+                  >
+                    <i-tabler name="truck-delivery" class="icon-18 m-r-8"></i-tabler> Commencer
+                    Livraison
+                  </button>
                 }
               }
             </div>

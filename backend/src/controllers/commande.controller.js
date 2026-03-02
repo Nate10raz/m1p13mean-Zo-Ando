@@ -100,27 +100,6 @@ export const acceptOrder = async (req, res, next) => {
   }
 };
 
-export const markDepot = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    let { boutiqueId } = req.user;
-    if (!boutiqueId && req.user.role === 'boutique') {
-      const user = await User.findById(req.user.id);
-      if (user) boutiqueId = user.boutiqueId;
-      if (!boutiqueId) {
-        const boutique = await Boutique.findOne({ userId: req.user.id });
-        if (boutique) boutiqueId = boutique._id;
-      }
-    }
-    if (!boutiqueId) throw new Error('Boutique non identifiée');
-
-    const commande = await commandeService.markBoutiqueDeliveredToDepot(id, boutiqueId);
-    res.status(200).json({ success: true, data: commande });
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const startBoutiqueDelivery = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -148,6 +127,17 @@ export const confirmDepot = async (req, res, next) => {
     const { boutiqueId } = req.body; // Admin specifies which boutique they received from
     const adminId = req.user.id;
     const commande = await commandeService.confirmDepotReceipt(id, boutiqueId, adminId);
+    res.status(200).json({ success: true, data: commande });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const markAsDelivered = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.id;
+    const commande = await commandeService.adminMarkAsShipped(id, adminId);
     res.status(200).json({ success: true, data: commande });
   } catch (error) {
     next(error);

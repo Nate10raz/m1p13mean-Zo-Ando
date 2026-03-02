@@ -63,17 +63,6 @@ export class DetailsCommandeComponent implements OnInit {
     });
   }
 
-  onMarkDepot(): void {
-    if (!this.commande) return;
-    this.commandeService.markDepot(this.commande._id).subscribe({
-      next: () => {
-        this.snackBar.open('Dépôt marqué avec succès', 'Fermer', { duration: 3000 });
-        this.fetchDetails(this.commande!._id);
-      },
-      error: (err) => this.snackBar.open('Erreur: ' + (err.error?.message || 'Inconnue'), 'Fermer'),
-    });
-  }
-
   onStartDelivery(): void {
     if (!this.commande) return;
     this.commandeService.startBoutiqueDelivery(this.commande._id).subscribe({
@@ -90,6 +79,17 @@ export class DetailsCommandeComponent implements OnInit {
     this.commandeService.confirmDepot(this.commande._id, boutiqueId).subscribe({
       next: () => {
         this.snackBar.open("Réception à l'entrepôt confirmée", 'Fermer', { duration: 3000 });
+        this.fetchDetails(this.commande!._id);
+      },
+      error: (err) => this.snackBar.open('Erreur: ' + (err.error?.message || 'Inconnue'), 'Fermer'),
+    });
+  }
+
+  onAdminMarkDelivered(): void {
+    if (!this.commande) return;
+    this.commandeService.adminMarkAsDelivered(this.commande._id).subscribe({
+      next: () => {
+        this.snackBar.open('Commande expédiée avec succès', 'Fermer', { duration: 3000 });
         this.fetchDetails(this.commande!._id);
       },
       error: (err) => this.snackBar.open('Erreur: ' + (err.error?.message || 'Inconnue'), 'Fermer'),
@@ -140,11 +140,8 @@ export class DetailsCommandeComponent implements OnInit {
   // --- UI HELPERS ---
 
   isOrderCancellable(): boolean {
-    if (
-      !this.commande ||
-      this.commande.statusLivraison === 'annulee' ||
-      this.commande.statusLivraison === 'livree'
-    )
+    if (!this.commande) return false;
+    if (['annulee', 'livree', 'terminee'].includes(this.commande.statusLivraison || ''))
       return false;
 
     // Admin can always cancel the whole order if not finished
@@ -199,25 +196,32 @@ export class DetailsCommandeComponent implements OnInit {
         return 'warning';
       case 'livree':
         return 'success';
+      case 'terminee':
+        return 'success';
+      case 'non_acceptee':
+        return 'danger';
       default:
         return 'primary';
     }
   }
 
   getStatusLabel(status: string): string {
-    return status.replace(/_/g, ' ').toUpperCase();
+    const labels: { [key: string]: string } = {
+      en_attente_validation: 'En attente de confirmation',
+      en_preparation: 'En préparation',
+      peut_etre_collecte: 'Prêt au retrait',
+      en_livraison: 'En cours de livraison',
+      terminee: 'Terminée',
+      annulee: 'Annulée',
+      non_acceptee: 'Refusée',
+    };
+    return labels[status] || status.replace(/_/g, ' ').toUpperCase();
   }
 
   isBoutiqueAccepted(): boolean {
     if (!this.commande || !this.boutiqueId) return false;
     const b = this.commande.boutiques.find((x) => x.boutiqueId === this.boutiqueId);
     return b?.estAccepte || false;
-  }
-
-  isBoutiqueDeposed(): boolean {
-    if (!this.commande || !this.boutiqueId) return false;
-    const b = this.commande.boutiques.find((x) => x.boutiqueId === this.boutiqueId);
-    return b?.depotEntrepot?.estFait || false;
   }
 
   getBoutiqueStatus(bId: string): string {

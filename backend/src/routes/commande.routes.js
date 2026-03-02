@@ -9,6 +9,7 @@ router.use(requireAuth);
 // Admin routes
 router.get('/admin/all', requireRole('admin'), commandeController.getAllCommandes);
 router.post('/admin/confirm-depot/:id', requireRole('admin'), commandeController.confirmDepot);
+router.post('/admin/mark-delivered/:id', requireRole('admin'), commandeController.markAsDelivered);
 
 // Boutique routes
 router.get('/boutique/all', requireRole('boutique'), commandeController.getBoutiqueCommandes);
@@ -18,7 +19,6 @@ router.post(
   requireRole('boutique'),
   commandeController.startBoutiqueDelivery,
 );
-router.post('/boutique/mark-depot/:id', requireRole('boutique'), commandeController.markDepot);
 
 // Client routes
 router.post('/', requireRole('client'), commandeController.createCommande);

@@ -317,7 +317,7 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
   commande.boutiques[bIndex].dateAcceptation = new Date();
   commande.boutiques[bIndex].status = 'en_preparation';
 
-  // If all boutiques accepted, top-level status changes (or if it's the only one)
+  // If all active boutiques accepted, main status becomes en_preparation
   const allAccepted = commande.boutiques.every((b) => b.estAccepte || b.status === 'annulee');
   if (allAccepted) {
     commande.statusLivraison = 'en_preparation';
@@ -329,8 +329,8 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
   await createNotification({
     userId: commande.clientId,
     type: 'order_accepted',
-    titre: `✅ Commande #${commande.numeroCommande} acceptée`,
-    message: `La boutique ${commande.boutiques[bIndex].name} a accepté votre lot dans la commande ${commande.numeroCommande}.`,
+    titre: `✅ Lot accepté - #${commande.numeroCommande}`,
+    message: `La boutique ${commande.boutiques[bIndex].name} a accepté votre lot.`,
     channel: 'all',
   });
 
@@ -367,33 +367,6 @@ export const startBoutiqueDelivery = async (commandeId, boutiqueId) => {
   return commande;
 };
 
-// 2. Boutique Deliver to Depot (for Collect / Supermarket Delivery)
-export const markBoutiqueDeliveredToDepot = async (commandeId, boutiqueId) => {
-  const commande = await Commande.findById(commandeId);
-  if (!commande) throw createError('Commande introuvable', 404);
-
-  if (['boutique', 'livraison_boutique'].includes(commande.typedelivery))
-    throw createError('Action non autorisée pour une livraison directe boutique', 400);
-
-  const bIndex = commande.boutiques.findIndex(
-    (b) => b.boutiqueId.toString() === boutiqueId.toString(),
-  );
-  if (bIndex === -1) throw createError('Boutique non concernée', 403);
-
-  commande.boutiques[bIndex].depotEntrepot.estFait = true;
-  commande.boutiques[bIndex].depotEntrepot.dateDepot = new Date();
-
-  await commande.save();
-
-  await notifyAdmins(
-    `🚚 Dépôt éffectué - #${commande.numeroCommande}`,
-    `La boutique ${commande.boutiques[bIndex].name} a déposé ses articles pour la commande ${commande.numeroCommande}.`,
-    { commandeId: commande._id },
-  );
-
-  return commande;
-};
-
 // 3. Admin Confirm Depot Receipt
 export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
   const commande = await Commande.findById(commandeId);
@@ -404,37 +377,71 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
   );
   if (bIndex === -1) throw createError('Boutique non concernée', 403);
 
-  commande.boutiques[bIndex].depotEntrepot.estFait = true; // Safety in case boutique didn't mark
+  commande.boutiques[bIndex].depotEntrepot.estFait = true;
   commande.boutiques[bIndex].depotEntrepot.adminId = adminId;
   commande.boutiques[bIndex].depotEntrepot.dateValidation = new Date();
 
-  // Check if all active boutiques arrived
+  // After Admin reception at depot, Boutique status reflects this
+  if (commande.typedelivery === 'collect') {
+    commande.boutiques[bIndex].status = 'peut_etre_collecte';
+  } else if (commande.typedelivery === 'livraison_supermarche') {
+    commande.boutiques[bIndex].status = 'en_livraison';
+  }
+
+  // Check if all active boutiques arrived at depot
   const allArrived = commande.boutiques.every(
     (b) => b.depotEntrepot.dateValidation || b.status === 'annulee',
   );
+
   if (allArrived) {
     if (commande.typedelivery === 'collect') {
       commande.statusLivraison = 'peut_etre_collecte';
       await createNotification({
         userId: commande.clientId,
         type: 'order_ready_collect',
-        titre: `🏁 Commande #${commande.numeroCommande} prête`,
-        message: `Votre commande ${commande.numeroCommande} est prête à être récupérée à l'entrepôt.`,
+        titre: `🏁 Commande prète au dépôt`,
+        message: `Votre commande #${commande.numeroCommande} est prête à être récupérée au dépôt.`,
         channel: 'all',
       });
-    } else {
+    } else if (commande.typedelivery === 'livraison_supermarche') {
       commande.statusLivraison = 'en_livraison';
       await createNotification({
         userId: commande.clientId,
         type: 'order_in_delivery',
-        titre: `🚚 Commande #${commande.numeroCommande} en livraison`,
-        message: `Votre commande ${commande.numeroCommande} est maintenant en route vers votre domicile.`,
+        titre: `🚚 Commande en livraison`,
+        message: `Tous les articles de votre commande #${commande.numeroCommande} sont arrivés au dépôt et sont maintenant en cours de livraison.`,
         channel: 'all',
       });
     }
   }
 
   await commande.save();
+  return commande;
+};
+
+// 4. Admin Marks as Shipped for Delivery (for livraison_supermarche)
+export const adminMarkAsShipped = async (commandeId, adminId) => {
+  const commande = await Commande.findById(commandeId);
+  if (!commande) throw createError('Commande introuvable', 404);
+
+  if (commande.typedelivery !== 'livraison_supermarche') {
+    throw createError('Seulement pour la livraison supermarché', 400);
+  }
+
+  // No status change to 'livree', it stays 'en_livraison' until CLIENT confirms
+  commande.validationLivraison.dateLivraison = new Date();
+  commande.validationLivraison.validateurId = adminId;
+
+  await commande.save();
+
+  await createNotification({
+    userId: commande.clientId,
+    type: 'order_shipped_admin',
+    titre: `📦 Livraison en cours`,
+    message: `Votre commande #${commande.numeroCommande} a quitté le dépôt. Veuillez confirmer dès réception.`,
+    channel: 'all',
+  });
+
   return commande;
 };
 
@@ -454,29 +461,22 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
     });
     participantsToNotify = [commande.clientId, ...commande.boutiques.map((b) => b.boutiqueId)];
   } else if (role === 'boutique') {
-    // Boutique cancels ONLY ITS LOT
     const user = await User.findById(userId);
-    const boutiqueId = user.boutiqueId;
-    const boutique = commande.boutiques.find(
-      (b) => b.boutiqueId.toString() === boutiqueId?.toString(),
-    );
-    if (!boutique) throw createError('Boutique non concernée', 403);
+    const bId = user.boutiqueId;
+    const targetB = commande.boutiques.find((b) => b.boutiqueId.toString() === bId?.toString());
+    if (!targetB) throw createError('Boutique non concernée', 403);
 
-    if (boutique.depotEntrepot?.dateValidation) {
-      throw createError("Votre lot est déjà validé à l'entrepôt et ne peut plus être annulé.", 400);
+    if (targetB.depotEntrepot?.dateValidation) {
+      throw createError('Votre lot est déjà validé et ne peut plus être annulé.', 400);
     }
 
-    boutique.status = 'annulee';
-    boutique.items.forEach((it) => (it.status = 'annulee'));
+    commande.statusLivraison = 'annulee';
+    commande.boutiques.forEach((b) => {
+      b.status = 'annulee';
+      b.items.forEach((it) => (it.status = 'annulee'));
+    });
 
-    // Recalculate totals
-    recalculateCommandeTotals(commande);
-
-    // Check if whole order is now empty
-    const anyActive = commande.boutiques.some((b) => b.status !== 'annulee');
-    if (!anyActive) commande.statusLivraison = 'annulee';
-
-    participantsToNotify = [commande.clientId];
+    participantsToNotify = [commande.clientId, ...commande.boutiques.map((b) => b.boutiqueId)];
   } else if (role === 'client') {
     // Client cancels WHOLE ORDER
     if (commande.clientId.toString() !== userId.toString()) throw createError('Non autorisé', 403);
@@ -558,19 +558,14 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
   // Recalculate Totals
   recalculateCommandeTotals(commande);
 
-  // Check if the boutique lot itself should be cancelled (if all items are now cancelled)
-  const activeItemsInBoutique = boutique.items.filter((it) => it.status !== 'annulee');
-  if (activeItemsInBoutique.length === 0) {
-    boutique.status = 'annulee';
-  }
-
-  // Check if the whole order should be cancelled (if all items in all boutiques are now cancelled)
-  const anyActiveItems = commande.boutiques.some((b) =>
-    b.items.some((it) => it.status !== 'annulee'),
-  );
-  if (!anyActiveItems) {
-    commande.statusLivraison = 'annulee';
-  }
+  // If an item is cancelled, the whole order matches the "article non accepté" rule
+  commande.statusLivraison = 'annulee';
+  commande.boutiques.forEach((b) => {
+    b.status = 'annulee';
+    b.items.forEach((it) => {
+      it.status = 'annulee';
+    });
+  });
 
   await commande.save();
 
@@ -601,10 +596,10 @@ export const confirmFinalReceipt = async (commandeId, userId, role) => {
     commande.validationLivraison.validateurId = userId;
   }
 
-  commande.statusLivraison = 'livree';
-  // Update all shop statuses to livree if the main order is delivered
+  commande.statusLivraison = 'terminee';
+  // Update all shop statuses to terminee if the main order is finished
   commande.boutiques.forEach((b) => {
-    if (b.status !== 'annulee') b.status = 'livree';
+    if (b.status !== 'annulee') b.status = 'terminee';
   });
 
   commande.paiement.statut = 'paye';

@@ -144,11 +144,9 @@ export class AppSideLoginComponent implements OnInit, AfterViewInit {
     }
 
     this.googleAuthService
-      .renderButton(
-        container,
-        (credential) => this.handleGoogleCredential(credential),
-        { text: 'signin_with' },
-      )
+      .renderButton(container, (credential) => this.handleGoogleCredential(credential), {
+        text: 'signin_with',
+      })
       .catch(() => {
         this.serverError = 'Connexion Google indisponible pour le moment.';
         this.snackBar.open(this.serverError, 'Fermer', { duration: 4000 });

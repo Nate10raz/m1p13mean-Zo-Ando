@@ -52,8 +52,7 @@ const sanitizeUser = (user) => {
   return safe;
 };
 
-const isGoogleAccount = (user) =>
-  Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
+const isGoogleAccount = (user) => Boolean(user?.googleId) || user?.passwordHash === 'GOOGLE_OAUTH';
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
