@@ -51,6 +51,32 @@ const notifyBoutiqueUsers = async (boutiqueId, titre, message, data = {}) => {
     }
 };
 
+// HELPER: Recalculate totals
+const recalculateCommandeTotals = (commande) => {
+    let newBaseTotal = 0;
+    commande.boutiques.forEach(b => {
+        b.items.forEach(it => {
+            if (it.status !== 'annulee') {
+                newBaseTotal += (it.prixUnitaire * it.quantite);
+            }
+        });
+    });
+
+    commande.baseTotal = newBaseTotal;
+
+    if (commande.fraisLivraison) {
+        if (commande.fraisLivraison.type === 'pourcentage') {
+            commande.fraisLivraison.montant = (newBaseTotal * commande.fraisLivraison.valeur) / 100;
+        }
+        // Fixed fees remain the same unless baseTotal is 0
+        if (newBaseTotal === 0) {
+            commande.fraisLivraison.montant = 0;
+        }
+    }
+
+    commande.total = newBaseTotal + (commande.fraisLivraison?.montant || 0);
+};
+
 export const createCommande = async (userId, deliveryData) => {
     const { typedelivery, adresseLivraison, paiementMethode, note, dateDeliveryOrAbleCollect } = deliveryData;
 
@@ -95,19 +121,37 @@ export const createCommande = async (userId, deliveryData) => {
         baseTotal += item.prixUnitaire * item.quantite;
     });
 
-    let fraisLivraison = 0;
+    let feeData = { montant: 0, valeur: 0, type: 'fixe' };
+
     if (typedelivery === 'livraison_supermarche') {
         const feeRecord = await getLatestFraisLivraison(null);
-        fraisLivraison = feeRecord ? feeRecord.montant : 5.00;
+        if (feeRecord) {
+            feeData.type = feeRecord.type || 'fixe';
+            feeData.valeur = feeRecord.montant;
+            if (feeData.type === 'pourcentage') {
+                feeData.montant = (baseTotal * feeData.valeur) / 100;
+            } else {
+                feeData.montant = feeData.valeur;
+            }
+        } else {
+            feeData.montant = 5000; // Default fallback
+            feeData.valeur = 5000;
+        }
     } else if (typedelivery === 'livraison_boutique') {
         const boutique = boutiques[0];
         const feeRecord = await getLatestFraisLivraison(boutique._id);
-        fraisLivraison = feeRecord ? feeRecord.montant : 0;
-    } else if (typedelivery === 'collect') {
-        fraisLivraison = 0;
+        if (feeRecord) {
+            feeData.type = feeRecord.type || 'fixe';
+            feeData.valeur = feeRecord.montant;
+            if (feeData.type === 'pourcentage') {
+                feeData.montant = (baseTotal * feeData.valeur) / 100;
+            } else {
+                feeData.montant = feeData.valeur;
+            }
+        }
     }
 
-    const total = baseTotal + fraisLivraison;
+    const total = baseTotal + feeData.montant;
 
     // 5. Structure boutiques for the Commande model
     const boutiquesData = await Promise.all(boutiqueIds.map(async bId => {
@@ -169,6 +213,7 @@ export const createCommande = async (userId, deliveryData) => {
         },
         boutiques: boutiquesData,
         baseTotal,
+        fraisLivraison: feeData,
         total,
         notes: note,
         statusLivraison: 'en_attente_validation'
@@ -266,12 +311,40 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
     return commande;
 };
 
+// 1b. Boutique Start Delivery (for DIRECT Delivery)
+export const startBoutiqueDelivery = async (commandeId, boutiqueId) => {
+    const commande = await Commande.findById(commandeId);
+    if (!commande) throw createError('Commande introuvable', 404);
+
+    if (!['boutique', 'livraison_boutique', 'livraison_directe'].includes(commande.typedelivery)) {
+        throw createError('Action réservée à la livraison directe boutique', 400);
+    }
+
+    const bIndex = commande.boutiques.findIndex(b => b.boutiqueId.toString() === boutiqueId.toString());
+    if (bIndex === -1) throw createError('Boutique non concernée', 403);
+
+    commande.boutiques[bIndex].status = 'en_livraison';
+    commande.statusLivraison = 'en_livraison';
+
+    await commande.save();
+
+    await createNotification({
+        userId: commande.clientId,
+        type: 'order_in_delivery',
+        titre: `🚚 Commande #${commande.numeroCommande} en cours de livraison`,
+        message: `Votre lot est maintenant en cours de livraison par la boutique ${commande.boutiques[bIndex].name}.`,
+        channel: 'all'
+    });
+
+    return commande;
+};
+
 // 2. Boutique Deliver to Depot (for Collect / Supermarket Delivery)
 export const markBoutiqueDeliveredToDepot = async (commandeId, boutiqueId) => {
     const commande = await Commande.findById(commandeId);
     if (!commande) throw createError('Commande introuvable', 404);
 
-    if (commande.typedelivery === 'boutique') throw createError('Action non autorisée pour une livraison direct boutique', 400);
+    if (['boutique', 'livraison_boutique'].includes(commande.typedelivery)) throw createError('Action non autorisée pour une livraison directe boutique', 400);
 
     const bIndex = commande.boutiques.findIndex(b => b.boutiqueId.toString() === boutiqueId.toString());
     if (bIndex === -1) throw createError('Boutique non concernée', 403);
@@ -356,14 +429,7 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
         boutique.items.forEach(it => it.status = 'annulee');
 
         // Recalculate totals
-        let newBaseTotal = 0;
-        commande.boutiques.forEach(b => {
-            b.items.forEach(it => {
-                if (it.status !== 'annulee') newBaseTotal += (it.prixUnitaire * it.quantite);
-            });
-        });
-        commande.total = (commande.total - commande.baseTotal) + newBaseTotal;
-        commande.baseTotal = newBaseTotal;
+        recalculateCommandeTotals(commande);
 
         // Check if whole order is now empty
         const anyActive = commande.boutiques.some(b => b.status !== 'annulee');
@@ -434,14 +500,7 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
     commande.notes = (commande.notes || '') + `\nAnnulation article [${item.nomProduit}] par ${role}: ${reason}`;
 
     // Recalculate Totals
-    let newBaseTotal = 0;
-    commande.boutiques.forEach(b => {
-        b.items.forEach(it => {
-            if (it.status !== 'annulee') {
-                newBaseTotal += (it.prixUnitaire * it.quantite);
-            }
-        });
-    });
+    recalculateCommandeTotals(commande);
 
     // Check if the boutique lot itself should be cancelled (if all items are now cancelled)
     const activeItemsInBoutique = boutique.items.filter(it => it.status !== 'annulee');
@@ -454,21 +513,6 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
     if (!anyActiveItems) {
         commande.statusLivraison = 'annulee';
     }
-
-    // FRAIS LIVRAISON : Should stay same for now or update?
-    // Usually fixed fee for the whole delivery. If total base becomes 0, might as well be free/annulee.
-    commande.baseTotal = newBaseTotal;
-    const frais = (commande.total - (commande.baseTotal + (item.prixUnitaire * item.quantite))) || (commande.total - commande.baseTotal);
-    // Actually simpler to just recalculate frais if possible, but let's keep it simple:
-    // current_total - old_base = current_frais.
-    // So new_total = newBaseTotal + current_frais.
-    const currentFrais = Math.max(0, commande.total - (commande.baseTotal + (item.status === 'annulee' ? 0 : item.prixUnitaire * item.quantite)));
-    // Wait, let's just do it cleanly:
-    const oldTotal = commande.total;
-    const oldBaseTotal = commande.baseTotal + (item.prixUnitaire * item.quantite); // This is not quite right as baseTotal was already what it was before.
-    // Let's use the difference:
-    const reduction = item.prixUnitaire * item.quantite;
-    commande.total = Math.max(0, commande.total - reduction);
 
     await commande.save();
 
@@ -500,6 +544,11 @@ export const confirmFinalReceipt = async (commandeId, userId, role) => {
     }
 
     commande.statusLivraison = 'livree';
+    // Update all shop statuses to livree if the main order is delivered
+    commande.boutiques.forEach(b => {
+        if (b.status !== 'annulee') b.status = 'livree';
+    });
+
     commande.paiement.statut = 'paye';
     commande.paiement.datePaiement = new Date();
     commande.paiement.montantPaye = commande.total;

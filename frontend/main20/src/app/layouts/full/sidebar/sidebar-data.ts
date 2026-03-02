@@ -47,6 +47,12 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    displayName: 'Frais de livraison',
+    iconName: 'truck-delivery',
+    route: '/admin/frais-livraison',
+    roles: ['admin'],
+  },
+  {
     navCap: 'Gestion Box',
     roles: ['admin'],
   },

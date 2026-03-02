@@ -13,6 +13,11 @@ export interface Commande {
     email: string;
     telephone: string;
   };
+  fraisLivraison?: {
+    montant: number;
+    valeur: number;
+    type: 'fixe' | 'pourcentage';
+  };
   total: number;
   baseTotal: number;
   typedelivery: string;
@@ -68,6 +73,10 @@ export class CommandeService {
 
   markDepot(id: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/boutique/mark-depot/${id}`, {});
+  }
+
+  startBoutiqueDelivery(id: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/boutique/start-delivery/${id}`, {});
   }
 
   confirmDepot(id: string, boutiqueId: string): Observable<any> {

@@ -1,0 +1,50 @@
+.frais-livraison-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.history-row {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(var(--mat-sys-primary), 0.04) !important;
+    }
+
+    &.active-fee {
+        background-color: rgba(93, 135, 255, 0.05);
+        border-left: 3px solid #5d87ff;
+    }
+}
+
+.responsive-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+mat-card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.mat-mdc-table {
+    background: transparent;
+}
+
+.mat-mdc-paginator {
+    background: transparent;
+}
+
+.border-primary {
+    border-color: rgba(93, 135, 255, 0.2) !important;
+}
+
+.bg-light-primary {
+    background-color: rgba(93, 135, 255, 0.08) !important;
+}

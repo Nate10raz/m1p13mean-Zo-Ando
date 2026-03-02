@@ -270,13 +270,35 @@ export interface AdminApproveBoutiqueResponse {
   user?: AdminBoutiqueUser;
 }
 
+export interface FraisLivraison {
+  _id: string;
+  boutiqueId: string | null;
+  montant: number;
+  type: 'fixe' | 'pourcentage';
+  dateDebut: string;
+  dateFin?: string;
+  estActif: boolean;
+  description?: string;
+  creePar?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FraisLivraisonHistoryResponse {
+  items: FraisLivraison[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
   private readonly apiRootUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getUsers(params: AdminUsersQuery = {}): Observable<ApiResponse<AdminUsersResponse>> {
     return this.http.get<ApiResponse<AdminUsersResponse>>(`${this.apiRootUrl}/admin/users`, {
@@ -342,6 +364,28 @@ export class AdminService {
       {
         params: this.buildParams(params),
       },
+    );
+  }
+
+  getFraisLivraisonSupermarche(): Observable<ApiResponse<FraisLivraison>> {
+    return this.http.get<ApiResponse<FraisLivraison>>(
+      `${this.apiRootUrl}/admin/frais-livraison-supermarche`
+    );
+  }
+
+  updateFraisLivraisonSupermarche(payload: { montant: number; type?: string; description?: string }): Observable<ApiResponse<FraisLivraison>> {
+    return this.http.post<ApiResponse<FraisLivraison>>(
+      `${this.apiRootUrl}/admin/frais-livraison-supermarche`,
+      payload
+    );
+  }
+
+  getFraisLivraisonHistory(params: { page?: number; limit?: number } = {}): Observable<ApiResponse<FraisLivraisonHistoryResponse>> {
+    return this.http.get<ApiResponse<FraisLivraisonHistoryResponse>>(
+      `${this.apiRootUrl}/admin/frais-livraison-supermarche/history`,
+      {
+        params: this.buildParams(params),
+      }
     );
   }
 

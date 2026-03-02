@@ -2,14 +2,9 @@
   <div class="col-12">
     <!-- Bannière de la boutique -->
     @if (boutique?.banner) {
-      <div class="banner-container m-b-24 rounded overflow-hidden shadow-sm">
-        <img
-          [src]="boutique?.banner"
-          class="w-100 banner-img"
-          alt="Bannière"
-          style="height: 200px; object-fit: cover"
-        />
-      </div>
+    <div class="banner-container m-b-24 rounded overflow-hidden shadow-sm">
+      <img [src]="boutique?.banner" class="w-100 banner-img" alt="Bannière" style="height: 200px; object-fit: cover" />
+    </div>
     }
 
     <mat-card class="cardWithShadow overflow-hidden">
@@ -18,121 +13,91 @@
           <div class="d-flex align-items-center gap-16">
             <div class="logo-wrapper position-relative">
               @if (boutique?.logo) {
-                <img
-                  [src]="boutique?.logo"
-                  class="rounded-circle border border-2 border-white shadow-sm"
-                  width="80"
-                  height="80"
-                  style="object-fit: cover; margin-top: -40px; background: white"
-                  alt="Logo"
-                />
+              <img [src]="boutique?.logo" class="rounded-circle border border-2 border-white shadow-sm" width="80"
+                height="80" style="object-fit: cover; margin-top: -40px; background: white" alt="Logo" />
               } @else {
-                <div
-                  class="bg-light rounded-circle border border-2 border-white shadow-sm d-flex align-items-center justify-content-center"
-                  style="width: 80px; height: 80px; margin-top: -40px; background: white"
-                >
-                  <mat-icon class="text-muted f-s-32">store</mat-icon>
-                </div>
+              <div
+                class="bg-light rounded-circle border border-2 border-white shadow-sm d-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px; margin-top: -40px; background: white">
+                <mat-icon class="text-muted f-s-32">store</mat-icon>
+              </div>
               }
             </div>
             <div class="m-t-8">
               <div class="d-flex align-items-center gap-8 flex-wrap">
                 <mat-card-title id="top-save-point" class="m-b-0 f-s-24 f-w-700">{{
                   isOwner ? boutique?.nom || 'Ma Boutique' : boutique?.nom
-                }}</mat-card-title>
+                  }}</mat-card-title>
                 <!-- Real-time Status Badge (Glassmorphic) -->
                 @let currentStatus = getCurrentStatus();
                 <div
                   class="status-glass-badge d-flex align-items-center gap-12 p-x-16 p-y-8 rounded-pill transition-all"
-                  [ngClass]="'status-' + currentStatus.color"
-                  [matTooltip]="currentStatus.reason || ''"
-                >
+                  [ngClass]="'status-' + currentStatus.color" [matTooltip]="currentStatus.reason || ''">
                   <div class="status-indicator">
                     <span class="dot"></span>
                     <span class="pulse"></span>
                   </div>
                   <div class="d-flex flex-column">
-                    <span class="f-s-12 f-w-700 text-uppercase letter-spacing-1 line-height-1"
-                      >Boutique {{ currentStatus.label }}</span
-                    >
+                    <span class="f-s-12 f-w-700 text-uppercase letter-spacing-1 line-height-1">Boutique {{
+                      currentStatus.label }}</span>
                     @if (currentStatus.reason) {
-                      <span class="f-s-10 opacity-75">{{ currentStatus.reason }}</span>
+                    <span class="f-s-10 opacity-75">{{ currentStatus.reason }}</span>
                     }
                   </div>
                 </div>
               </div>
               <mat-card-subtitle class="m-t-8 d-flex align-items-center gap-12 flex-wrap">
-                <app-star-rating
-                  [rating]="boutique?.noteMoyenne || 0"
-                  [count]="boutique?.nombreAvis"
-                ></app-star-rating>
+                <app-star-rating [rating]="boutique?.noteMoyenne || 0" [count]="boutique?.nombreAvis"></app-star-rating>
               </mat-card-subtitle>
             </div>
           </div>
           @if (isOwner) {
-            <div class="d-flex align-items-center gap-24 flex-wrap">
-              <!-- Manual Visibility Switch (Renamed to Ouvert/Fermé) -->
-              <form [formGroup]="form">
-                <div
-                  class="visibility-control-panel d-flex align-items-center bg-white rounded-pill p-4 p-x-12 border border-2 transition-all shadow-sm"
-                  [class.is-active]="form.get('manualSwitchOpen')?.value"
-                >
-                  <div class="d-flex align-items-center gap-10">
-                    <div
-                      class="control-icon d-flex align-items-center justify-content-center rounded-circle transition-all"
-                      [ngClass]="
+          <div class="d-flex align-items-center gap-24 flex-wrap">
+            <!-- Manual Visibility Switch (Renamed to Ouvert/Fermé) -->
+            <form [formGroup]="form">
+              <div
+                class="visibility-control-panel d-flex align-items-center bg-white rounded-pill p-4 p-x-12 border border-2 transition-all shadow-sm"
+                [class.is-active]="form.get('manualSwitchOpen')?.value">
+                <div class="d-flex align-items-center gap-10">
+                  <div
+                    class="control-icon d-flex align-items-center justify-content-center rounded-circle transition-all"
+                    [ngClass]="
                         form.get('manualSwitchOpen')?.value
                           ? 'bg-light-primary text-primary'
                           : 'bg-light-error text-error'
-                      "
-                    >
-                      <mat-icon class="icon-20">{{
-                        form.get('manualSwitchOpen')?.value ? 'store' : 'store_off'
+                      ">
+                    <mat-icon class="icon-20">{{
+                      form.get('manualSwitchOpen')?.value ? 'store' : 'store_off'
                       }}</mat-icon>
-                    </div>
-                    <div class="control-label d-flex flex-column">
-                      <span class="f-s-12 f-w-700">{{
-                        form.get('manualSwitchOpen')?.value
-                          ? 'FERMER LA BOUTIQUE'
-                          : 'OUVRIR
+                  </div>
+                  <div class="control-label d-flex flex-column">
+                    <span class="f-s-12 f-w-700">{{
+                      form.get('manualSwitchOpen')?.value
+                      ? 'FERMER LA BOUTIQUE'
+                      : 'OUVRIR
                       LA BOUTIQUE'
                       }}</span>
-                    </div>
-                    <mat-slide-toggle
-                      formControlName="manualSwitchOpen"
-                      color="primary"
-                      class="modern-toggle"
-                    ></mat-slide-toggle>
                   </div>
+                  <mat-slide-toggle formControlName="manualSwitchOpen" color="primary"
+                    class="modern-toggle"></mat-slide-toggle>
                 </div>
-              </form>
-
-              <div class="d-flex gap-12">
-                <button
-                  mat-stroked-button
-                  color="warn"
-                  type="button"
-                  class="rounded-pill"
-                  (click)="cancel()"
-                  [disabled]="isSaving || form.pristine"
-                >
-                  Annuler
-                </button>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  type="button"
-                  class="rounded-pill p-x-24 shadow-sm"
-                  (click)="save()"
-                  [disabled]="form.invalid || isSaving || form.pristine"
-                >
-                  @if (isSaving) {
-                    <mat-spinner diameter="18" class="m-r-8 d-inline-block"></mat-spinner>
-                  }
-                  Enregistrer
-                </button>
               </div>
+            </form>
+
+            <div class="d-flex gap-12">
+              <button mat-stroked-button color="warn" type="button" class="rounded-pill" (click)="cancel()"
+                [disabled]="isSaving || form.pristine">
+                Annuler
+              </button>
+              <button mat-flat-button color="primary" type="button" class="rounded-pill p-x-24 shadow-sm"
+                (click)="save()" [disabled]="form.invalid || isSaving || form.pristine">
+                @if (isSaving) {
+                <mat-spinner diameter="18" class="m-r-8 d-inline-block"></mat-spinner>
+                }
+                Enregistrer
+              </button>
             </div>
+          </div>
           }
         </div>
       </mat-card-header>
@@ -140,587 +105,455 @@
       <mat-card-content class="p-24">
         <!-- Message de suspension -->
         @if (boutique?.status === 'suspendue' || boutique?.status === 'rejetee') {
-          <div
-            class="bg-light-danger text-danger p-16 rounded m-b-24 d-flex align-items-center gap-12 border border-danger shadow-none"
-          >
-            <mat-icon ripple="false">warning</mat-icon>
-            <div>
-              <div class="f-w-600 f-s-16">
-                Établissement {{ boutique?.status === 'suspendue' ? 'suspendu' : 'rejeté' }}
-              </div>
-              <div class="f-s-14">{{ boutique?.motifSuspension || 'Aucun motif précisé.' }}</div>
+        <div
+          class="bg-light-danger text-danger p-16 rounded m-b-24 d-flex align-items-center gap-12 border border-danger shadow-none">
+          <mat-icon ripple="false">warning</mat-icon>
+          <div>
+            <div class="f-w-600 f-s-16">
+              Établissement {{ boutique?.status === 'suspendue' ? 'suspendu' : 'rejeté' }}
             </div>
+            <div class="f-s-14">{{ boutique?.motifSuspension || 'Aucun motif précisé.' }}</div>
           </div>
+        </div>
         }
 
         @if (isLoading) {
-          <div class="d-flex justify-content-center p-48">
-            <mat-spinner diameter="50"></mat-spinner>
-          </div>
+        <div class="d-flex justify-content-center p-48">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
         } @else {
-          <form [formGroup]="form" (ngSubmit)="save()">
-            <!-- Visuel (Propriétaire uniquement) -->
-            @if (isOwner) {
-              <div class="section-title-container m-b-24">
-                <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                  <mat-icon class="text-primary">photo_camera</mat-icon> Identité Visuelle
-                </h4>
-              </div>
-              <div class="row">
-                <div class="col-lg-6 m-b-24">
-                  <div class="d-flex flex-column gap-12">
-                    <label class="f-w-600 f-s-14">Logo de la boutique</label>
-                    <div
-                      class="image-uploader-box border rounded p-16 d-flex align-items-center gap-16 bg-light"
-                    >
-                      <div
-                        class="preview-box border rounded overflow-hidden shadow-sm"
-                        style="width: 80px; height: 80px; background: white"
-                      >
-                        @if (form.get('logo')?.value) {
-                          <img
-                            [src]="form.get('logo')?.value"
-                            class="w-100 h-100"
-                            style="object-fit: cover"
-                          />
-                        } @else {
-                          <div
-                            class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"
-                          >
-                            <mat-icon>image</mat-icon>
-                          </div>
-                        }
-                      </div>
-                      <div class="flex-grow-1">
-                        <p class="text-muted f-s-12 m-b-8">Format JPG, PNG. Max 3MB.</p>
-                        <button
-                          mat-stroked-button
-                          color="primary"
-                          type="button"
-                          (click)="logoInput.click()"
-                        >
-                          <mat-icon class="icon-18">upload</mat-icon> Choisir le logo
-                        </button>
-                        <input
-                          #logoInput
-                          type="file"
-                          (change)="onFileSelected($event, 'logo')"
-                          accept="image/*"
-                          class="d-none"
-                        />
-                      </div>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <!-- Visuel (Propriétaire uniquement) -->
+          @if (isOwner) {
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">photo_camera</mat-icon> Identité Visuelle
+            </h4>
+          </div>
+          <div class="row">
+            <div class="col-lg-6 m-b-24">
+              <div class="d-flex flex-column gap-12">
+                <label class="f-w-600 f-s-14">Logo de la boutique</label>
+                <div class="image-uploader-box border rounded p-16 d-flex align-items-center gap-16 bg-light">
+                  <div class="preview-box border rounded overflow-hidden shadow-sm"
+                    style="width: 80px; height: 80px; background: white">
+                    @if (form.get('logo')?.value) {
+                    <img [src]="form.get('logo')?.value" class="w-100 h-100" style="object-fit: cover" />
+                    } @else {
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                      <mat-icon>image</mat-icon>
                     </div>
+                    }
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="text-muted f-s-12 m-b-8">Format JPG, PNG. Max 3MB.</p>
+                    <button mat-stroked-button color="primary" type="button" (click)="logoInput.click()">
+                      <mat-icon class="icon-18">upload</mat-icon> Choisir le logo
+                    </button>
+                    <input #logoInput type="file" (change)="onFileSelected($event, 'logo')" accept="image/*"
+                      class="d-none" />
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div class="col-lg-6 m-b-24">
-                  <div class="d-flex flex-column gap-12">
-                    <label class="f-w-600 f-s-14">Bannière de la boutique</label>
-                    <div
-                      class="image-uploader-box border rounded p-16 d-flex align-items-center gap-16 bg-light"
-                    >
-                      <div
-                        class="preview-box border rounded overflow-hidden shadow-sm"
-                        style="width: 120px; height: 80px; background: white"
-                      >
-                        @if (form.get('banner')?.value) {
-                          <img
-                            [src]="form.get('banner')?.value"
-                            class="w-100 h-100"
-                            style="object-fit: cover"
-                          />
-                        } @else {
-                          <div
-                            class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"
-                          >
-                            <mat-icon>image</mat-icon>
-                          </div>
-                        }
-                      </div>
-                      <div class="flex-grow-1">
-                        <p class="text-muted f-s-12 m-b-8">
-                          Format JPG, PNG. Max 3MB. Recommandé: 1200x400.
-                        </p>
-                        <button
-                          mat-stroked-button
-                          color="primary"
-                          type="button"
-                          (click)="bannerInput.click()"
-                        >
-                          <mat-icon class="icon-18">upload</mat-icon> Choisir la bannière
-                        </button>
-                        <input
-                          #bannerInput
-                          type="file"
-                          (change)="onFileSelected($event, 'banner')"
-                          accept="image/*"
-                          class="d-none"
-                        />
-                      </div>
+            <div class="col-lg-6 m-b-24">
+              <div class="d-flex flex-column gap-12">
+                <label class="f-w-600 f-s-14">Bannière de la boutique</label>
+                <div class="image-uploader-box border rounded p-16 d-flex align-items-center gap-16 bg-light">
+                  <div class="preview-box border rounded overflow-hidden shadow-sm"
+                    style="width: 120px; height: 80px; background: white">
+                    @if (form.get('banner')?.value) {
+                    <img [src]="form.get('banner')?.value" class="w-100 h-100" style="object-fit: cover" />
+                    } @else {
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                      <mat-icon>image</mat-icon>
                     </div>
+                    }
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="text-muted f-s-12 m-b-8">
+                      Format JPG, PNG. Max 3MB. Recommandé: 1200x400.
+                    </p>
+                    <button mat-stroked-button color="primary" type="button" (click)="bannerInput.click()">
+                      <mat-icon class="icon-18">upload</mat-icon> Choisir la bannière
+                    </button>
+                    <input #bannerInput type="file" (change)="onFileSelected($event, 'banner')" accept="image/*"
+                      class="d-none" />
                   </div>
                 </div>
               </div>
-              <mat-divider class="m-y-8"></mat-divider>
+            </div>
+          </div>
+          <mat-divider class="m-y-8"></mat-divider>
+          }
+
+          <!-- Informations Générales -->
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">storefront</mat-icon> Informations Générales
+            </h4>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Nom de la boutique</mat-label>
+                <input matInput formControlName="nom" [readonly]="!isOwner" />
+              </mat-form-field>
+            </div>
+            <div class="col-lg-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Téléphone</mat-label>
+                <input matInput formControlName="telephone" [readonly]="!isOwner" />
+                <mat-icon matSuffix class="text-muted">phone</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="col-lg-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Email de contact</mat-label>
+                <input matInput formControlName="email" [readonly]="!isOwner" />
+                <mat-icon matSuffix class="text-muted">email</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="col-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" rows="3" [readonly]="!isOwner"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <mat-divider class="m-y-32"></mat-divider>
+
+          <!-- Emplacements & Boxes -->
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">inventory_2</mat-icon> Emplacements & Boxes
+            </h4>
+          </div>
+
+          @if (boutique?.boxIds && boutique!.boxIds!.length > 0) {
+          <div class="row m-b-8">
+            @for (box of boutique?.boxIds; track box._id || box) {
+            <div class="col-sm-6 col-lg-4 col-xl-3 m-b-16">
+              <div
+                class="box-detail-card border rounded p-12 d-flex align-items-start gap-12 bg-light shadow-none h-100">
+                <div
+                  class="box-icon-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style="width: 36px; height: 36px">
+                  <mat-icon class="icon-20">inventory_2</mat-icon>
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="f-w-700 f-s-14 text-dark truncate">Box n°{{ box.numero || box }}</span>
+                    @if (box.superficie) {
+                    <span class="badge bg-white text-primary border border-primary-light f-s-10">{{ box.superficie
+                      }}m²</span>
+                    }
+                  </div>
+                  <div class="text-muted f-s-12 d-flex flex-column gap-2 mt-1">
+                    @if (box.etage !== undefined) {
+                    <span class="d-flex align-items-center gap-4">
+                      <mat-icon class="icon-12">layers</mat-icon> Étage:
+                      {{ box.etage === 0 ? 'RDC' : box.etage }}
+                    </span>
+                    }
+                    @if (box.zone) {
+                    <span class="d-flex align-items-center gap-4">
+                      <mat-icon class="icon-12">place</mat-icon> Zone: {{ box.zone }}
+                    </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
             }
+          </div>
+          } @else {
+          <div class="p-24 text-center bg-light rounded border-dashed m-b-24">
+            <mat-icon class="text-muted f-s-32 m-b-8">info_outline</mat-icon>
+            <p class="text-muted m-0 italic">
+              Aucun box n'est actuellement rattaché à cette boutique.
+            </p>
+          </div>
+          }
 
-            <!-- Informations Générales -->
-            <div class="section-title-container m-b-24">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-primary">storefront</mat-icon> Informations Générales
-              </h4>
-            </div>
+          <mat-divider class="m-y-32"></mat-divider>
 
-            <div class="row">
-              <div class="col-lg-6">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Nom de la boutique</mat-label>
-                  <input matInput formControlName="nom" [readonly]="!isOwner" />
-                </mat-form-field>
-              </div>
-              <div class="col-lg-6">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Téléphone</mat-label>
-                  <input matInput formControlName="telephone" [readonly]="!isOwner" />
-                  <mat-icon matSuffix class="text-muted">phone</mat-icon>
-                </mat-form-field>
-              </div>
-              <div class="col-lg-12">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Email de contact</mat-label>
-                  <input matInput formControlName="email" [readonly]="!isOwner" />
-                  <mat-icon matSuffix class="text-muted">email</mat-icon>
-                </mat-form-field>
-              </div>
-              <div class="col-12">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Description</mat-label>
-                  <textarea
-                    matInput
-                    formControlName="description"
-                    rows="3"
-                    [readonly]="!isOwner"
-                  ></textarea>
-                </mat-form-field>
-              </div>
-            </div>
+          <!-- Horaires -->
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">schedule</mat-icon> Horaires d'ouverture
+            </h4>
+          </div>
 
-            <mat-divider class="m-y-32"></mat-divider>
-
-            <!-- Emplacements & Boxes -->
-            <div class="section-title-container m-b-24">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-primary">inventory_2</mat-icon> Emplacements & Boxes
-              </h4>
-            </div>
-
-            @if (boutique?.boxIds && boutique!.boxIds!.length > 0) {
-              <div class="row m-b-8">
-                @for (box of boutique?.boxIds; track box._id || box) {
-                  <div class="col-sm-6 col-lg-4 col-xl-3 m-b-16">
-                    <div
-                      class="box-detail-card border rounded p-12 d-flex align-items-start gap-12 bg-light shadow-none h-100"
-                    >
-                      <div
-                        class="box-icon-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                        style="width: 36px; height: 36px"
-                      >
-                        <mat-icon class="icon-20">inventory_2</mat-icon>
-                      </div>
-                      <div class="flex-grow-1 overflow-hidden">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                          <span class="f-w-700 f-s-14 text-dark truncate"
-                            >Box n°{{ box.numero || box }}</span
-                          >
-                          @if (box.superficie) {
-                            <span
-                              class="badge bg-white text-primary border border-primary-light f-s-10"
-                              >{{ box.superficie }}m²</span
-                            >
-                          }
-                        </div>
-                        <div class="text-muted f-s-12 d-flex flex-column gap-2 mt-1">
-                          @if (box.etage !== undefined) {
-                            <span class="d-flex align-items-center gap-4">
-                              <mat-icon class="icon-12">layers</mat-icon> Étage:
-                              {{ box.etage === 0 ? 'RDC' : box.etage }}
-                            </span>
-                          }
-                          @if (box.zone) {
-                            <span class="d-flex align-items-center gap-4">
-                              <mat-icon class="icon-12">place</mat-icon> Zone: {{ box.zone }}
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    </div>
+          <div formArrayName="horaires" class="row">
+            @for (jour of jours; track jour) {
+            <div class="col-md-6 col-lg-4 m-b-24">
+              <mat-card class="shadow-none border h-100 bg-hover-light transition-all">
+                <mat-card-header class="p-16">
+                  <mat-card-title class="f-s-16 f-w-600 text-primary">{{
+                    jour | titlecase
+                    }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-16 p-t-0">
+                  @for (item of getHoraireControlsForDay(jour); track item.index) {
+                  <div [formGroupName]="item.index" class="d-flex align-items-center gap-8 m-b-12">
+                    <mat-form-field appearance="outline" class="w-100 densify-field">
+                      <input matInput type="time" formControlName="ouverture" [readonly]="!isOwner"
+                        (blur)="checkOverlap(jour)" />
+                    </mat-form-field>
+                    <span class="f-w-600">-</span>
+                    <mat-form-field appearance="outline" class="w-100 densify-field">
+                      <input matInput type="time" formControlName="fermeture" [readonly]="!isOwner"
+                        (blur)="checkOverlap(jour)" />
+                    </mat-form-field>
+                    @if (isOwner) {
+                    <button type="button" mat-icon-button color="warn" (click)="removeHoraire(item.index)"
+                      matTooltip="Supprimer">
+                      <mat-icon class="icon-18">delete_outline</mat-icon>
+                    </button>
+                    }
                   </div>
+                  } @empty {
+                  <div class="p-y-16 text-center border-dashed rounded bg-light">
+                    <span class="text-muted f-s-12 italic">Fermé</span>
+                  </div>
+                  }
+                </mat-card-content>
+                @if (isOwner) {
+                <mat-card-actions class="p-16 p-t-0">
+                  <button type="button" mat-stroked-button color="primary" class="w-100 f-s-12"
+                    (click)="addHoraire(jour)">
+                    <mat-icon class="icon-16">add</mat-icon> Ajouter
+                  </button>
+                </mat-card-actions>
                 }
-              </div>
-            } @else {
-              <div class="p-24 text-center bg-light rounded border-dashed m-b-24">
-                <mat-icon class="text-muted f-s-32 m-b-8">info_outline</mat-icon>
-                <p class="text-muted m-0 italic">
-                  Aucun box n'est actuellement rattaché à cette boutique.
-                </p>
-              </div>
+              </mat-card>
+            </div>
             }
+          </div>
 
-            <mat-divider class="m-y-32"></mat-divider>
+          <mat-divider class="m-y-32"></mat-divider>
 
-            <!-- Horaires -->
-            <div class="section-title-container m-b-24">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-primary">schedule</mat-icon> Horaires d'ouverture
-              </h4>
-            </div>
+          <!-- Fermetures exceptionnelles -->
+          <div class="section-title-container m-b-24 d-flex align-items-center justify-content-between">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-warning">event_busy</mat-icon> Fermetures exceptionnelles et
+              congés
+            </h4>
+            @if (isOwner) {
+            <button type="button" mat-stroked-button color="primary" (click)="addClosure()">
+              <mat-icon class="icon-18">add</mat-icon> Ajouter une période
+            </button>
+            }
+          </div>
 
-            <div formArrayName="horaires" class="row">
-              @for (jour of jours; track jour) {
-                <div class="col-md-6 col-lg-4 m-b-24">
-                  <mat-card class="shadow-none border h-100 bg-hover-light transition-all">
-                    <mat-card-header class="p-16">
-                      <mat-card-title class="f-s-16 f-w-600 text-primary">{{
-                        jour | titlecase
-                      }}</mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="p-16 p-t-0">
-                      @for (item of getHoraireControlsForDay(jour); track item.index) {
-                        <div
-                          [formGroupName]="item.index"
-                          class="d-flex align-items-center gap-8 m-b-12"
-                        >
-                          <mat-form-field appearance="outline" class="w-100 densify-field">
-                            <input
-                              matInput
-                              type="time"
-                              formControlName="ouverture"
-                              [readonly]="!isOwner"
-                              (blur)="checkOverlap(jour)"
-                            />
-                          </mat-form-field>
-                          <span class="f-w-600">-</span>
-                          <mat-form-field appearance="outline" class="w-100 densify-field">
-                            <input
-                              matInput
-                              type="time"
-                              formControlName="fermeture"
-                              [readonly]="!isOwner"
-                              (blur)="checkOverlap(jour)"
-                            />
-                          </mat-form-field>
-                          @if (isOwner) {
-                            <button
-                              type="button"
-                              mat-icon-button
-                              color="warn"
-                              (click)="removeHoraire(item.index)"
-                              matTooltip="Supprimer"
-                            >
-                              <mat-icon class="icon-18">delete_outline</mat-icon>
-                            </button>
-                          }
-                        </div>
-                      } @empty {
-                        <div class="p-y-16 text-center border-dashed rounded bg-light">
-                          <span class="text-muted f-s-12 italic">Fermé</span>
-                        </div>
+          <div formArrayName="fermeureBoutique" class="row p-x-12">
+            @for (ctrl of closuresFormArray.controls; track $index) {
+            <div [formGroupName]="$index" class="col-12 m-b-16 p-0">
+              <mat-card class="shadow-none border mb-0 bg-light-warning">
+                <mat-card-content class="p-16">
+                  <div class="row align-items-center">
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline" class="w-100 densify-field">
+                        <mat-label>Date de début</mat-label>
+                        <input matInput type="date" formControlName="debut" [readonly]="!isOwner" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline" class="w-100 densify-field">
+                        <mat-label>Date de fin</mat-label>
+                        <input matInput type="date" formControlName="fin" [readonly]="!isOwner" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-5">
+                      <mat-form-field appearance="outline" class="w-100 densify-field">
+                        <mat-label>Motif (ex: Congés annuels)</mat-label>
+                        <input matInput formControlName="motif" [readonly]="!isOwner" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-1 text-center">
+                      @if (isOwner) {
+                      <button type="button" mat-icon-button color="warn" (click)="removeClosure($index)">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
                       }
-                    </mat-card-content>
-                    @if (isOwner) {
-                      <mat-card-actions class="p-16 p-t-0">
-                        <button
-                          type="button"
-                          mat-stroked-button
-                          color="primary"
-                          class="w-100 f-s-12"
-                          (click)="addHoraire(jour)"
-                        >
-                          <mat-icon class="icon-16">add</mat-icon> Ajouter
-                        </button>
-                      </mat-card-actions>
-                    }
-                  </mat-card>
-                </div>
-              }
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
             </div>
-
-            <mat-divider class="m-y-32"></mat-divider>
-
-            <!-- Fermetures exceptionnelles -->
-            <div
-              class="section-title-container m-b-24 d-flex align-items-center justify-content-between"
-            >
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-warning">event_busy</mat-icon> Fermetures exceptionnelles et
-                congés
-              </h4>
-              @if (isOwner) {
-                <button type="button" mat-stroked-button color="primary" (click)="addClosure()">
-                  <mat-icon class="icon-18">add</mat-icon> Ajouter une période
-                </button>
-              }
+            } @empty {
+            <div class="col-12 text-center p-32 bg-light rounded border-dashed m-b-16">
+              <mat-icon class="text-muted f-s-32 m-b-8">event_available</mat-icon>
+              <p class="text-muted m-0 italic">Aucune fermeture exceptionnelle programmée.</p>
             </div>
+            }
+          </div>
 
-            <div formArrayName="fermeureBoutique" class="row p-x-12">
-              @for (ctrl of closuresFormArray.controls; track $index) {
-                <div [formGroupName]="$index" class="col-12 m-b-16 p-0">
-                  <mat-card class="shadow-none border mb-0 bg-light-warning">
-                    <mat-card-content class="p-16">
-                      <div class="row align-items-center">
-                        <div class="col-md-3">
-                          <mat-form-field appearance="outline" class="w-100 densify-field">
-                            <mat-label>Date de début</mat-label>
-                            <input
-                              matInput
-                              type="date"
-                              formControlName="debut"
-                              [readonly]="!isOwner"
-                            />
-                          </mat-form-field>
-                        </div>
-                        <div class="col-md-3">
-                          <mat-form-field appearance="outline" class="w-100 densify-field">
-                            <mat-label>Date de fin</mat-label>
-                            <input
-                              matInput
-                              type="date"
-                              formControlName="fin"
-                              [readonly]="!isOwner"
-                            />
-                          </mat-form-field>
-                        </div>
-                        <div class="col-md-5">
-                          <mat-form-field appearance="outline" class="w-100 densify-field">
-                            <mat-label>Motif (ex: Congés annuels)</mat-label>
-                            <input matInput formControlName="motif" [readonly]="!isOwner" />
-                          </mat-form-field>
-                        </div>
-                        <div class="col-md-1 text-center">
-                          @if (isOwner) {
-                            <button
-                              type="button"
-                              mat-icon-button
-                              color="warn"
-                              (click)="removeClosure($index)"
-                            >
-                              <mat-icon>delete_outline</mat-icon>
-                            </button>
-                          }
-                        </div>
-                      </div>
-                    </mat-card-content>
-                  </mat-card>
-                </div>
-              } @empty {
-                <div class="col-12 text-center p-32 bg-light rounded border-dashed m-b-16">
-                  <mat-icon class="text-muted f-s-32 m-b-8">event_available</mat-icon>
-                  <p class="text-muted m-0 italic">Aucune fermeture exceptionnelle programmée.</p>
-                </div>
-              }
-            </div>
+          <mat-divider class="m-y-32"></mat-divider>
 
-            <mat-divider class="m-y-32"></mat-divider>
+          <!-- Livraison -->
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-info">local_shipping</mat-icon> Plages de Livraison
+            </h4>
+          </div>
 
-            <!-- Livraison -->
-            <div class="section-title-container m-b-24">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-info">local_shipping</mat-icon> Plages de Livraison
-              </h4>
-            </div>
-
-            <div formArrayName="plage_livraison_boutique" class="row">
-              @for (jour of jours; track jour) {
-                <div class="col-md-6 col-lg-4 m-b-24">
-                  <mat-card
-                    class="shadow-none border h-100 bg-hover-light transition-all text-info-card"
-                  >
-                    <mat-card-header class="p-16">
-                      <mat-card-title class="f-s-16 f-w-600 text-info">{{
-                        jour | titlecase
-                      }}</mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="p-16 p-t-0">
-                      @for (item of getLivraisonControlsForDay(jour); track item.index) {
-                        <div [formGroupName]="item.index" class="m-b-16 border-bottom p-b-12">
-                          <div class="d-flex align-items-center gap-8 m-b-8">
-                            <mat-form-field appearance="outline" class="w-100 densify-field">
-                              <input
-                                matInput
-                                type="time"
-                                formControlName="ouverture"
-                                [readonly]="!isOwner"
-                              />
-                            </mat-form-field>
-                            <span class="f-w-600 text-info">-</span>
-                            <mat-form-field appearance="outline" class="w-100 densify-field">
-                              <input
-                                matInput
-                                type="time"
-                                formControlName="fermeture"
-                                [readonly]="!isOwner"
-                              />
-                            </mat-form-field>
-                            @if (isOwner) {
-                              <button
-                                type="button"
-                                mat-icon-button
-                                color="warn"
-                                (click)="removePlageLivraison(item.index)"
-                              >
-                                <mat-icon class="icon-18">delete_outline</mat-icon>
-                              </button>
-                            }
-                          </div>
-                          <div
-                            class="d-flex align-items-center gap-12 bg-light p-x-12 p-y-8 rounded"
-                          >
-                            <span class="text-muted f-s-12 flex-shrink-0">Max Livraisons:</span>
-                            <mat-form-field
-                              appearance="outline"
-                              class="w-100 densify-field text-center"
-                            >
-                              <input
-                                matInput
-                                type="number"
-                                formControlName="maxLivraison"
-                                [readonly]="!isOwner"
-                              />
-                            </mat-form-field>
-                          </div>
-                        </div>
-                      } @empty {
-                        <div class="p-y-16 text-center border-dashed rounded bg-light">
-                          <span class="text-muted f-s-12 italic">Pas de livraison</span>
-                        </div>
+          <div formArrayName="plage_livraison_boutique" class="row">
+            @for (jour of jours; track jour) {
+            <div class="col-md-6 col-lg-4 m-b-24">
+              <mat-card class="shadow-none border h-100 bg-hover-light transition-all text-info-card">
+                <mat-card-header class="p-16">
+                  <mat-card-title class="f-s-16 f-w-600 text-info">{{
+                    jour | titlecase
+                    }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-16 p-t-0">
+                  @for (item of getLivraisonControlsForDay(jour); track item.index) {
+                  <div [formGroupName]="item.index" class="m-b-16 border-bottom p-b-12">
+                    <div class="d-flex align-items-center gap-8 m-b-8">
+                      <mat-form-field appearance="outline" class="w-100 densify-field">
+                        <input matInput type="time" formControlName="ouverture" [readonly]="!isOwner" />
+                      </mat-form-field>
+                      <span class="f-w-600 text-info">-</span>
+                      <mat-form-field appearance="outline" class="w-100 densify-field">
+                        <input matInput type="time" formControlName="fermeture" [readonly]="!isOwner" />
+                      </mat-form-field>
+                      @if (isOwner) {
+                      <button type="button" mat-icon-button color="warn" (click)="removePlageLivraison(item.index)">
+                        <mat-icon class="icon-18">delete_outline</mat-icon>
+                      </button>
                       }
-                    </mat-card-content>
-                    @if (isOwner) {
-                      <mat-card-actions class="p-16 p-t-0">
-                        <button
-                          type="button"
-                          mat-stroked-button
-                          color="info"
-                          class="w-100 f-s-12"
-                          (click)="addPlageLivraison(jour)"
-                        >
-                          <mat-icon class="icon-16">add</mat-icon> Ajouter
-                        </button>
-                      </mat-card-actions>
-                    }
-                  </mat-card>
-                </div>
-              }
-            </div>
-
-            <mat-divider class="m-y-32"></mat-divider>
-
-            <!-- Configuration des Frais de Livraison -->
-            <div class="section-title-container m-b-24 d-flex align-items-center gap-8">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-primary">payments</mat-icon> Configuration des Frais de
-                Livraison
-              </h4>
-            </div>
-
-            <div class="row p-x-16">
-              <div class="col-lg-12 m-b-20">
-                <div
-                  class="delivery-status-box p-16 border rounded d-flex align-items-center justify-content-between bg-light-info-subtle border-info"
-                >
-                  <div class="d-flex align-items-center gap-16">
-                    <div class="bg-white rounded-circle p-8 shadow-sm">
-                      <mat-icon class="text-info d-block">local_shipping</mat-icon>
                     </div>
-                    <div>
-                      <div class="f-w-600 f-s-16">Service de Livraison</div>
-                      <div class="f-s-13 text-muted">
-                        Activer ou désactiver complètement la livraison pour votre boutique
-                      </div>
+                    <div class="d-flex align-items-center gap-12 bg-light p-x-12 p-y-8 rounded">
+                      <span class="text-muted f-s-12 flex-shrink-0">Max Livraisons:</span>
+                      <mat-form-field appearance="outline" class="w-100 densify-field text-center">
+                        <input matInput type="number" formControlName="maxLivraison" [readonly]="!isOwner" />
+                      </mat-form-field>
                     </div>
                   </div>
-                  <mat-slide-toggle
-                    formControlName="livraisonStatus"
-                    color="primary"
-                    [disabled]="!isOwner"
-                  ></mat-slide-toggle>
-                </div>
-              </div>
-
-              @if (form.get('livraisonStatus')?.value) {
-                <div class="col-lg-6 col-md-6">
-                  <mat-form-field appearance="outline" class="w-100">
-                    <mat-label>Frais de livraison fixe</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="fraisLivraison"
-                      [readonly]="!isOwner"
-                    />
-                    <span matSuffix class="f-w-600 p-r-8">Ar</span>
-                    <mat-icon matPrefix class="text-muted m-r-8">toll</mat-icon>
-                    <mat-hint>Montant prélevé pour chaque livraison (ex: 5000)</mat-hint>
-                  </mat-form-field>
-                </div>
-                <div class="col-12 m-t-8">
-                  <div class="bg-light p-12 rounded border-dashed d-flex align-items-center gap-8">
-                    <mat-icon class="text-muted icon-18">info_outline</mat-icon>
-                    <span class="f-s-12 text-muted"
-                      >Aide : Ce montant sera facturé pour chaque commande passée en mode livraison
-                      par boutique.</span
-                    >
+                  } @empty {
+                  <div class="p-y-16 text-center border-dashed rounded bg-light">
+                    <span class="text-muted f-s-12 italic">Pas de livraison</span>
                   </div>
-                </div>
-              }
+                  }
+                </mat-card-content>
+                @if (isOwner) {
+                <mat-card-actions class="p-16 p-t-0">
+                  <button type="button" mat-stroked-button color="info" class="w-100 f-s-12"
+                    (click)="addPlageLivraison(jour)">
+                    <mat-icon class="icon-16">add</mat-icon> Ajouter
+                  </button>
+                </mat-card-actions>
+                }
+              </mat-card>
             </div>
+            }
+          </div>
 
-            <mat-divider class="m-y-32"></mat-divider>
+          <mat-divider class="m-y-32"></mat-divider>
 
-            <!-- Options -->
-            <div class="section-title-container m-b-24">
-              <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
-                <mat-icon class="text-primary">settings_applications</mat-icon> Options Avancées
-              </h4>
-            </div>
-            <div class="row p-x-16">
-              <div class="col-lg-6 m-b-16">
-                <div
-                  class="option-toggle-card p-16 border rounded d-flex align-items-center justify-content-between"
-                >
+          <!-- Configuration des Frais de Livraison -->
+          <div class="section-title-container m-b-24 d-flex align-items-center gap-8">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">payments</mat-icon> Configuration des Frais de
+              Livraison
+            </h4>
+          </div>
+
+          <div class="row p-x-16">
+            <div class="col-lg-12 m-b-20">
+              <div
+                class="delivery-status-box p-16 border rounded d-flex align-items-center justify-content-between bg-light-info-subtle border-info">
+                <div class="d-flex align-items-center gap-16">
+                  <div class="bg-white rounded-circle p-8 shadow-sm">
+                    <mat-icon class="text-info d-block">local_shipping</mat-icon>
+                  </div>
                   <div>
-                    <div class="f-w-600">Click & Collect</div>
-                    <div class="f-s-12 text-muted italic">
-                      Permettre aux clients de récupérer leurs commandes
+                    <div class="f-w-600 f-s-16">Service de Livraison</div>
+                    <div class="f-s-13 text-muted">
+                      Activer ou désactiver complètement la livraison pour votre boutique
                     </div>
                   </div>
-                  <mat-slide-toggle
-                    formControlName="clickCollectActif"
-                    color="primary"
-                    [disabled]="!isOwner"
-                  >
-                  </mat-slide-toggle>
                 </div>
-              </div>
-              <div class="col-lg-6 m-b-16">
-                <div
-                  class="option-toggle-card p-16 border rounded d-flex align-items-center justify-content-between"
-                >
-                  <div>
-                    <div class="f-w-600">Livraison Express Jour J</div>
-                    <div class="f-s-12 text-muted italic">
-                      Activer la livraison pour les commandes du jour même
-                    </div>
-                  </div>
-                  <mat-slide-toggle
-                    formControlName="accepteLivraisonJourJ"
-                    color="info"
-                    [disabled]="!isOwner"
-                  >
-                  </mat-slide-toggle>
-                </div>
+                <mat-slide-toggle formControlName="livraisonStatus" color="primary"
+                  [disabled]="!isOwner"></mat-slide-toggle>
               </div>
             </div>
-          </form>
+
+            @if (form.get('livraisonStatus')?.value) {
+            <div class="col-lg-12 m-b-16">
+              <div class="form-group">
+                <label class="f-w-600 f-s-14 m-b-8 d-block">Type de frais</label>
+                <mat-radio-group formControlName="fraisLivraisonType" class="d-flex gap-24">
+                  <mat-radio-button value="fixe">Montant Fixe (Ar)</mat-radio-button>
+                  <mat-radio-button value="pourcentage">Pourcentage (%)</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>{{ form.get('fraisLivraisonType')?.value === 'pourcentage' ? 'Pourcentage' : 'Montant' }} {{
+                  isOwner ? 'de livraison' : '' }}</mat-label>
+                <input matInput type="number" formControlName="fraisLivraison" [readonly]="!isOwner" />
+                <span matSuffix class="f-w-700 p-r-8">{{ form.get('fraisLivraisonType')?.value === 'pourcentage' ? '%' :
+                  'Ar' }}</span>
+                <mat-icon matPrefix class="text-muted m-r-8">{{ form.get('fraisLivraisonType')?.value === 'pourcentage'
+                  ?
+                  'percent' : 'payments' }}</mat-icon>
+                <mat-hint>{{ form.get('fraisLivraisonType')?.value === 'pourcentage' ? 'Pourcentage calculé sur le total
+                  des articles' : 'Montant fixe par livraison' }}</mat-hint>
+              </mat-form-field>
+            </div>
+            <div class="col-12 m-t-8">
+              <div class="bg-light p-12 rounded border-dashed d-flex align-items-center gap-8">
+                <mat-icon class="text-muted icon-18">info_outline</mat-icon>
+                <span class="f-s-12 text-muted">Aide : Ce {{ form.get('fraisLivraisonType')?.value === 'pourcentage' ?
+                  'pourcentage' : 'montant' }} sera appliqué à chaque commande livrée par la boutique.</span>
+              </div>
+            </div>
+            }
+          </div>
+
+          <mat-divider class="m-y-32"></mat-divider>
+
+          <!-- Options -->
+          <div class="section-title-container m-b-24">
+            <h4 class="f-s-18 f-w-600 m-0 d-flex align-items-center gap-8">
+              <mat-icon class="text-primary">settings_applications</mat-icon> Options Avancées
+            </h4>
+          </div>
+          <div class="row p-x-16">
+            <div class="col-lg-6 m-b-16">
+              <div class="option-toggle-card p-16 border rounded d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="f-w-600">Click & Collect</div>
+                  <div class="f-s-12 text-muted italic">
+                    Permettre aux clients de récupérer leurs commandes
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="clickCollectActif" color="primary" [disabled]="!isOwner">
+                </mat-slide-toggle>
+              </div>
+            </div>
+            <div class="col-lg-6 m-b-16">
+              <div class="option-toggle-card p-16 border rounded d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="f-w-600">Livraison Express Jour J</div>
+                  <div class="f-s-12 text-muted italic">
+                    Activer la livraison pour les commandes du jour même
+                  </div>
+                </div>
+                <mat-slide-toggle formControlName="accepteLivraisonJourJ" color="info" [disabled]="!isOwner">
+                </mat-slide-toggle>
+              </div>
+            </div>
+          </div>
+        </form>
         }
       </mat-card-content>
     </mat-card>
@@ -729,13 +562,8 @@
 
 <!-- Bouton flottant pour remonter enregistrer si modifs -->
 @if (form.dirty && !isLoading) {
-  <button
-    mat-fab
-    color="warn"
-    class="floating-save-trigger shadow-lg"
-    (click)="scrollToTop()"
-    matTooltip="Cliquez ici pour remonter et enregistrer vos modifications !"
-  >
-    <mat-icon ripple="false">arrow_upward</mat-icon>
-  </button>
+<button mat-fab color="warn" class="floating-save-trigger shadow-lg" (click)="scrollToTop()"
+  matTooltip="Cliquez ici pour remonter et enregistrer vos modifications !">
+  <mat-icon ripple="false">arrow_upward</mat-icon>
+</button>
 }

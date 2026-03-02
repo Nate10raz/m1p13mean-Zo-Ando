@@ -74,6 +74,17 @@ export class DetailsCommandeComponent implements OnInit {
         });
     }
 
+    onStartDelivery(): void {
+        if (!this.commande) return;
+        this.commandeService.startBoutiqueDelivery(this.commande._id).subscribe({
+            next: () => {
+                this.snackBar.open('Livraison commencée', 'Fermer', { duration: 3000 });
+                this.fetchDetails(this.commande!._id);
+            },
+            error: (err) => this.snackBar.open('Erreur: ' + (err.error?.message || 'Inconnue'), 'Fermer')
+        });
+    }
+
     onConfirmDepot(boutiqueId: string): void {
         if (!this.commande) return;
         this.commandeService.confirmDepot(this.commande._id, boutiqueId).subscribe({

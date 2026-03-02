@@ -145,6 +145,29 @@
                                 <i-tabler name="check" class="icon-18 m-r-8"></i-tabler> Confirmer Réception
                             </button>
                             }
+
+                            <!-- Boutique specific actions -->
+                            @if (userRole === 'boutique' && shop.boutiqueId === boutiqueId && shop.status !== 'annulee')
+                            {
+                            <!-- Case 1: Direct boutique delivery -->
+                            @if (commande.typedelivery === 'livraison_boutique') {
+                            @if (shop.estAccepte && shop.status === 'en_preparation') {
+                            <button mat-flat-button color="accent" (click)="onStartDelivery()"
+                                class="rounded-pill shadow-sm">
+                                <i-tabler name="truck-delivery" class="icon-18 m-r-8"></i-tabler> Commencer Livraison
+                            </button>
+                            }
+                            }
+                            <!-- Case 2: Warehouse delivery (Marketplace or Collect) -->
+                            @if (['livraison_supermarche', 'collect'].includes(commande.typedelivery)) {
+                            @if (shop.estAccepte && shop.status === 'en_preparation' && !shop.depotEntrepot?.estFait) {
+                            <button mat-flat-button color="primary" (click)="onMarkDepot()"
+                                class="rounded-pill shadow-sm">
+                                <i-tabler name="package-export" class="icon-18 m-r-8"></i-tabler> Marquer comme Déposé
+                            </button>
+                            }
+                            }
+                            }
                         </div>
                     </mat-card-header>
                     <mat-card-content class="p-0">
@@ -256,9 +279,18 @@
                         <span class="f-w-600">{{ commande.baseTotal | currency: 'MGA' : 'Ar ' : '1.0-0' }}</span>
                     </div>
                     <div class="d-flex justify-content-between m-b-12">
-                        <span class="op-7">Livraison</span>
-                        <span class="f-w-600">{{ (commande.total - commande.baseTotal === 0) ? 'Gratuit' :
-                            (commande.total - commande.baseTotal | currency: 'MGA' : 'Ar ' : '1.0-0') }}</span>
+                        <div class="d-flex flex-column">
+                            <span class="op-7">Livraison</span>
+                            <small class="f-s-10 op-6 mt-n1" *ngIf="commande.fraisLivraison?.type === 'pourcentage'">
+                                ({{ commande.fraisLivraison?.valeur }}%)
+                            </small>
+                        </div>
+                        <span class="f-w-600">
+                            {{ (commande.fraisLivraison?.montant === 0 || (!commande.fraisLivraison && commande.total -
+                            commande.baseTotal === 0)) ? 'Gratuit' :
+                            (commande.fraisLivraison?.montant || (commande.total - commande.baseTotal) | currency: 'MGA'
+                            : 'Ar ' : '1.0-0') }}
+                        </span>
                     </div>
 
                     <mat-divider class="m-b-16 op-2"></mat-divider>

@@ -49,6 +49,8 @@ const commandeSchema = new mongoose.Schema({
         enum: [
           'en_preparation',
           'peut_etre_collecte',
+          'en_livraison',
+          'livree',
           'annulee',
           'en_attente_validation',
           'non_acceptee',
@@ -86,6 +88,11 @@ const commandeSchema = new mongoose.Schema({
   },
 
   baseTotal: { type: Number, required: true, min: 0 },
+  fraisLivraison: {
+    montant: { type: Number, default: 0 },
+    valeur: { type: Number, default: 0 },
+    type: { type: String, enum: ['fixe', 'pourcentage'], default: 'fixe' }
+  },
   total: { type: Number, required: true, min: 0 },
   notes: String,
   createdAt: { type: Date, default: Date.now },

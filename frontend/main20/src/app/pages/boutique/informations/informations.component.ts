@@ -61,6 +61,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       accepteLivraisonJourJ: [false],
       livraisonStatus: [true],
       fraisLivraison: [0, [Validators.min(0)]],
+      fraisLivraisonType: ['fixe'],
       manualSwitchOpen: [true],
     });
   }
@@ -251,6 +252,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
       accepteLivraisonJourJ: boutique.accepteLivraisonJourJ,
       livraisonStatus: boutique.livraisonStatus ?? true,
       fraisLivraison: boutique.fraisLivraison ?? 0,
+      fraisLivraisonType: boutique.fraisLivraisonData?.type || 'fixe',
       manualSwitchOpen: boutique.manualSwitchOpen ?? true,
     });
 
@@ -547,5 +549,5 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   `,
 })
 export class ConfirmMergeDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
 }

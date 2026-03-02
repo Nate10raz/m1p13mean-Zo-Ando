@@ -26,8 +26,8 @@ export class CheckoutComponent implements OnInit {
     boutiqueCount = 0;
     allFromSameBoutique = false;
     boutiqueAllowsDelivery = false;
-    boutiqueDeliveryFee = 0;
-    marketDeliveryFee = 0; // Value as assumed previously
+    boutiqueDeliveryFee: { montant: number; type: 'fixe' | 'pourcentage' } = { montant: 0, type: 'fixe' };
+    marketDeliveryFee: { montant: number; type: 'fixe' | 'pourcentage' } = { montant: 0, type: 'fixe' }; // Value as assumed previously
 
     // Added for availability checks
     allBoutiques: any[] = [];
@@ -75,8 +75,10 @@ export class CheckoutComponent implements OnInit {
     ngOnInit(): void {
         this.boutiqueService.getMarketplaceFee().subscribe((res) => {
             if (res.data) {
-                this.marketDeliveryFee = res.data.montant;
-                this.deliveryOptions[1].fee = this.marketDeliveryFee;
+                this.marketDeliveryFee = {
+                    montant: res.data.montant,
+                    type: res.data.type || 'fixe'
+                };
             }
         });
 
@@ -125,7 +127,11 @@ export class CheckoutComponent implements OnInit {
                             this.allBoutiques.push(res.data);
                             if (id === firstBoutiqueId) {
                                 this.boutiqueAllowsDelivery = res.data.livraisonStatus || false;
-                                this.boutiqueDeliveryFee = res.data.fraisLivraison || 0;
+                                if (res.data.fraisLivraisonData) {
+                                    this.boutiqueDeliveryFee = res.data.fraisLivraisonData;
+                                } else {
+                                    this.boutiqueDeliveryFee = { montant: res.data.fraisLivraison || 0, type: 'fixe' };
+                                }
                             }
                         }
                     });
@@ -145,18 +151,46 @@ export class CheckoutComponent implements OnInit {
     }
 
     get finalTotal(): number {
-        const selectedType = this.checkoutForm.get('typedelivery')?.value;
-        let fee = 0;
-        if (selectedType === 'livraison_supermarche') fee = this.marketDeliveryFee;
-        if (selectedType === 'livraison_boutique') fee = this.boutiqueDeliveryFee;
-        return this.totalPrice + fee;
+        return this.totalPrice + this.currentFee;
     }
 
     get currentFee(): number {
         const selectedType = this.checkoutForm.get('typedelivery')?.value;
-        if (selectedType === 'livraison_supermarche') return this.marketDeliveryFee;
-        if (selectedType === 'livraison_boutique') return this.boutiqueDeliveryFee;
+        if (selectedType === 'livraison_supermarche') {
+            return this.marketDeliveryFee.type === 'pourcentage'
+                ? (this.totalPrice * this.marketDeliveryFee.montant) / 100
+                : this.marketDeliveryFee.montant;
+        }
+        if (selectedType === 'livraison_boutique') {
+            return this.boutiqueDeliveryFee.type === 'pourcentage'
+                ? (this.totalPrice * this.boutiqueDeliveryFee.montant) / 100
+                : this.boutiqueDeliveryFee.montant;
+        }
         return 0;
+    }
+
+    getOptionFee(optionId: string): number {
+        if (optionId === 'livraison_supermarche') {
+            return this.marketDeliveryFee.type === 'pourcentage'
+                ? (this.totalPrice * this.marketDeliveryFee.montant) / 100
+                : this.marketDeliveryFee.montant;
+        }
+        if (optionId === 'livraison_boutique') {
+            return this.boutiqueDeliveryFee.type === 'pourcentage'
+                ? (this.totalPrice * this.boutiqueDeliveryFee.montant) / 100
+                : this.boutiqueDeliveryFee.montant;
+        }
+        return 0;
+    }
+
+    getOptionDescription(option: any): string {
+        if (option.id === 'livraison_supermarche' && this.marketDeliveryFee.type === 'pourcentage') {
+            return `+ ${this.marketDeliveryFee.montant}% du total`;
+        }
+        if (option.id === 'livraison_boutique' && this.boutiqueDeliveryFee.type === 'pourcentage') {
+            return `+ ${this.boutiqueDeliveryFee.montant}% du total`;
+        }
+        return option.description;
     }
 
     onSubmit(): void {

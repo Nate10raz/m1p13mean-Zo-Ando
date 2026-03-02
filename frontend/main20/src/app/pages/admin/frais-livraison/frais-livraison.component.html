@@ -1,0 +1,167 @@
+<div class="frais-livraison-container p-24">
+    <div class="d-sm-flex align-items-center justify-content-between m-b-24">
+        <div>
+            <h4 class="f-s-24 f-w-700 m-0">Gestion des Frais de Livraison</h4>
+            <p class="f-s-14 text-muted m-t-4">Configurez les frais de livraison globaux pour le supermarché</p>
+        </div>
+        <div class="m-t-16 m-sm-t-0 p-16 rounded bg-light-primary border-primary border d-flex align-items-center gap-12"
+            *ngIf="currentFee">
+            <div class="p-8 rounded bg-primary text-white d-flex align-items-center justify-content-center">
+                <i-tabler name="truck" class="icon-20"></i-tabler>
+            </div>
+            <div>
+                <span class="f-s-11 text-muted text-uppercase d-block mb-1">Frais Actuel</span>
+                <span class="f-s-18 f-w-700 text-primary">
+                    {{ currentFee.type === 'fixe' ? 'Ar ' : '' }}{{ currentFee.montant | number:'1.0-0' }}{{
+                    currentFee.type === 'pourcentage' ? '%' : '' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Configuration Form -->
+        <div class="col-lg-4 col-md-5">
+            <mat-card class="cardWithShadow border-0 overflow-hidden m-b-24">
+                <mat-card-header class="bg-primary text-white p-24">
+                    <mat-card-title class="f-s-16 f-w-600 m-0">Nouvelle Configuration</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="p-24">
+                    <form [formGroup]="fraisForm" (ngSubmit)="onSubmit()">
+                        <div class="m-b-20">
+                            <mat-label class="f-s-14 f-w-600 d-block m-b-8">Montant</mat-label>
+                            <mat-form-field appearance="outline" class="w-100">
+                                <span matPrefix *ngIf="fraisForm.get('type')?.value === 'fixe'"
+                                    class="p-r-8 p-l-12">Ar</span>
+                                <input matInput type="number" formControlName="montant" placeholder="Ex: 5000">
+                                <span matSuffix *ngIf="fraisForm.get('type')?.value === 'pourcentage'"
+                                    class="p-r-12">%</span>
+                                <mat-error *ngIf="fraisForm.get('montant')?.hasError('required')">Le montant est
+                                    requis</mat-error>
+                                <mat-error *ngIf="fraisForm.get('montant')?.hasError('min')">Le montant doit être
+                                    positif</mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="m-b-20">
+                            <mat-label class="f-s-14 f-w-600 d-block m-b-8">Type de frais</mat-label>
+                            <mat-radio-group formControlName="type" class="d-flex gap-16">
+                                <mat-radio-button value="fixe">Fixe (Somme)</mat-radio-button>
+                                <mat-radio-button value="pourcentage">Pourcentage (%)</mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+
+                        <div class="m-b-24">
+                            <mat-label class="f-s-14 f-w-600 d-block m-b-8">Description / Raison</mat-label>
+                            <mat-form-field appearance="outline" class="w-100">
+                                <textarea matInput formControlName="description" rows="4"
+                                    placeholder="Ex: Ajustement suite à la hausse du carburant..."></textarea>
+                                <mat-hint align="end">{{fraisForm.get('description')?.value?.length ||
+                                    0}}/200</mat-hint>
+                            </mat-form-field>
+                        </div>
+
+                        <button mat-flat-button color="primary" class="w-100 p-y-24 f-s-15"
+                            [disabled]="fraisForm.invalid || isSaving">
+                            <div class="d-flex align-items-center gap-8 justify-content-center">
+                                <mat-spinner diameter="18" *ngIf="isSaving"></mat-spinner>
+                                <span>{{ isSaving ? 'Enregistrement...' : 'Mettre à jour les frais' }}</span>
+                            </div>
+                        </button>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- History Table -->
+        <div class="col-lg-8 col-md-7">
+            <mat-card class="cardWithShadow border-0">
+                <mat-card-content class="p-24">
+                    <div class="d-flex align-items-center justify-content-between m-b-24">
+                        <h5 class="f-s-18 f-w-600 m-0">Historique des modifications</h5>
+                        <button mat-icon-button (click)="loadHistory()" [disabled]="isLoading">
+                            <i-tabler name="refresh" class="icon-20"></i-tabler>
+                        </button>
+                    </div>
+
+                    <div class="responsive-table">
+                        <table mat-table [dataSource]="history" class="w-100">
+                            <!-- Date Column -->
+                            <ng-container matColumnDef="date">
+                                <th mat-header-cell *matHeaderCellDef (click)="null" class="f-s-14 f-w-600">Date de
+                                    modification</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div class="d-flex flex-column">
+                                        <span class="f-s-14 f-w-600 text-dark">{{ row.createdAt | date:'dd/MM/yyyy'
+                                            }}</span>
+                                        <span class="f-s-12 text-muted">{{ row.createdAt | date:'HH:mm' }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Montant Column -->
+                            <ng-container matColumnDef="montant">
+                                <th mat-header-cell *matHeaderCellDef (click)="null" class="f-s-14 f-w-600">Montant</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="f-s-14 f-w-700 text-primary">
+                                        {{ row.type === 'fixe' ? 'Ar ' : '' }}{{ row.montant | number:'1.0-0' }}{{
+                                        row.type === 'pourcentage' ? '%' : '' }}
+                                    </span>
+                                </td>
+                            </ng-container>
+
+                            <!-- Type Column -->
+                            <ng-container matColumnDef="type">
+                                <th mat-header-cell *matHeaderCellDef (click)="null" class="f-s-14 f-w-600">Type</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="badge-status"
+                                        [ngClass]="row.type === 'fixe' ? 'bg-light-info text-info' : 'bg-light-warning text-warning'">
+                                        {{ row.type === 'fixe' ? 'Fixe' : 'Pourcentage' }}
+                                    </span>
+                                </td>
+                            </ng-container>
+
+                            <!-- UpdatedBy Column -->
+                            <ng-container matColumnDef="updatedBy">
+                                <th mat-header-cell *matHeaderCellDef (click)="null" class="f-s-14 f-w-600">Modifié par
+                                </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="f-s-14 text-dark f-w-500">{{ row.creePar?.nom }} {{ row.creePar?.prenom
+                                        }}</span>
+                                </td>
+                            </ng-container>
+
+                            <!-- Description Column -->
+                            <ng-container matColumnDef="description">
+                                <th mat-header-cell *matHeaderCellDef (click)="null" class="f-s-14 f-w-600">Description
+                                </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="f-s-13 text-muted" [matTooltip]="row.description">{{ row.description |
+                                        slice:0:30 }}{{ row.description?.length > 30 ? '...' : '' }}</span>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="history-row"
+                                [class.active-fee]="row.estActif"></tr>
+
+                            <!-- Row shown when there is no data -->
+                            <tr class="mat-row" *matNoDataRow>
+                                <td class="mat-cell p-24 text-center" colspan="5">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i-tabler name="history" class="icon-40 text-muted m-b-12"></i-tabler>
+                                        <span class="f-s-14 text-muted">Aucun historique disponible</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <mat-paginator [length]="total" [pageSize]="limit" [pageSizeOptions]="[5, 10, 20]"
+                        (page)="onPageChange($event)" class="m-t-16">
+                    </mat-paginator>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>
