@@ -15,6 +15,7 @@ export interface AdminUser {
   nom: string;
   prenom: string;
   telephone: string;
+  googleId?: string;
   isEmailVerified: boolean;
   preferences: {
     notifications: boolean;
@@ -57,6 +58,10 @@ export interface AdminSuspendUserResponse {
     status?: AdminUserStatus;
     motifSuspension?: string;
   };
+}
+
+export interface AdminResetPasswordResponse {
+  user: AdminUser;
 }
 
 export interface AdminReactivateUserResponse {
@@ -310,7 +315,9 @@ export class AdminService {
     });
   }
 
-  getUserById(userId: string): Observable<ApiResponse<AdminUser | AdminUserDetailResponse>> {
+  getUserById(
+    userId: string,
+  ): Observable<ApiResponse<AdminUser | AdminUserDetailResponse>> {
     return this.http.get<ApiResponse<AdminUser | AdminUserDetailResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}`,
     );
@@ -326,6 +333,12 @@ export class AdminService {
     );
   }
 
+  resetUserPassword(userId: string): Observable<ApiResponse<AdminResetPasswordResponse>> {
+    return this.http.patch<ApiResponse<AdminResetPasswordResponse>>(
+      `${this.apiRootUrl}/admin/users/${userId}/password`,
+      {},
+    );
+  }
   reactivateUser(userId: string): Observable<ApiResponse<AdminReactivateUserResponse>> {
     return this.http.patch<ApiResponse<AdminReactivateUserResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}/reactivate`,
