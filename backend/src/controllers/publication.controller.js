@@ -4,17 +4,10 @@ import { successResponse, errorResponse, badRequestResponse } from '../utils/res
 class PublicationController {
   /**
    * @openapi
-   * tags:
-   *   - name: Publications
-   *     description: Gestion du fil d'actualité, likes, commentaires et signalements
-   */
-
-  /**
-   * @openapi
    * /publications:
    *   post:
    *     tags: [Publications]
-   *     summary: Créer une publication (Admin/Boutique)
+   *     summary: Créer une publication
    *     security: [{ bearerAuth: [] }]
    *     requestBody:
    *       required: true
@@ -24,12 +17,9 @@ class PublicationController {
    *             type: object
    *             properties:
    *               contenu: { type: string }
-   *               medias: { type: array, items: { type: string }, description: "URLs des médias (images/vidéos)" }
-   *               scheduledAt: { type: string, format: date-time, description: "Date de publication différée" }
-   *               expiresAt: { type: string, format: date-time, description: "Date d'expiration (archivage auto)" }
+   *               medias: { type: array, items: { type: string } }
    *     responses:
    *       201: { description: Publication créée }
-   *       400: { description: Contenu ou médias manquants }
    */
   async create(req, res) {
     try {
@@ -57,25 +47,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications:
-   *   get:
-   *     tags: [Publications]
-   *     summary: Obtenir le fil d'actualité (Public/Client)
-   *     parameters:
-   *       - in: query
-   *         name: page
-   *         schema: { type: integer, minimum: 1, default: 1 }
-   *       - in: query
-   *         name: limit
-   *         schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
-   *       - in: query
-   *         name: search
-   *         schema: { type: string }
-   *     responses:
-   *       200: { description: Liste des publications paginée }
-   */
   async getFeed(req, res) {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -91,22 +62,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/seen:
-   *   post:
-   *     tags: [Publications]
-   *     summary: Marquer une publication comme vue (Connecté)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     responses:
-   *       200: { description: Marquée comme vu }
-   *       404: { description: Publication introuvable }
-   */
   async markSeen(req, res) {
     try {
       const { id } = req.params;
@@ -117,22 +72,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/like:
-   *   post:
-   *     tags: [Publications]
-   *     summary: Liker / Unliker une publication (Connecté)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     responses:
-   *       200: { description: État du like mis à jour }
-   *       404: { description: Publication introuvable }
-   */
   async like(req, res) {
     try {
       const { id } = req.params;
@@ -143,32 +82,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/comments:
-   *   post:
-   *     tags: [Publications]
-   *     summary: Ajouter un commentaire (Connecté)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required: [contenu]
-   *             properties:
-   *               contenu: { type: string }
-   *     responses:
-   *       201: { description: Commentaire ajouté }
-   *       400: { description: Contenu vide }
-   *       404: { description: Publication introuvable }
-   */
   async addComment(req, res) {
     try {
       const { id } = req.params;
@@ -183,23 +96,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/comments:
-   *   get:
-   *     tags: [Publications]
-   *     summary: Récupérer les commentaires d'une publication
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *       - in: query
-   *         name: page
-   *         schema: { type: integer, minimum: 1, default: 1 }
-   *     responses:
-   *       200: { description: Liste des commentaires paginée }
-   */
   async getComments(req, res) {
     try {
       const { id } = req.params;
@@ -211,23 +107,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}:
-   *   delete:
-   *     tags: [Publications]
-   *     summary: Supprimer une publication (Auteur ou Admin)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     responses:
-   *       200: { description: Publication supprimée }
-   *       403: { description: Action non autorisée }
-   *       404: { description: Publication introuvable }
-   */
   async delete(req, res) {
     try {
       const { id } = req.params;
@@ -238,32 +117,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/report:
-   *   post:
-   *     tags: [Publications]
-   *     summary: Signaler une publication (Client)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required: [reason]
-   *             properties:
-   *               reason: { type: string }
-   *     responses:
-   *       200: { description: Publication signalée }
-   *       400: { description: Seuls les clients peuvent signaler }
-   *       404: { description: Publication introuvable }
-   */
   async report(req, res) {
     try {
       const { id } = req.params;
@@ -280,21 +133,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/reported:
-   *   get:
-   *     tags: [Publications]
-   *     summary: Obtenir les publications signalées (Admin)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: query
-   *         name: page
-   *         schema: { type: integer, minimum: 1, default: 1 }
-   *     responses:
-   *       200: { description: Liste des publications signalées }
-   *       403: { description: Accès réservé aux admins }
-   */
   async getReported(req, res) {
     try {
       if (req.user.role !== 'admin') {
@@ -309,23 +147,6 @@ class PublicationController {
     }
   }
 
-  /**
-   * @openapi
-   * /publications/{id}/dismiss-reports:
-   *   patch:
-   *     tags: [Publications]
-   *     summary: Ignorer les signalements d'une publication (Admin)
-   *     security: [{ bearerAuth: [] }]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema: { type: string }
-   *     responses:
-   *       200: { description: Signalements ignorés }
-   *       403: { description: Accès réservé aux admins }
-   *       404: { description: Publication introuvable }
-   */
   async dismissReports(req, res) {
     try {
       if (req.user.role !== 'admin') {

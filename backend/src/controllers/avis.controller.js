@@ -3,35 +3,7 @@ import User from '../models/User.js';
 import Boutique from '../models/Boutique.js';
 
 /**
- * @openapi
- * tags:
- *   - name: Avis
- *     description: Gestion des avis, notes et signalements sur produits et boutiques
- */
-
-/**
- * @openapi
- * /avis:
- *   post:
- *     tags: [Avis]
- *     summary: Soumettre un nouvel avis (Client)
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [type, boutiqueId, note]
- *             properties:
- *               type: { type: string, enum: [produit, boutique], description: "Type d'entité notée" }
- *               produitId: { type: string, description: "ID du produit si type=produit" }
- *               boutiqueId: { type: string, description: "ID de la boutique" }
- *               note: { type: integer, minimum: 1, maximum: 5, example: 5 }
- *               titre: { type: string, example: "Excellent service" }
- *               commentaire: { type: string, example: "Livraison rapide et produit conforme." }
- *     responses:
- *       201: { description: Avis créé avec succès }
+ * Créer un avis (Produit ou Boutique).
  */
 export const createAvis = async (req, res, next) => {
   try {
@@ -43,7 +15,7 @@ export const createAvis = async (req, res, next) => {
     }
 
     if (type === 'produit' && !produitId) {
-      return res.status(400).json({ message: 'produitId est requis for un avis produit.' });
+      return res.status(400).json({ message: 'produitId est requis pour un avis produit.' });
     }
 
     const avis = await AvisService.createAvis({
@@ -63,28 +35,7 @@ export const createAvis = async (req, res, next) => {
 };
 
 /**
- * @openapi
- * /avis/{avisId}/reponse:
- *   post:
- *     tags: [Avis]
- *     summary: Répondre à un avis existant (Boutique/Admin)
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: avisId
- *         required: true
- *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [message]
- *             properties:
- *               message: { type: string }
- *     responses:
- *       200: { description: Réponse enregistrée }
+ * Répondre à un avis.
  */
 export const respondToAvis = async (req, res, next) => {
   try {
@@ -131,28 +82,7 @@ export const respondToAvis = async (req, res, next) => {
 };
 
 /**
- * @openapi
- * /avis/{avisId}/signalement:
- *   post:
- *     tags: [Avis]
- *     summary: Signaler un avis inapproprié
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: avisId
- *         required: true
- *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [raison]
- *             properties:
- *               raison: { type: string, example: "Commentaire offensant" }
- *     responses:
- *       200: { description: Signalement pris en compte }
+ * Signaler un avis.
  */
 export const reportAvis = async (req, res, next) => {
   try {
@@ -168,49 +98,7 @@ export const reportAvis = async (req, res, next) => {
 };
 
 /**
- * @openapi
- * /avis/admin/signales:
- *   get:
- *     tags: [Avis]
- *     summary: Lister tous les avis signalés (Admin)
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200: { description: Liste des avis en attente de modération }
- */
-export const getSignaledAvis = async (req, res, next) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Réservé aux admins.' });
-
-    const avis = await AvisService.getSignaledAvis();
-    res.status(200).json(avis);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @openapi
- * /avis/admin/{avisId}/signalement:
- *   patch:
- *     tags: [Avis]
- *     summary: Modérer un avis signalé (Accepter/Rejeter) (Admin)
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: avisId
- *         required: true
- *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [action]
- *             properties:
- *               action: { type: string, enum: [accepter, rejeter], description: "accepter supprime l'avis, rejeter ignore le signalement" }
- *     responses:
- *       200: { description: Modération effectuée }
+ * Action sur avis signalé (Admin).
  */
 export const adminActionOnReport = async (req, res, next) => {
   try {
@@ -227,22 +115,21 @@ export const adminActionOnReport = async (req, res, next) => {
 };
 
 /**
- * @openapi
- * /avis/{type}/{id}:
- *   get:
- *     tags: [Avis]
- *     summary: Consulter les avis publics d'une entité (Boutique/Produit)
- *     parameters:
- *       - in: path
- *         name: type
- *         required: true
- *         schema: { type: string, enum: [produit, boutique] }
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: string }
- *     responses:
- *       200: { description: Liste des avis validés }
+ * Récupérer les avis signalés (Admin).
+ */
+export const getSignaledAvis = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Réservé aux admins.' });
+
+    const avis = await AvisService.getSignaledAvis();
+    res.status(200).json(avis);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Récupérer les avis par produit ou boutique.
  */
 export const getAvisByEntity = async (req, res, next) => {
   try {

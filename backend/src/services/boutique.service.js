@@ -428,7 +428,10 @@ export const getBoutiqueSalesDashboard = async (
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$produitId', '$$pid'] }, { $eq: ['$boutiqueId', '$$bid'] }],
+                  $and: [
+                    { $eq: ['$produitId', '$$pid'] },
+                    { $eq: ['$boutiqueId', '$$bid'] },
+                  ],
                 },
               },
             },
@@ -447,7 +450,10 @@ export const getBoutiqueSalesDashboard = async (
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$produitId', '$$pid'] }, { $eq: ['$boutiqueId', '$$bid'] }],
+                  $and: [
+                    { $eq: ['$produitId', '$$pid'] },
+                    { $eq: ['$boutiqueId', '$$bid'] },
+                  ],
                 },
               },
             },
@@ -475,7 +481,10 @@ export const getBoutiqueSalesDashboard = async (
       {
         $match: {
           $expr: {
-            $and: [{ $ne: ['$seuilAlerte', null] }, { $lte: ['$stockTheorique', '$seuilAlerte'] }],
+            $and: [
+              { $ne: ['$seuilAlerte', null] },
+              { $lte: ['$stockTheorique', '$seuilAlerte'] },
+            ],
           },
         },
       },
@@ -689,7 +698,10 @@ export const getBoutiqueInventory = async (
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$produitId', '$$pid'] }, { $eq: ['$boutiqueId', '$$bid'] }],
+                $and: [
+                  { $eq: ['$produitId', '$$pid'] },
+                  { $eq: ['$boutiqueId', '$$bid'] },
+                ],
               },
             },
           },
@@ -708,7 +720,10 @@ export const getBoutiqueInventory = async (
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$produitId', '$$pid'] }, { $eq: ['$boutiqueId', '$$bid'] }],
+                $and: [
+                  { $eq: ['$produitId', '$$pid'] },
+                  { $eq: ['$boutiqueId', '$$bid'] },
+                ],
               },
             },
           },
@@ -994,9 +1009,15 @@ export const exportBoutiqueStockMovementsCsv = async (
   }
 
   const maxExport = 5000;
-  const parsedLimit = Math.min(maxExport, Math.max(1, parseInt(limit, 10) || maxExport));
+  const parsedLimit = Math.min(
+    maxExport,
+    Math.max(1, parseInt(limit, 10) || maxExport),
+  );
 
-  const rows = await MouvementStock.find(match).sort({ createdAt: -1 }).limit(parsedLimit).lean();
+  const rows = await MouvementStock.find(match)
+    .sort({ createdAt: -1 })
+    .limit(parsedLimit)
+    .lean();
 
   const csv = buildStockMovementsCsv(rows, produit);
   const safeName = String(produit.titre || 'produit')
@@ -1060,7 +1081,10 @@ export const exportBoutiqueStockMovementsGlobalCsv = async (
   }
 
   const maxExport = 10000;
-  const parsedLimit = Math.min(maxExport, Math.max(1, parseInt(limit, 10) || maxExport));
+  const parsedLimit = Math.min(
+    maxExport,
+    Math.max(1, parseInt(limit, 10) || maxExport),
+  );
 
   const produitCollection = Produit.collection.name;
   const pipeline = [
@@ -1114,10 +1138,7 @@ export const exportBoutiqueStockMovementsGlobalCsv = async (
   };
 };
 
-export const createBoutiqueStockMovementsBulk = async (
-  payload,
-  auth = { userId: null, role: null },
-) => {
+export const createBoutiqueStockMovementsBulk = async (payload, auth = { userId: null, role: null }) => {
   if (!auth || auth.role !== 'boutique') {
     throw createError('Forbidden', 403);
   }
@@ -1161,9 +1182,7 @@ export const createBoutiqueStockMovementsBulk = async (
     }
 
     const reference =
-      typeof item.reference === 'string' && item.reference.trim()
-        ? item.reference.trim()
-        : undefined;
+      typeof item.reference === 'string' && item.reference.trim() ? item.reference.trim() : undefined;
     const raison =
       typeof item.raison === 'string' && item.raison.trim() ? item.raison.trim() : undefined;
 
@@ -1264,9 +1283,7 @@ export const importBoutiqueStockCsv = async (payload, auth = { userId: null, rol
     const skuRaw = typeof item.sku === 'string' && item.sku.trim() ? item.sku.trim() : null;
     const stockPhysique = normalizeNumber(item.stockPhysique);
     const reference =
-      typeof item.reference === 'string' && item.reference.trim()
-        ? item.reference.trim()
-        : undefined;
+      typeof item.reference === 'string' && item.reference.trim() ? item.reference.trim() : undefined;
     const raison =
       typeof item.raison === 'string' && item.raison.trim() ? item.raison.trim() : undefined;
 
@@ -1357,11 +1374,7 @@ export const importBoutiqueStockCsv = async (payload, auth = { userId: null, rol
       continue;
     }
 
-    if (
-      produitById &&
-      produitByName &&
-      produitById._id.toString() !== produitByName._id.toString()
-    ) {
+    if (produitById && produitByName && produitById._id.toString() !== produitByName._id.toString()) {
       errors.push({
         row: rowNumber,
         field: 'produitId/produit',
@@ -1370,11 +1383,7 @@ export const importBoutiqueStockCsv = async (payload, auth = { userId: null, rol
       continue;
     }
 
-    if (
-      produitBySku &&
-      produitByName &&
-      produitBySku._id.toString() !== produitByName._id.toString()
-    ) {
+    if (produitBySku && produitByName && produitBySku._id.toString() !== produitByName._id.toString()) {
       errors.push({
         row: rowNumber,
         field: 'sku/produit',
@@ -1528,9 +1537,7 @@ export const createBoutiqueStockMovement = async (payload, auth = { userId: null
       ? payload.reference.trim()
       : undefined;
   const raison =
-    typeof payload?.raison === 'string' && payload.raison.trim()
-      ? payload.raison.trim()
-      : undefined;
+    typeof payload?.raison === 'string' && payload.raison.trim() ? payload.raison.trim() : undefined;
 
   if ((type === 'ajout' || type === 'retrait') && (!quantite || quantite <= 0)) {
     throw createError('quantite invalide', 400);
@@ -1563,7 +1570,9 @@ export const createBoutiqueStockMovement = async (payload, auth = { userId: null
   });
 
   if (!beforeDoc) {
-    const exists = await Produit.findOne({ _id: produitId, boutiqueId }).select('_id stock').lean();
+    const exists = await Produit.findOne({ _id: produitId, boutiqueId })
+      .select('_id stock')
+      .lean();
     if (!exists) {
       throw createError('Produit introuvable', 404);
     }

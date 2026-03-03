@@ -63,7 +63,13 @@ const boutiqueUpdateValidation = [
   body('accepteLivraisonJourJ').optional().isBoolean(),
 ];
 
-// Routes protégées par auth/role
+/**
+ * @openapi
+ * tags :
+ *   - name : Boutiques
+ *     description : Gestion des boutiques
+ */
+
 router.get('/me', requireAuth, requireRole('boutique'), getMyBoutiqueController);
 router.put('/me', requireAuth, requireRole('boutique'), updateMyBoutiqueController);
 router.patch(
@@ -193,5 +199,106 @@ router.post(
   validateRequest,
   importBoutiqueStockCsvController,
 );
+
+/**
+ * @openapi
+ * /boutiques/me:
+ *   get:
+ *     tags: [Boutiques]
+ *     summary: Recuperer la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200: { description: Boutique }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ */
+
+/**
+ * @openapi
+ * /boutiques/me:
+ *   patch:
+ *     tags: [Boutiques]
+ *     summary: Mettre a jour la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               description: { type: string }
+ *               logo: { type: string, format: uri }
+ *               banner: { type: string, format: uri }
+ *               adresse: { type: string }
+ *               horaires: { type: array }
+ *               telephone: { type: string }
+ *               email: { type: string, format: email }
+ *               clickCollectActif: { type: boolean }
+ *               plage_livraison_boutique: { type: array }
+ *               accepteLivraisonJourJ: { type: boolean }
+ *     responses:
+ *       200: { description: Boutique mise a jour }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ *//**
+ * @openapi
+ * /boutiques/me:
+ *   patch:
+ *     tags: [Boutiques]
+ *     summary: Mettre a jour la boutique de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               description: { type: string }
+ *               logo: { type: string, format: uri }
+ *               banner: { type: string, format: uri }
+ *               adresse: { type: string }
+ *               horaires: { type: array }
+ *               telephone: { type: string }
+ *               email: { type: string, format: email }
+ *               clickCollectActif: { type: boolean }
+ *               plage_livraison_boutique: { type: array }
+ *               accepteLivraisonJourJ: { type: boolean }
+ *     responses:
+ *       200: { description: Boutique mise a jour }
+ *       403: { description: Forbidden }
+ *       404: { description: Boutique introuvable }
+ */
+
+/**
+ * @openapi
+ * /boutiques/dashboard/ventes:
+ *   get:
+ *     tags: [Boutiques]
+ *     summary: Dashboard ventes et vue boutique
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: topN
+ *         schema: { type: integer, minimum: 1, maximum: 50 }
+ *       - in: query
+ *         name: granularity
+ *         schema: { type: string, enum: [day, week, month] }
+ *     responses:
+ *       200: { description: Dashboard ventes boutique }
+ */
 
 export default router;

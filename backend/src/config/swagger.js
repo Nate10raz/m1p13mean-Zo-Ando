@@ -8,10 +8,8 @@ export const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'M1P13 Marketplace API',
-      version: '1.1.0',
-      description:
-        'Documentation complète des APIs pour la plateforme de gestion de boutique et marketplace.',
+      title: 'Backend API',
+      version: '1.0.0',
     },
     servers: [{ url: serverUrl }],
     components: {

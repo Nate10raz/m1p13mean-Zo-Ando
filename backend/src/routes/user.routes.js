@@ -50,8 +50,89 @@ const passwordChangeValidation = [
     }),
 ];
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Users
+ *     description: Profil utilisateur
+ */
+
+/**
+ * @openapi
+ * /users/me:
+ *   get:
+ *     tags: [Users]
+ *     summary: Recuperer le profil de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200: { description: Profil utilisateur }
+ *       401: { description: Non authentifie }
+ *       404: { description: Utilisateur introuvable }
+ */
 router.get('/me', requireAuth, getMyProfileController);
+
+/**
+ * @openapi
+ * /users/me:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Mettre a jour le profil de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom: { type: string }
+ *               prenom: { type: string }
+ *               telephone: { type: string }
+ *               avatar: { type: string }
+ *               adresseLivraison: { type: string }
+ *               preferences:
+ *                 type: object
+ *                 properties:
+ *                   notifications:
+ *                     type: object
+ *                     properties:
+ *                       email: { type: boolean }
+ *                       inApp: { type: boolean }
+ *     responses:
+ *       200: { description: Profil utilisateur mis a jour }
+ *       401: { description: Non authentifie }
+ *       404: { description: Utilisateur introuvable }
+ */
 router.patch('/me', requireAuth, updateValidation, validateRequest, updateMyProfileController);
+
+/**
+ * @openapi
+ * /users/me/password:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Changer le mot de passe de l'utilisateur connecte
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword]
+ *             properties:
+ *               currentPassword: { type: string }
+ *               newPassword: { type: string }
+ *               confirmPassword: { type: string }
+ *     responses:
+ *       200: { description: Mot de passe modifie }
+ *       400: { description: Requete invalide }
+ *       401: { description: Non authentifie }
+ *       403: { description: Utilisateur non actif }
+ *       404: { description: Utilisateur introuvable }
+ */
 router.patch(
   '/me/password',
   requireAuth,

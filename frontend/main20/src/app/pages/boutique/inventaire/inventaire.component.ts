@@ -10,12 +10,7 @@ import {
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { debounceTime, distinctUntilChanged, finalize, Subscription } from 'rxjs';
 
@@ -361,7 +356,7 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     };
     reader.onerror = () => {
-      this.importErrors = ['Erreur lors de la lecture du fichier'];
+      this.importErrors = ["Erreur lors de la lecture du fichier"];
       this.isParsingImport = false;
       this.cdr.markForCheck();
     };
@@ -388,9 +383,7 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
           next: (res) => {
             const summary = res.data;
             this.snackBar.open(
-              summary
-                ? `Import rÃ©ussi: ${summary.updated} produit(s) mis Ã  jour`
-                : 'Import rÃ©ussi',
+              summary ? `Import rÃ©ussi: ${summary.updated} produit(s) mis Ã  jour` : 'Import rÃ©ussi',
               'Fermer',
               { duration: 4000 },
             );
@@ -399,9 +392,13 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
           error: (err) => {
             const dataErrors = err?.error?.data?.errors;
             if (Array.isArray(dataErrors) && dataErrors.length) {
-              this.importErrors = dataErrors.map((e: any) => `Ligne ${e.row}: ${e.message}`);
+              this.importErrors = dataErrors.map(
+                (e: any) => `Ligne ${e.row}: ${e.message}`,
+              );
             } else {
-              this.importErrors = [err?.error?.message || "Erreur lors de l'import CSV"];
+              this.importErrors = [
+                err?.error?.message || "Erreur lors de l'import CSV",
+              ];
             }
           },
         }),
@@ -475,7 +472,8 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
     const lowStock = this.lowStockControl.value;
     const categorieId = this.categoryControl.value || undefined;
     const statusValue = this.statusControl.value;
-    const estActif = statusValue === 'all' ? undefined : statusValue === 'active';
+    const estActif =
+      statusValue === 'all' ? undefined : statusValue === 'active';
 
     this.subscriptions.add(
       this.boutiqueService
@@ -512,11 +510,7 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
     );
   }
 
-  private applyMovement(
-    row: InventoryRow,
-    type: StockMovementType,
-    payload: MovementDialogResult,
-  ): void {
+  private applyMovement(row: InventoryRow, type: StockMovementType, payload: MovementDialogResult): void {
     row.isUpdating = true;
     this.cdr.markForCheck();
 
@@ -542,7 +536,7 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.snackBar.open(
-              err?.error?.message || 'Erreur lors de la mise a jour du stock',
+              err?.error?.message || "Erreur lors de la mise a jour du stock",
               'Fermer',
               { duration: 4000 },
             );
@@ -612,9 +606,7 @@ export class BoutiqueInventaireComponent implements OnInit, OnDestroy {
     const legacyHeaders = ['produitId', 'sku', 'stockPhysique', 'raison', 'reference'];
     const headers = rows.shift() || [];
     let normalizedHeaders = headers.map((h, index) => {
-      const value = String(h || '')
-        .replace(/\ufeff/g, '')
-        .trim();
+      const value = String(h || '').replace(/\ufeff/g, '').trim();
       return index === 0 ? value : value;
     });
     while (normalizedHeaders.length && normalizedHeaders[normalizedHeaders.length - 1] === '') {
@@ -917,13 +909,7 @@ export class InventoryMovementDialogComponent {
         <button mat-stroked-button type="button" (click)="reload()" [disabled]="isLoading">
           Actualiser
         </button>
-        <button
-          mat-flat-button
-          color="primary"
-          type="button"
-          (click)="exportCsv()"
-          [disabled]="isExporting"
-        >
+        <button mat-flat-button color="primary" type="button" (click)="exportCsv()" [disabled]="isExporting">
           Exporter CSV
         </button>
       </form>
@@ -952,10 +938,7 @@ export class InventoryMovementDialogComponent {
             <ng-container matColumnDef="quantite">
               <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-14">QuantitÃ©</th>
               <td mat-cell *matCellDef="let element">
-                <span
-                  [class.text-success]="getSignedQuantity(element) > 0"
-                  [class.text-error]="getSignedQuantity(element) < 0"
-                >
+                <span [class.text-success]="getSignedQuantity(element) > 0" [class.text-error]="getSignedQuantity(element) < 0">
                   {{ getSignedQuantity(element) > 0 ? '+' : '' }}{{ getSignedQuantity(element) }}
                 </span>
               </td>
@@ -1098,9 +1081,11 @@ export class InventoryHistoryDialogComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (blob) => this.downloadBlob(blob),
           error: (err) => {
-            this.snackBar.open(err?.error?.message || "Erreur lors de l'export CSV", 'Fermer', {
-              duration: 4000,
-            });
+            this.snackBar.open(
+              err?.error?.message || "Erreur lors de l'export CSV",
+              'Fermer',
+              { duration: 4000 },
+            );
           },
         }),
     );
@@ -1139,7 +1124,8 @@ export class InventoryHistoryDialogComponent implements OnInit, OnDestroy {
             this.limit = data?.limit ?? this.limit;
           },
           error: (err) => {
-            this.errorMessage = err?.error?.message || "Erreur lors du chargement de l'historique";
+            this.errorMessage =
+              err?.error?.message || "Erreur lors du chargement de l'historique";
             this.items = [];
             this.total = 0;
           },
@@ -1149,8 +1135,7 @@ export class InventoryHistoryDialogComponent implements OnInit, OnDestroy {
 
   private buildQuery(limitOverride?: number): BoutiqueStockMovementQuery {
     const values = this.filtersForm.getRawValue();
-    const type =
-      values.type === 'all' ? undefined : (values.type as BoutiqueStockMovementItem['type']);
+    const type = values.type === 'all' ? undefined : (values.type as BoutiqueStockMovementItem['type']);
     const query: BoutiqueStockMovementQuery = {
       produitId: this.data.product.productId,
       page: this.page,
