@@ -54,6 +54,10 @@ export class PublicationsComponent implements OnInit {
   searchQuery = '';
   private searchSubject = new Subject<string>();
 
+  // Lightbox
+  selectedMediaIndex: number | null = null;
+  activeMedias: string[] = [];
+
   @ViewChild('scrollEnd') scrollEnd!: ElementRef;
 
   constructor(
@@ -329,5 +333,44 @@ export class PublicationsComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Lightbox methods
+  openLightbox(medias: string[], index: number) {
+    this.activeMedias = medias;
+    this.selectedMediaIndex = index;
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
+    document.body.classList.add('lightbox-open');
+  }
+
+  closeLightbox() {
+    this.selectedMediaIndex = null;
+    this.activeMedias = [];
+    document.body.style.overflow = '';
+    document.body.classList.remove('lightbox-open');
+  }
+
+  nextMedia(event?: Event) {
+    if (event) event.stopPropagation();
+    if (this.selectedMediaIndex !== null && this.activeMedias.length > 0) {
+      this.selectedMediaIndex = (this.selectedMediaIndex + 1) % this.activeMedias.length;
+    }
+  }
+
+  prevMedia(event?: Event) {
+    if (event) event.stopPropagation();
+    if (this.selectedMediaIndex !== null && this.activeMedias.length > 0) {
+      this.selectedMediaIndex =
+        (this.selectedMediaIndex - 1 + this.activeMedias.length) % this.activeMedias.length;
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (this.selectedMediaIndex !== null) {
+      if (event.key === 'ArrowRight') this.nextMedia();
+      if (event.key === 'ArrowLeft') this.prevMedia();
+      if (event.key === 'Escape') this.closeLightbox();
+    }
   }
 }

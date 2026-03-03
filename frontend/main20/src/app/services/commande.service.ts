@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { CartService } from './cart.service';
 
 export interface Commande {
   _id: string;
@@ -44,10 +45,17 @@ export interface Commande {
 export class CommandeService {
   private apiUrl = `${environment.apiUrl}/commande`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cartService: CartService,
+  ) {}
 
   createCommande(deliveryData: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, deliveryData);
+    return this.http.post<any>(this.apiUrl, deliveryData).pipe(
+      tap(() => {
+        this.cartService.clearCartLocally();
+      }),
+    );
   }
 
   getMyCommandes(): Observable<{ success: boolean; data: Commande[] }> {
