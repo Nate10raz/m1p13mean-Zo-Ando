@@ -166,9 +166,12 @@ export class AppProduitListComponent implements OnInit, OnDestroy {
     return row.productId || String(index);
   }
 
-  getCategoryLabel(id: string | undefined | null): string {
+  getCategoryLabel(id: any): string {
     if (!id) {
       return '-';
+    }
+    if (typeof id === 'object') {
+      return id.nom || '-';
     }
     return this.categoryMap.get(id)?.nom ?? id;
   }

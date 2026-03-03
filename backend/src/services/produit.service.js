@@ -286,6 +286,10 @@ const sanitizeProduitForClient = (produit) => {
 
   return {
     _id: produit._id,
+    boutiqueId:
+      produit.boutiqueId && typeof produit.boutiqueId === 'object'
+        ? produit.boutiqueId._id
+        : produit.boutiqueId,
     titre: produit.titre,
     slug: produit.slug,
     description: produit.description,

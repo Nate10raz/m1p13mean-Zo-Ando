@@ -61,11 +61,15 @@
                   </div>
                 </div>
               </div>
-              <mat-card-subtitle class="m-t-8 d-flex align-items-center gap-12 flex-wrap">
+              <mat-card-subtitle
+                class="m-t-8 d-flex align-items-center gap-12 flex-wrap cursor-pointer"
+                (click)="scrollToAvis($event)"
+              >
                 <app-star-rating
                   [rating]="boutique?.noteMoyenne || 0"
                   [count]="boutique?.nombreAvis"
                 ></app-star-rating>
+                <span class="text-muted f-s-12">(Voir les avis)</span>
               </mat-card-subtitle>
             </div>
           </div>
@@ -753,10 +757,236 @@
                 </div>
               </div>
             </div>
+
+            <mat-divider class="m-y-32"></mat-divider>
+
+            <!-- Section Avis Boutique -->
+            <div id="avis-section" class="m-t-32">
+              <h3 class="f-s-20 f-w-700 m-b-24 d-flex align-items-center gap-8">
+                <mat-icon class="text-warning">star</mat-icon> Avis sur la boutique ({{
+                  avisList.length
+                }})
+              </h3>
+
+              @if (canReview) {
+                <mat-card class="bg-light-primary m-b-24 border-none shadow-none">
+                  <mat-card-content>
+                    <h4 class="m-t-0 f-s-16 f-w-600">Laisser un avis sur cette boutique</h4>
+                    <div class="rating-stars m-b-16 text-warning">
+                      @for (star of getStars(5); track star) {
+                        <mat-icon
+                          class="cursor-pointer"
+                          [class.text-muted]="newAvis.note < star"
+                          (click)="onRate(star)"
+                        >
+                          {{ newAvis.note >= star ? 'star' : 'star_border' }}
+                        </mat-icon>
+                      }
+                      <span class="m-l-8 text-dark fw-semibold">{{ newAvis.note }}/5</span>
+                    </div>
+                    <div class="row">
+                      <div class="col-12">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Titre (facultatif)</mat-label>
+                          <input
+                            matInput
+                            [(ngModel)]="newAvis.titre"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Ex: Boutique accueillante"
+                          />
+                        </mat-form-field>
+                      </div>
+                      <div class="col-12">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Votre commentaire</mat-label>
+                          <textarea
+                            matInput
+                            rows="3"
+                            [(ngModel)]="newAvis.commentaire"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Partagez votre avis sur les produits ou le service..."
+                          ></textarea>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <button
+                        mat-flat-button
+                        color="primary"
+                        [disabled]="isSubmittingAvis"
+                        (click)="submitAvis()"
+                        class="rounded-pill p-x-24"
+                      >
+                        Publier mon avis
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+
+              @if (isLoadingAvis) {
+                <div class="text-center p-48">
+                  <mat-spinner diameter="30" class="d-inline-block"></mat-spinner>
+                  <p class="m-t-16 text-muted">Chargement des avis...</p>
+                </div>
+              } @else if (avisList.length === 0) {
+                <div class="text-center p-48 text-muted border-dashed rounded-12">
+                  <mat-icon class="f-s-48 m-b-16 opacity-25">reviews</mat-icon>
+                  <p class="m-0">Aucun avis pour le moment.</p>
+                </div>
+              } @else {
+                <div class="avis-list">
+                  @for (avis of avisList; track avis._id) {
+                    <div
+                      class="avis-item p-24 m-b-24 border rounded-12 bg-white transition-all shadow-sm"
+                    >
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex gap-16">
+                          <div
+                            class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 48px; height: 48px"
+                          >
+                            <mat-icon class="text-primary opacity-50">person</mat-icon>
+                          </div>
+                          <div>
+                            <div class="m-b-4">
+                              <app-star-rating
+                                [rating]="avis.note"
+                                [showNumber]="false"
+                                [size]="14"
+                              ></app-star-rating>
+                            </div>
+                            <div class="fw-bold f-s-16">{{ avis.titre || 'Avis client' }}</div>
+                            <div class="text-muted f-s-12">
+                              Par {{ avis.clientId?.prenom }} {{ avis.clientId?.nom }} • Le
+                              {{ avis.createdAt | date: 'dd/MM/yyyy' }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-8">
+                          @if (isOwner && !avis.reponses?.length) {
+                            <button
+                              mat-stroked-button
+                              color="primary"
+                              class="rounded-pill"
+                              (click)="toggleReponseForm(avis._id)"
+                            >
+                              Répondre
+                            </button>
+                          }
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            [matTooltip]="'Signaler cet avis'"
+                            (click)="reportAvis(avis)"
+                          >
+                            <mat-icon>report_problem</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <p class="m-t-16 m-b-0 f-s-15 line-height-1-6">{{ avis.commentaire }}</p>
+
+                      <!-- Formulaire de réponse -->
+                      @if (showReponseForm === avis._id) {
+                        <div class="m-t-24 p-24 bg-light-primary rounded-12">
+                          <h5 class="m-t-0 f-w-600">Répondre à cet avis</h5>
+                          <mat-form-field appearance="outline" class="w-100 m-t-8">
+                            <mat-label>Votre réponse</mat-label>
+                            <textarea
+                              matInput
+                              rows="3"
+                              [(ngModel)]="reponseMessage"
+                              [ngModelOptions]="{ standalone: true }"
+                            ></textarea>
+                          </mat-form-field>
+                          <div class="d-flex justify-content-end gap-12">
+                            <button
+                              mat-button
+                              class="rounded-pill"
+                              (click)="toggleReponseForm(avis._id)"
+                            >
+                              Annuler
+                            </button>
+                            <button
+                              mat-flat-button
+                              color="primary"
+                              class="rounded-pill"
+                              [disabled]="isSubmittingReponse || !reponseMessage.trim()"
+                              (click)="submitReponse(avis)"
+                            >
+                              Publier la réponse
+                            </button>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Liste des réponses existantes -->
+                      @if (avis.reponses && avis.reponses.length > 0) {
+                        <div class="m-t-24">
+                          @for (rep of avis.reponses; track rep.dateReponse) {
+                            <div
+                              class="m-l-32 p-20 bg-light rounded-12 border-left-4 border-primary shadow-xs"
+                            >
+                              <div class="d-flex align-items-center gap-8 m-b-8">
+                                <mat-icon class="text-primary f-s-18 w-18 h-18">reply</mat-icon>
+                                <span class="fw-bold text-primary f-s-13">
+                                  @if (rep.roleRepondant === 'boutique') {
+                                    {{ rep.prenomRepondant }} de {{ rep.nomBoutique }}
+                                  } @else {
+                                    {{ rep.prenomRepondant }} (Administration)
+                                  }
+                                </span>
+                                <span class="text-muted f-s-10"
+                                  >• {{ rep.dateReponse | date: 'dd/MM/yyyy' }}</span
+                                >
+                              </div>
+                              <div class="f-s-14 line-height-1-5">{{ rep.message }}</div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
           </form>
         }
       </mat-card-content>
     </mat-card>
+
+    <style>
+      .rating-stars mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .bg-light-primary {
+        background-color: rgba(93, 135, 255, 0.08);
+      }
+
+      .w-18 {
+        width: 18px !important;
+      }
+
+      .h-18 {
+        height: 18px !important;
+      }
+
+      .border-left-4 {
+        border-left: 4px solid !important;
+      }
+
+      .cursor-pointer {
+        cursor: pointer;
+      }
+
+      .shadow-xs {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+    </style>
   </div>
 </div>
 

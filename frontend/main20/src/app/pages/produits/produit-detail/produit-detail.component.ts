@@ -14,10 +14,15 @@ import { MaterialModule } from '../../../material.module';
 import { ProductCreateResponse, ProductService } from 'src/app/services/product.service';
 import { CategoryNode, CategoryService } from 'src/app/services/category.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Avis, AvisService } from 'src/app/services/avis.service';
+import { MatDialog } from '@angular/material/dialog';
+import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-produit-detail',
-  imports: [CommonModule, RouterModule, MaterialModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule, MaterialModule, StarRatingComponent, FormsModule],
   templateUrl: './produit-detail.component.html',
   styles: [
     `
@@ -168,6 +173,18 @@ import { AuthService } from 'src/app/services/auth.service';
         font-size: 13px;
         color: #475569;
       }
+
+      .bg-light-primary {
+        background-color: rgba(93, 135, 255, 0.08);
+      }
+
+      .border-left-4 {
+        border-left: 4px solid !important;
+      }
+
+      .cursor-pointer {
+        cursor: pointer;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -181,6 +198,15 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
   categoryMap = new Map<string, CategoryNode>();
   userRole: string | null = null;
 
+  // Avis
+  avisList: Avis[] = [];
+  isLoadingAvis = false;
+
+  // Reponse form
+  showReponseForm: string | null = null;
+  reponseMessage = '';
+  isSubmittingReponse = false;
+
   private readonly subscriptions = new Subscription();
 
   constructor(
@@ -188,10 +214,12 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private categoryService: CategoryService,
     private authService: AuthService,
+    private avisService: AvisService,
     private router: Router,
     private location: Location,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -207,6 +235,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
           return;
         }
         this.loadProduct(id);
+        this.loadAvis(id);
       }),
     );
   }
@@ -227,7 +256,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    this.snackBar.open('Suppression a venir.', 'Fermer', { duration: 3000 });
+    this.snackBar.open('Suppression à venir.', 'Fermer', { duration: 3000 });
   }
 
   selectImage(url: string): void {
@@ -266,6 +295,64 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadAvis(produitId: string): void {
+    this.isLoadingAvis = true;
+    this.cdr.markForCheck();
+
+    this.avisService
+      .getByEntity('produit', produitId)
+      .pipe(
+        finalize(() => {
+          this.isLoadingAvis = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (avis) => {
+          this.avisList = avis;
+        },
+        error: () => {
+          this.snackBar.open('Erreur lors du chargement des avis.', 'Fermer', { duration: 2000 });
+        },
+      });
+  }
+
+  toggleReponseForm(avisId: string): void {
+    if (this.showReponseForm === avisId) {
+      this.showReponseForm = null;
+      this.reponseMessage = '';
+    } else {
+      this.showReponseForm = avisId;
+      this.reponseMessage = '';
+    }
+  }
+
+  submitReponse(avis: Avis): void {
+    if (!this.reponseMessage.trim()) return;
+
+    this.isSubmittingReponse = true;
+    this.avisService.addReponse(avis._id, this.reponseMessage).subscribe({
+      next: (updatedAvis: Avis) => {
+        const idx = this.avisList.findIndex((a) => a._id === avis._id);
+        if (idx !== -1) {
+          this.avisList[idx] = updatedAvis;
+        }
+        this.showReponseForm = null;
+        this.reponseMessage = '';
+        this.isSubmittingReponse = false;
+        this.snackBar.open('Réponse publiée !', 'Fermer', { duration: 3000 });
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isSubmittingReponse = false;
+        this.snackBar.open(err?.error?.message || 'Erreur lors de la publication.', 'Fermer', {
+          duration: 4000,
+        });
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   private setupImages(product: ProductCreateResponse): void {
     const images = product.images ?? [];
     const main = images.find((item) => item.isMain) ?? images[0];
@@ -287,9 +374,13 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCategoryLabel(id: string | undefined | null): string {
+  getCategoryLabel(id: any): string {
     if (!id) {
       return '-';
+    }
+    // Handle case where id is actually the populated category object
+    if (typeof id === 'object') {
+      return id.nom || '-';
     }
     return this.categoryMap.get(id)?.nom ?? id;
   }
@@ -300,5 +391,9 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
     }
     const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(value);
     return `Ar ${formatted}`;
+  }
+
+  getStars(note: number): number[] {
+    return [1, 2, 3, 4, 5];
   }
 }

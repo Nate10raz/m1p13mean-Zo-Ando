@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 
 const avisSchema = new mongoose.Schema({
-  produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', required: true, index: true },
+  type: { type: String, enum: ['produit', 'boutique'], required: true, index: true },
+  produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit', index: true }, // Requis si type 'produit'
   boutiqueId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Boutique',
@@ -12,23 +13,32 @@ const avisSchema = new mongoose.Schema({
   note: { type: Number, min: 1, max: 5, required: true },
   commentaire: String,
   titre: String,
+  estMasque: { type: Boolean, default: false },
 
   reponses: [
     {
       message: String,
-      dateReponse: Date,
+      dateReponse: { type: Date, default: Date.now },
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      roleRepondant: { type: String, enum: ['admin', 'boutique', 'client'] },
+      boutiqueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Boutique' }, // Si réponse d'une boutique
+      roleRepondant: { type: String, enum: ['admin', 'boutique'] },
+      prenomRepondant: String, // Pour "Prenom de Boutique"
+      nomBoutique: String,
     },
   ],
 
   estSignale: { type: Boolean, default: false },
+  statutSignalement: {
+    type: String,
+    enum: ['aucun', 'en_attente', 'valide', 'rejete'],
+    default: 'aucun',
+  },
 
   signalements: [
     {
-      userId: mongoose.Schema.Types.ObjectId,
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       raison: String,
-      date: Date,
+      date: { type: Date, default: Date.now },
     },
   ],
 

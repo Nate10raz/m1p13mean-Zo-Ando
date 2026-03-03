@@ -198,9 +198,12 @@
                       <div>
                         <div class="f-s-15 f-w-700 text-primary">{{ prod.price }}</div>
                       </div>
-                      <div class="d-flex align-items-center gap-4 text-warning f-s-12 f-w-600">
-                        <i-tabler name="star-filled" class="icon-13 d-flex"></i-tabler>
-                        {{ prod.rating }}
+                      <div class="d-flex align-items-center">
+                        <app-star-rating
+                          [rating]="+prod.rating"
+                          [showNumber]="true"
+                          [size]="14"
+                        ></app-star-rating>
                       </div>
                     </div>
                     <button
@@ -376,10 +379,8 @@
           @for (t of testimonials.slice(0, 3); track t.id) {
             <mat-card class="cardWithShadow m-b-12" [class.lp-testi-featured]="t.featured">
               <mat-card-content>
-                <div class="d-flex gap-2 m-b-8">
-                  @for (s of [1, 2, 3, 4, 5]; track s) {
-                    <i-tabler name="star-filled" class="icon-13 d-flex text-warning"></i-tabler>
-                  }
+                <div class="m-b-8">
+                  <app-star-rating [rating]="5" [showNumber]="false" [size]="14"></app-star-rating>
                 </div>
                 <p class="f-s-13 lp-testi-quote m-b-12">"{{ t.quote }}"</p>
                 <div class="d-flex align-items-center gap-10">

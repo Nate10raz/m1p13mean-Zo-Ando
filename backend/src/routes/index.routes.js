@@ -15,6 +15,7 @@ import payementBoxRoutes from './payement-box.routes.js';
 import uploadRoutes from './upload.routes.js';
 import panierRoutes from './panier.routes.js';
 import commandeRoutes from './commande.routes.js';
+import avisRoutes from './avis.routes.js';
 
 const router = Router();
 
@@ -50,6 +51,7 @@ router.use('/payements-box', payementBoxRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/panier', panierRoutes);
 router.use('/commande', commandeRoutes);
+router.use('/avis', avisRoutes);
 
 /**
  * @openapi
