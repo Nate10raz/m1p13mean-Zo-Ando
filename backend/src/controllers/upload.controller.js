@@ -14,6 +14,40 @@ const uploadToCloudinary = (file, folder) =>
     stream.end(file.buffer);
   });
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Uploads
+ *     description: Service mutualisé de stockage Cloudinary
+ */
+
+/**
+ * @openapi
+ * /uploads/media:
+ *   post:
+ *     tags: [Uploads]
+ *     summary: Uploader une image ou vidéo vers le cloud
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Fichier média à stocker
+ *               folder:
+ *                 type: string
+ *                 description: Destination logique (profiles, produits, publications)
+ *                 example: "publications"
+ *     responses:
+ *       200:
+ *         description: Métadonnées du fichier stocké (URL, ID, dimensions)
+ */
 export const uploadMediaController = async (req, res, next) => {
   try {
     if (!req.file) {

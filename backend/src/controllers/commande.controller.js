@@ -2,6 +2,47 @@ import * as commandeService from '../services/commande.service.js';
 import User from '../models/User.js';
 import Boutique from '../models/Boutique.js';
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Commandes
+ *     description: Cycle de vie des commandes (Création, Expédition, Livraison, Annulation)
+ */
+
+/**
+ * @openapi
+ * /commandes:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Créer une commande groupée (Client)
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items, totalAmount, deliveryAddress, phoneNumber, boutiqueIds]
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [produitId, quantite, prixUnitaire]
+ *                   properties:
+ *                     produitId: { type: string }
+ *                     variationId: { type: string }
+ *                     quantite: { type: integer, example: 1 }
+ *                     prixUnitaire: { type: number }
+ *               totalAmount: { type: number, description: "Prix total incluant frais" }
+ *               deliveryAddress: { type: string }
+ *               phoneNumber: { type: string }
+ *               boutiqueIds: { type: array, items: { type: string }, description: "Liste des boutiques impliquées" }
+ *               fraisLivraison: { type: number }
+ *               modePaiement: { type: string, enum: [cash, mobile_money], default: cash }
+ *     responses:
+ *       201: { description: Commande enregistrée avec succès }
+ */
 export const createCommande = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -16,6 +57,16 @@ export const createCommande = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/my:
+ *   get:
+ *     tags: [Commandes]
+ *     summary: Récupérer l'historique des commandes (Client)
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Liste chronologique des commandes du client }
+ */
 export const getMyCommandes = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -29,6 +80,16 @@ export const getMyCommandes = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/boutique/all:
+ *   get:
+ *     tags: [Commandes]
+ *     summary: Voir les commandes reçues par ma boutique (Boutique)
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Liste des commandes concernant les produits de la boutique }
+ */
 export const getBoutiqueCommandes = async (req, res, next) => {
   try {
     let { boutiqueId } = req.user;
@@ -52,6 +113,16 @@ export const getBoutiqueCommandes = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/admin/all:
+ *   get:
+ *     tags: [Commandes]
+ *     summary: Tableau de bord de toutes les commandes mondiales (Admin)
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Liste complète des commandes }
+ */
 export const getAllCommandes = async (req, res, next) => {
   try {
     const commandes = await commandeService.getAllCommandes();
@@ -64,6 +135,21 @@ export const getAllCommandes = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/{id}:
+ *   get:
+ *     tags: [Commandes]
+ *     summary: Consulter le détail d'une commande spécifique
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Détails incluant tracking, produits et adresses }
+ */
 export const getCommandeDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -79,6 +165,21 @@ export const getCommandeDetails = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/boutique/accept/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Confirmer la prise en charge d'une commande (Boutique)
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Commande acceptée et stock réservé }
+ */
 export const acceptOrder = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -100,6 +201,21 @@ export const acceptOrder = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/boutique/start-delivery/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Initier la livraison vers le point de collecte (Boutique)
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Statut mis à jour vers "En route" }
+ */
 export const startBoutiqueDelivery = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -121,6 +237,30 @@ export const startBoutiqueDelivery = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/admin/confirm-depot/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Confirmer la réception des produits au centre de tri (Admin)
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [boutiqueId]
+ *             properties:
+ *               boutiqueId: { type: string, description: "ID de la boutique qui a déposé le colis" }
+ *     responses:
+ *       200: { description: Passage enregistré au point relais central }
+ */
 export const confirmDepot = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -133,6 +273,21 @@ export const confirmDepot = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/admin/mark-delivered/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Marquer la commande comme remise au client final (Admin)
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Commande clôturée avec succès }
+ */
 export const markAsDelivered = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -144,6 +299,28 @@ export const markAsDelivered = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/cancel/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Annuler intégralement une commande
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason: { type: string, example: "Produit hors stock ou changement d'avis" }
+ *     responses:
+ *       200: { description: Commande annulée }
+ */
 export const cancelOrder = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -157,6 +334,33 @@ export const cancelOrder = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/cancel-item/{id}/{produitId}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Annuler une ligne spécifique d'une commande
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: produitId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               boutiqueId: { type: string }
+ *               reason: { type: string }
+ *     responses:
+ *       200: { description: Item annulé et remboursé si nécessaire }
+ */
 export const cancelItem = async (req, res, next) => {
   try {
     const { id, produitId } = req.params;
@@ -178,6 +382,21 @@ export const cancelItem = async (req, res, next) => {
   }
 };
 
+/**
+ * @openapi
+ * /commandes/confirm-receipt/{id}:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Valider la réception conforme par le client final
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Statut finalisé }
+ */
 export const confirmFinal = async (req, res, next) => {
   try {
     const { id } = req.params;

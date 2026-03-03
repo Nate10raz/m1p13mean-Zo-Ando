@@ -13,15 +13,6 @@ const optionalAuth = (req, res, next) => {
   }
   next();
 };
-
-/**
- * @openapi
- * tags:
- *   - name: Publications
- *     description: Gestion du fil d'actualité, likes et commentaires
- */
-
-// Obtenir le fil d'actualité (Infinite scroll)
 router.get('/', optionalAuth, publicationController.getFeed);
 
 // Créer une publication (Admin et Boutique uniquement)

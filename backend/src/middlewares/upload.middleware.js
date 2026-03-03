@@ -19,7 +19,7 @@ export const productImageUpload = multer({
     fileSize: 100 * 1024 * 1024, // 100MB
     files: 10,
   },
-}).array('images', 10);
+});
 
 export const singleImageUpload = (fieldName = 'image') =>
   multer({

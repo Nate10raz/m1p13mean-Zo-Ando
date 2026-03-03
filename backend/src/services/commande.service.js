@@ -263,7 +263,10 @@ export const createCommande = async (userId, deliveryData) => {
     }
     const boutique = boutiques[0];
     if (!boutique.livraisonStatus) {
-      throw createError(`La boutique ${boutique.nom} ne propose pas de livraison Ã  domicile.`, 400);
+      throw createError(
+        `La boutique ${boutique.nom} ne propose pas de livraison Ã  domicile.`,
+        400,
+      );
     }
     if (isJourJ && !boutique.accepteLivraisonJourJ) {
       throw createError(`La boutique ${boutique.nom} n'accepte pas la livraison au Jour J.`, 400);
@@ -466,7 +469,9 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId, userId) => {
     return commande;
   }
 
-  const items = (commande.boutiques[bIndex].items || []).filter((item) => item.status !== 'annulee');
+  const items = (commande.boutiques[bIndex].items || []).filter(
+    (item) => item.status !== 'annulee',
+  );
   const changes = items.map((item) => ({
     produitId: item.produitId,
     variationId: item.variationId,
@@ -810,6 +815,3 @@ export const confirmFinalReceipt = async (commandeId, userId, role) => {
 
   return commande;
 };
-
-
-

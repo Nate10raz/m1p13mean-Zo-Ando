@@ -20,23 +20,9 @@ import publicationRoutes from './publication.routes.js';
 
 const router = Router();
 
-/**
- * @openapi
- * tags:
- *   - name: System
- *     description: Routes systeme et documentation
- */
-
-/**
- * @openapi
- * /:
- *   get:
- *     tags: [System]
- *     summary: Endpoint de base
- *     responses:
- *       200: { description: Hello endpoint }
- */
 router.get('/', helloController);
+
+// Auth & Admin
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
 router.use('/categories', categoryRoutes);
