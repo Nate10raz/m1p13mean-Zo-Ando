@@ -91,9 +91,9 @@ export class AppSideLoginComponent implements OnInit, AfterViewInit {
     }
 
     const defaults: Record<'client' | 'boutique' | 'admin', LoginPayload> = {
-      admin: { email: 'admin@example.com', password: 'adminroot123' },
-      boutique: { email: 'boutique@example.com', password: 'boutique123' },
-      client: { email: 'client@example.com', password: 'jane123' },
+      admin: { email: 'adminroot@example.com', password: 'adminroot123' },
+      boutique: { email: 'rafitra@gmail.com', password: 'rafitra123' },
+      client: { email: 'defaultuser@gmail.com', password: 'userd123' },
     };
 
     this.form.setValue(defaults[this.role]);
