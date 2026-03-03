@@ -3,6 +3,7 @@ import Produit from '../models/Produit.js';
 import Boutique from '../models/Boutique.js';
 import User from '../models/User.js';
 import AlerteStock from '../models/AlerteStock.js';
+import MouvementStock from '../models/MouvementStock.js';
 import Commande from '../models/Commande.js';
 import { createNotification } from './notification.service.js';
 import VariationProduit from '../models/VariationProduit.js';
@@ -133,7 +134,7 @@ const pickInStockProducts = async ({ filter, sort, limit, excludeIds = [] } = {}
   return results;
 };
 
-const triggerStockAlertIfNeeded = async ({
+export const triggerStockAlertIfNeeded = async ({
   produitId,
   boutiqueId,
   variationId = null,
@@ -934,7 +935,26 @@ export const updateProduit = async (productId, payload, auth) => {
   if (payload.stock !== undefined) {
     const stockAfter =
       produit.stock && typeof produit.stock === 'object' ? produit.stock.quantite : undefined;
-    if (stockAfter !== stockBefore) {
+    if (typeof stockAfter === 'number' && stockAfter !== stockBefore) {
+      const stockBeforeValue = typeof stockBefore === 'number' ? stockBefore : 0;
+      const delta = stockAfter - stockBeforeValue;
+      if (delta !== 0) {
+        try {
+          await MouvementStock.create({
+            produitId: produit._id,
+            boutiqueId: produit.boutiqueId,
+            type: 'ajustement',
+            quantite: Math.abs(delta),
+            stockAvant: stockBeforeValue,
+            stockApres: stockAfter,
+            reference: 'update_produit',
+            userId: auth.userId,
+            raison: 'Mise a jour du stock produit',
+          });
+        } catch (error) {
+          console.error('Stock mouvement creation failed:', error);
+        }
+      }
       try {
         await triggerStockAlertIfNeeded({
           produitId: produit._id,
