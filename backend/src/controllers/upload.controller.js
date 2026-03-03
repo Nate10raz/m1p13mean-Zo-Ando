@@ -5,7 +5,7 @@ import { apiResponse } from '../utils/response.util.js';
 const uploadToCloudinary = (file, folder) =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'image' },
+      { folder, resource_type: 'auto' },
       (err, result) => {
         if (err) return reject(err);
         return resolve(result);
@@ -14,7 +14,7 @@ const uploadToCloudinary = (file, folder) =>
     stream.end(file.buffer);
   });
 
-export const uploadSingleImageController = async (req, res, next) => {
+export const uploadMediaController = async (req, res, next) => {
   try {
     if (!req.file) {
       throw new Error('Aucun fichier fourni');

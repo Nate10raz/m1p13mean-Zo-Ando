@@ -17,6 +17,11 @@ export const navItems: NavItem[] = [
     roles: ['client'],
   },
   {
+    displayName: 'Actualités',
+    iconName: 'news',
+    route: '/actualites',
+  },
+  {
     displayName: 'Dashboard',
     iconName: 'layout-grid-add',
     route: '/dashboard',

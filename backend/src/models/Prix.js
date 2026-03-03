@@ -18,10 +18,9 @@ prixSchema.pre('save', function () {
 });
 
 // Validation : produitId ou variationId doit être présent
-prixSchema.pre('validate', function (next) {
+prixSchema.pre('validate', function () {
   if (!this.produitId && !this.variationId) {
-    next(new Error('Soit produitId, soit variationId doit être fourni'));
-  } else {
+    throw new Error('Soit produitId, soit variationId doit être fourni');
   }
 });
 

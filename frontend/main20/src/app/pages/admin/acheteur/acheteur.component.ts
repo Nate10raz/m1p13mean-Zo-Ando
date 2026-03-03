@@ -150,8 +150,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
       });
   }
 
-
-
   ngOnInit(): void {
     const search$ = this.searchControl.valueChanges.pipe(
       map((value) => this.normalizeSearch(value)),
@@ -323,7 +321,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
     });
   }
 
-
   private reactivateUser(user: AcheteurRow): void {
     if (this.actionInProgress || user.statut !== 'suspendu') {
       return;
@@ -350,7 +347,6 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
         },
       });
   }
-
 
   private suspendUser(userId: string, payload: AdminSuspendUserPayload): void {
     this.actionInProgress = true;
@@ -394,7 +390,8 @@ export class AppAdminAcheteurComponent implements OnInit, OnDestroy {
     <div mat-dialog-content>
       <p class="m-b-8">
         Un lien de reinitialisation sera envoye a l'email de
-        <strong>{{ data.user.nom }}</strong>.
+        <strong>{{ data.user.nom }}</strong
+        >.
       </p>
       <p class="text-muted m-0">L'utilisateur choisira un nouveau mot de passe via ce lien.</p>
     </div>

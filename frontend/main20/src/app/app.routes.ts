@@ -119,6 +119,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'actualites',
+        loadComponent: () =>
+          import('./pages/publications/publications.component').then(
+            (m) => m.PublicationsComponent,
+          ),
+      },
+      {
         path: 'panier',
         canActivate: [RoleGuard],
         data: { roles: ['client'] },

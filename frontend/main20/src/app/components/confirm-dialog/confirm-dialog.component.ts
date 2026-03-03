@@ -4,17 +4,17 @@ import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 
 export interface ConfirmDialogData {
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 @Component({
-    selector: 'app-confirm-dialog',
-    standalone: true,
-    imports: [CommonModule, MatDialogModule, MatButtonModule],
-    template: `
+  selector: 'app-confirm-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <p>{{ data.message }}</p>
@@ -26,21 +26,26 @@ export interface ConfirmDialogData {
       </button>
     </mat-dialog-actions>
   `,
-    styles: [`
-    mat-dialog-content { min-width: 300px; padding: 20px 0; }
-  `]
+  styles: [
+    `
+      mat-dialog-content {
+        min-width: 300px;
+        padding: 20px 0;
+      }
+    `,
+  ],
 })
 export class ConfirmDialogComponent {
-    constructor(
-        public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
-    ) { }
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
+  ) {}
 
-    onCancel(): void {
-        this.dialogRef.close(false);
-    }
+  onCancel(): void {
+    this.dialogRef.close(false);
+  }
 
-    onConfirm(): void {
-        this.dialogRef.close(true);
-    }
+  onConfirm(): void {
+    this.dialogRef.close(true);
+  }
 }

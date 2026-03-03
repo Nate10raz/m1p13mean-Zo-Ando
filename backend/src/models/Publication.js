@@ -8,8 +8,8 @@ const publicationSchema = new mongoose.Schema({
 
   roleAuteur: { type: String, enum: ['boutique', 'admin'], required: true },
 
-  contenu: { type: String, required: true },
-  medias: [String], // URLs des images/vidéos
+  contenu: { type: String },
+  medias: { type: [String], default: [] }, // URLs des images/vidéos
 
   // Système de Likes simple
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -17,22 +17,24 @@ const publicationSchema = new mongoose.Schema({
 
   statut: {
     type: String,
-    enum: ['publie', 'brouillon', 'archive'],
+    enum: ['publie', 'brouillon', 'archive', 'planifie'],
     default: 'publie',
     index: true,
   },
+
+  scheduledAt: { type: Date },
+  expiresAt: { type: Date },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
 // Hook pour mettre à jour likesCount automatiquement avant sauvegarde si le tableau a changé
-publicationSchema.pre('save', function (next) {
+publicationSchema.pre('save', function () {
   if (this.isModified('likes')) {
     this.likesCount = this.likes.length;
   }
   this.updatedAt = Date.now();
-  next();
 });
 
 export default mongoose.model('Publication', publicationSchema);

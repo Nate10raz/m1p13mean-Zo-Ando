@@ -185,7 +185,7 @@ class AvisService {
 
     // Notification à l'auteur de l'avis
     try {
-      const repondantLabel = role === 'boutique' ? nomBoutique : 'L\'administration';
+      const repondantLabel = role === 'boutique' ? nomBoutique : "L'administration";
       await createNotification({
         userId: avis.clientId,
         titre: 'Réponse à votre avis',

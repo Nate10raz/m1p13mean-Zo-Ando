@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { uploadSingleImageController } from '../controllers/upload.controller.js';
+import { uploadMediaController } from '../controllers/upload.controller.js';
 import { requireAuth } from '../middlewares/auth.middleware.js';
 import { singleImageUpload } from '../middlewares/upload.middleware.js';
 import { badRequestResponse } from '../utils/response.util.js';
@@ -16,6 +16,6 @@ const uploadHandler = (req, res, next) => {
   });
 };
 
-router.post('/image', requireAuth, uploadHandler, uploadSingleImageController);
+router.post('/media', requireAuth, uploadHandler, uploadMediaController);
 
 export default router;

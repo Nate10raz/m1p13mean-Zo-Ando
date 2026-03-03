@@ -140,6 +140,7 @@ export const refreshController = async (req, res, next) => {
       message: 'Token rafraichi',
       data: {
         accessToken: result.accessToken,
+        user: result.user,
       },
     });
   } catch (error) {

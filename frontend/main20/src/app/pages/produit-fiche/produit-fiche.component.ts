@@ -193,7 +193,7 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -385,11 +385,11 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
         message: 'Pour quelle raison souhaitez-vous signaler cet avis ?',
         placeholder: 'Raison du signalement...',
         confirmText: 'Signaler',
-        cancelText: 'Annuler'
-      }
+        cancelText: 'Annuler',
+      },
     });
 
-    dialogRef.afterClosed().subscribe(raison => {
+    dialogRef.afterClosed().subscribe((raison) => {
       if (raison && raison.trim()) {
         this.avisService.reportAvis(avis._id, raison).subscribe({
           next: () => {

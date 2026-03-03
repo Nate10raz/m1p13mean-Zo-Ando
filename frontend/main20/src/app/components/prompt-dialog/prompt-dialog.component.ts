@@ -7,26 +7,26 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 export interface PromptDialogData {
-    title: string;
-    message: string;
-    placeholder?: string;
-    confirmText?: string;
-    cancelText?: string;
-    initialValue?: string;
+  title: string;
+  message: string;
+  placeholder?: string;
+  confirmText?: string;
+  cancelText?: string;
+  initialValue?: string;
 }
 
 @Component({
-    selector: 'app-prompt-dialog',
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule
-    ],
-    template: `
+  selector: 'app-prompt-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+  ],
+  template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <p class="m-b-16">{{ data.message }}</p>
@@ -42,25 +42,30 @@ export interface PromptDialogData {
       </button>
     </mat-dialog-actions>
   `,
-    styles: [`
-    mat-dialog-content { min-width: 400px; padding: 20px 0; }
-  `]
+  styles: [
+    `
+      mat-dialog-content {
+        min-width: 400px;
+        padding: 20px 0;
+      }
+    `,
+  ],
 })
 export class PromptDialogComponent {
-    result: string = '';
+  result: string = '';
 
-    constructor(
-        public dialogRef: MatDialogRef<PromptDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: PromptDialogData
-    ) {
-        this.result = data.initialValue || '';
-    }
+  constructor(
+    public dialogRef: MatDialogRef<PromptDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: PromptDialogData,
+  ) {
+    this.result = data.initialValue || '';
+  }
 
-    onCancel(): void {
-        this.dialogRef.close(null);
-    }
+  onCancel(): void {
+    this.dialogRef.close(null);
+  }
 
-    onConfirm(): void {
-        this.dialogRef.close(this.result);
-    }
+  onConfirm(): void {
+    this.dialogRef.close(this.result);
+  }
 }

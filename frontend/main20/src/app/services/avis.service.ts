@@ -38,7 +38,7 @@ export interface Avis {
 export class AvisService {
   private readonly apiUrl = `${environment.apiUrl}/avis`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   createAvis(payload: {
     type: 'produit' | 'boutique';
