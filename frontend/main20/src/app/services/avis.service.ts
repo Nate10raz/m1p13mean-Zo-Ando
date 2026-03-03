@@ -24,7 +24,7 @@ export interface Avis {
   estSignale: boolean;
   statutSignalement: 'aucun' | 'en_attente' | 'valide' | 'rejete';
   signalements?: Array<{
-    userId: string;
+    userId: any;
     raison: string;
     date: string;
   }>;
@@ -38,7 +38,7 @@ export interface Avis {
 export class AvisService {
   private readonly apiUrl = `${environment.apiUrl}/avis`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   createAvis(payload: {
     type: 'produit' | 'boutique';

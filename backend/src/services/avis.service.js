@@ -2,7 +2,9 @@ import Avis from '../models/Avis.js';
 import Commande from '../models/Commande.js';
 import Produit from '../models/Produit.js';
 import Boutique from '../models/Boutique.js';
+import User from '../models/User.js';
 import mongoose from 'mongoose';
+import { createNotification } from './notification.service.js';
 
 class AvisService {
   /**
@@ -70,6 +72,23 @@ class AvisService {
 
     // Recalculer les notes
     await this.updateRatings(boutiqueId, produitId);
+
+    // Notification à la boutique
+    try {
+      const boutiqueObj = await Boutique.findById(boutiqueId);
+      if (boutiqueObj && boutiqueObj.userId) {
+        const targetLabel = type === 'produit' ? 'un produit' : 'votre boutique';
+        await createNotification({
+          userId: boutiqueObj.userId,
+          titre: 'Nouvel avis reçu',
+          message: `Vous avez reçu un nouvel avis de ${note}/5 sur ${targetLabel}.`,
+          type: 'avis',
+          channel: 'app',
+        });
+      }
+    } catch (e) {
+      console.error('Error sending notification to boutique:', e);
+    }
 
     return savedAvis;
   }
@@ -162,29 +181,80 @@ class AvisService {
       dateReponse: new Date(),
     });
 
-    return await avis.save();
+    const savedAvis = await avis.save();
+
+    // Notification à l'auteur de l'avis
+    try {
+      const repondantLabel = role === 'boutique' ? nomBoutique : 'L\'administration';
+      await createNotification({
+        userId: avis.clientId,
+        titre: 'Réponse à votre avis',
+        message: `${repondantLabel} a répondu à votre avis sur ${avis.type === 'produit' ? 'un produit' : 'une boutique'}.`,
+        type: 'avis',
+        channel: 'app',
+      });
+    } catch (e) {
+      console.error('Error sending response notification:', e);
+    }
+
+    return savedAvis;
   }
 
   /**
    * Signaler un avis.
    */
   async signalerAvis(avisId, userId, raison) {
-    const avis = await Avis.findById(avisId);
+    const avis = await Avis.findById(avisId).populate('produitId boutiqueId');
     if (!avis) throw new Error('Avis non trouvé.');
 
     avis.estSignale = true;
     avis.statutSignalement = 'en_attente';
     avis.signalements.push({ userId, raison, date: new Date() });
 
-    return await avis.save();
+    const savedAvis = await avis.save();
+
+    // 1. Notification à l'auteur de l'avis (Reporté)
+    try {
+      const target = avis.type === 'produit' ? avis.produitId?.titre : avis.boutiqueId?.nom;
+      await createNotification({
+        userId: avis.clientId,
+        titre: 'Avis signalé',
+        message: `Votre avis sur "${target}" a été signalé à l'administration.`,
+        type: 'avis',
+        channel: 'app',
+      });
+    } catch (e) {
+      console.error('Error notifying avis author about signalement:', e);
+    }
+
+    // 2. Notification aux admins
+    try {
+      const admins = await User.find({ role: 'admin' });
+      const targetId = avis.type === 'produit' ? avis.produitId?._id : avis.boutiqueId?._id;
+      for (const admin of admins) {
+        await createNotification({
+          userId: admin._id,
+          titre: 'Nouvel avis signalé',
+          message: `Un avis sur "${avis.type}" (ID: ${targetId}) a été signalé pour la raison : ${raison}`,
+          type: 'admin',
+          channel: 'app',
+        });
+      }
+    } catch (e) {
+      console.error('Error notifying admins about signalement:', e);
+    }
+
+    return savedAvis;
   }
 
   /**
    * Gérer un signalement (Admin).
    */
   async handleSignalement(avisId, action) {
-    const avis = await Avis.findById(avisId);
+    const avis = await Avis.findById(avisId).populate('produitId boutiqueId');
     if (!avis) throw new Error('Avis non trouvé.');
+
+    const initialReporters = avis.signalements.map((s) => s.userId);
 
     if (action === 'accepter') {
       avis.statutSignalement = 'valide';
@@ -199,6 +269,38 @@ class AvisService {
     const savedAvis = await avis.save();
     // Recalculer les ratings car potentiellement masqué
     await this.updateRatings(avis.boutiqueId, avis.produitId);
+
+    // 1. Notification aux rapporteurs (ceux qui ont signalé)
+    try {
+      const actionLabel = action === 'accepter' ? 'accepté' : 'rejeté';
+      for (const reporterId of initialReporters) {
+        await createNotification({
+          userId: reporterId,
+          titre: 'Suivi de signalement',
+          message: `L'administration a ${actionLabel} le signalement de l'avis que vous avez signalé.`,
+          type: 'avis',
+          channel: 'app',
+        });
+      }
+    } catch (e) {
+      console.error('Error notifying reporters about admin action:', e);
+    }
+
+    // 2. Notification à l'auteur de l'avis si masqué
+    if (action === 'accepter') {
+      try {
+        await createNotification({
+          userId: avis.clientId,
+          titre: 'Avis masqué',
+          message: `Votre avis a été masqué par l'administration suite à plusieurs signalements.`,
+          type: 'avis',
+          channel: 'app',
+        });
+      } catch (e) {
+        console.error('Error notifying author about masked avis:', e);
+      }
+    }
+
     return savedAvis;
   }
 
@@ -209,7 +311,12 @@ class AvisService {
     return await Avis.find({ estSignale: true })
       .populate('clientId', 'nom prenom')
       .populate('produitId', 'titre')
-      .populate('boutiqueId', 'nom');
+      .populate('boutiqueId', 'nom')
+      .populate({
+        path: 'signalements.userId',
+        select: 'nom prenom role boutiqueId',
+        populate: { path: 'boutiqueId', select: 'nom' },
+      });
   }
 
   /**

@@ -1,98 +1,199 @@
 <mat-card class="cardWithShadow">
-  <mat-card-header class="p-24 border-bottom">
-    <mat-card-title class="m-0 f-s-20 f-w-700">Gestion des Avis Signalés</mat-card-title>
-    <mat-card-subtitle class="m-t-4 opacity-75"
-      >Gérer les signalements des clients et boutiques</mat-card-subtitle
-    >
-  </mat-card-header>
+    <mat-card-header class="p-24 border-bottom">
+        <mat-card-title class="m-0 f-s-20 f-w-700">Gestion des Avis Signalés</mat-card-title>
+        <mat-card-subtitle class="m-t-4 opacity-75">Gérer les signalements des clients et boutiques</mat-card-subtitle>
+    </mat-card-header>
 
-  <mat-card-content class="p-24">
-    @if (isLoading) {
-      <div class="text-center p-48">
-        <mat-spinner diameter="40" class="d-inline-block"></mat-spinner>
-        <p class="m-t-16 text-muted">Recherche d'avis signalés...</p>
-      </div>
-    } @else if (avisList.length === 0) {
-      <div class="text-center p-48 text-muted border-dashed rounded-12 bg-light">
-        <mat-icon class="f-s-48 m-b-16 opacity-25">check_circle</mat-icon>
-        <p class="m-0">Aucun avis signalé en attente de modération.</p>
-      </div>
-    } @else {
-      <div class="avis-list">
-        @for (avis of avisList; track avis._id) {
-          <div class="avis-item shadow-sm">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <span
-                  class="badge"
-                  [ngClass]="avis.type === 'produit' ? 'bg-primary' : 'bg-warning'"
-                >
-                  {{ avis.type | uppercase }}
-                </span>
-                <div class="m-t-8 d-flex align-items-center gap-8">
-                  <app-star-rating
-                    [rating]="avis.note"
-                    [showNumber]="false"
-                    [size]="16"
-                  ></app-star-rating>
-                  <span class="fw-bold">{{ avis.titre || 'Sans titre' }}</span>
-                </div>
-                <p class="m-t-8 m-b-4 f-s-14">{{ avis.commentaire }}</p>
-                <div class="text-muted f-s-12">
-                  Par
-                  <strong
-                    >{{ avis.clientId?.nom || 'Client' }} {{ avis.clientId?.prenom || '' }}</strong
-                  >
-                  pour <strong>{{ getTargetName(avis) }}</strong>
-                </div>
-              </div>
-              <div class="d-flex gap-8">
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="rounded-pill"
-                  (click)="handleAction(avis, 'rejeter')"
-                >
-                  Accepter l'avis (Rejeter signalement)
-                </button>
-                <button
-                  mat-flat-button
-                  color="warn"
-                  class="rounded-pill"
-                  (click)="handleAction(avis, 'accepter')"
-                >
-                  Valider signalement (Masquer/Supprimer)
-                </button>
-              </div>
+    <mat-card-content class="p-24">
+        @if (isLoading) {
+        <div class="text-center p-48">
+            <mat-spinner diameter="40" class="d-inline-block"></mat-spinner>
+            <p class="m-t-16 text-muted">Recherche d'avis signalés...</p>
+        </div>
+        } @else {
+        <!-- Filtres -->
+        <div class="row m-b-24">
+            <div class="col-sm-6">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Filtrer par ID Produit</mat-label>
+                    <input matInput [(ngModel)]="filterProductId" (input)="applyFilters()" placeholder="Ex: 650...">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
             </div>
+            <div class="col-sm-6">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Filtrer par ID Boutique</mat-label>
+                    <input matInput [(ngModel)]="filterBoutiqueId" (input)="applyFilters()" placeholder="Ex: 650...">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
 
-            <div class="signalement-info m-t-16">
-              <div class="fw-bold f-s-12 text-error d-flex align-items-center gap-4">
-                <mat-icon class="icon-16">report</mat-icon> Signalement(s) :
-              </div>
-              @for (sig of avis.signalements; track sig.date) {
-                <div class="f-s-13 m-t-4">
-                  - <strong>{{ sig.raison }}</strong> (le {{ sig.date | date: 'short' }})
+        <mat-accordion multi="true" class="avis-list">
+            @for (avis of filteredAvis; track avis._id) {
+            <mat-expansion-panel class="m-b-16 shadow-none border">
+                <mat-expansion-panel-header>
+                    <mat-panel-title class="d-flex align-items-center gap-12">
+                        <span class="fw-bold f-s-10 p-x-8 p-y-2 rounded"
+                            [ngClass]="avis.type === 'produit' ? 'text-primary' : 'text-warning'"
+                            style="border: 1px solid currentColor;">
+                            {{ avis.type | uppercase }}
+                        </span>
+                        <app-star-rating [rating]="avis.note" [showNumber]="false" [size]="14"></app-star-rating>
+                        <span class="fw-bold f-s-14 text-truncate">
+                            {{ avis.titre || 'Sans titre' }}
+                            <span class="text-muted f-w-400 f-s-12"> - par {{ avis.clientId?.prenom }} {{
+                                avis.clientId?.nom }}</span>
+                        </span>
+                    </mat-panel-title>
+                    <mat-panel-description class="justify-content-end align-items-center d-none d-md-flex">
+                        <span class="text-muted f-s-12">
+                            {{ avis.signalements?.length || 0 }} signalement(s)
+                        </span>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div class="p-t-16">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p class="m-b-12 f-s-15 italic content-text">"{{ avis.commentaire }}"</p>
+                            <div class="text-muted f-s-13 m-b-16">
+                                Par <strong>{{ avis.clientId?.nom || 'Client' }} {{ avis.clientId?.prenom || ''
+                                    }}</strong>
+                                pour <strong>{{ getTargetName(avis) }}</strong>
+                                <br>
+                                <small>ID: {{ avis.type === 'produit' ? avis.produitId?._id : avis.boutiqueId?._id
+                                    }}</small>
+                            </div>
+
+                            <div class="signalement-info">
+                                <div class="fw-bold f-s-12 text-error d-flex align-items-center gap-4 m-b-8">
+                                    <mat-icon class="icon-16">report</mat-icon> Détails des signalements :
+                                </div>
+                                @for (sig of avis.signalements; track sig.date) {
+                                <div class="f-s-13 p-b-8 border-bottom m-b-8 last-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="d-block f-s-14">{{ sig.raison }}</strong>
+                                            <span class="text-muted f-s-12">Signalé par : <strong>{{
+                                                    getReporterName(sig) }}</strong></span>
+                                        </div>
+                                        <span class="text-muted f-s-11">{{ sig.date | date: 'short' }}</span>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 border-left d-flex flex-column justify-content-center p-l-24">
+                            <div class="moderation-card w-100">
+                                <span class="f-s-11 f-w-700 text-uppercase text-muted m-b-16 d-block">Décision de
+                                    modération</span>
+
+                                <div class="d-grid gap-12">
+                                    <button mat-stroked-button color="primary"
+                                        class="btn-action d-flex align-items-center justify-content-center"
+                                        (click)="handleAction(avis, 'rejeter')">
+                                        <mat-icon class="icon-20 m-r-8">check_circle_outline</mat-icon>
+                                        Rejeter le signalement
+                                    </button>
+
+                                    <button mat-flat-button color="warn"
+                                        class="btn-action d-flex align-items-center justify-content-center shadow-none"
+                                        (click)="handleAction(avis, 'accepter')">
+                                        <mat-icon class="icon-20 m-r-8">block</mat-icon>
+                                        Masquer l'avis
+                                    </button>
+                                </div>
+
+                                <div class="m-t-16 p-12 rounded bg-light-warn d-flex align-items-start gap-8 border">
+                                    <mat-icon class="text-warn f-s-16 icon-16 m-t-2">info</mat-icon>
+                                    <p class="text-muted f-s-11 m-0">L'action est définitive. Les utilisateurs concernés
+                                        recevront une notification.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              }
+            </mat-expansion-panel>
+            } @empty {
+            <div class="text-center p-48 text-muted border-dashed rounded-12 bg-light">
+                <mat-icon class="f-s-48 m-b-16 opacity-25">search_off</mat-icon>
+                <p class="m-0">Aucun avis ne correspond à vos critères de recherche.</p>
             </div>
-          </div>
+            }
+        </mat-accordion>
         }
-      </div>
-    }
-  </mat-card-content>
+    </mat-card-content>
 </mat-card>
 
 <style>
-  .border-dashed {
-    border: 2px dashed #e2e8f0;
-  }
+    .border-dashed {
+        border: 2px dashed #e2e8f0;
+    }
 
-  .bg-light {
-    background: #f8fafc;
-  }
+    .bg-light {
+        background: #f8fafc;
+    }
 
-  .text-error {
-    color: #dc2626;
-  }
+    .text-error {
+        color: #ef4444;
+    }
+
+    .text-warn {
+        color: #f59e0b;
+    }
+
+    .bg-light-warn {
+        background-color: #fffbeb;
+        border-color: #fef3c7 !important;
+    }
+
+    .btn-action {
+        height: 44px !important;
+        line-height: 44px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+    }
+
+    .moderation-card {
+        padding: 8px 0;
+    }
+
+    .d-grid {
+        display: grid;
+    }
+
+    .gap-12 {
+        gap: 12px;
+    }
+
+    .content-text {
+        color: #475569;
+        border-left: 3px solid #cbd5e1;
+        padding-left: 16px;
+        line-height: 1.6;
+    }
+
+    .last-none:last-child {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    mat-expansion-panel {
+        transition: all 0.2s ease-in-out;
+    }
+
+    mat-expansion-panel:hover {
+        border-color: #3b82f6 !important;
+    }
+
+    .signalement-info {
+        background: #fff5f5;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #fee2e2;
+    }
 </style>

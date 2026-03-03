@@ -15,6 +15,7 @@ import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.
 import { Avis, AvisService } from 'src/app/services/avis.service';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
+import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-dialog.component';
 
 @Component({
   selector: 'app-boutique-informations',
@@ -25,8 +26,8 @@ import { ChangeDetectorRef } from '@angular/core';
     MaterialModule,
     TablerIconsModule,
     MatDialogModule,
-    StarRatingComponent,
     FormsModule,
+    StarRatingComponent,
   ],
   templateUrl: './informations.component.html',
   styleUrls: ['./informations.component.scss'],
@@ -607,16 +608,28 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   }
 
   reportAvis(avis: Avis): void {
-    const raison = prompt('Raison du signalement :');
-    if (!raison) return;
-    this.avisService.reportAvis(avis._id, raison).subscribe({
-      next: () => {
-        this.snackBar.open('Avis signalé.', 'Fermer', { duration: 3000 });
-        avis.estSignale = true;
-        this.cdr.markForCheck();
-      },
-      error: (err) =>
-        this.snackBar.open(err?.error?.message || 'Erreur.', 'Fermer', { duration: 3000 }),
+    const dialogRef = this.dialog.open(PromptDialogComponent, {
+      data: {
+        title: 'Signaler un avis',
+        message: 'Pour quelle raison souhaitez-vous signaler cet avis ?',
+        placeholder: 'Raison du signalement...',
+        confirmText: 'Signaler',
+        cancelText: 'Annuler'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(raison => {
+      if (raison && raison.trim()) {
+        this.avisService.reportAvis(avis._id, raison).subscribe({
+          next: () => {
+            this.snackBar.open('Avis signalé.', 'Fermer', { duration: 3000 });
+            avis.estSignale = true;
+            this.cdr.markForCheck();
+          },
+          error: (err) =>
+            this.snackBar.open(err?.error?.message || 'Erreur.', 'Fermer', { duration: 3000 }),
+        });
+      }
     });
   }
 
@@ -692,5 +705,5 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   `,
 })
 export class ConfirmMergeDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
 }

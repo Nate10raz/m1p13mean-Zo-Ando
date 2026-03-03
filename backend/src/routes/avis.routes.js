@@ -14,9 +14,6 @@ const router = Router();
 // Créer un avis (Clients uniquement)
 router.post('/', requireAuth, requireRole('client'), createAvis);
 
-// Récupérer les avis d'un produit ou d'une boutique (Public)
-router.get('/:type/:id', getAvisByEntity);
-
 // Répondre à un avis (Admin ou Boutique)
 router.post('/:avisId/reponse', requireAuth, requireRole('admin', 'boutique'), respondToAvis);
 
@@ -30,5 +27,8 @@ router.get('/admin/signales', requireAuth, requireRole('admin'), getSignaledAvis
 
 // Agir sur un signalement
 router.patch('/admin/:avisId/signalement', requireAuth, requireRole('admin'), adminActionOnReport);
+
+// Récupérer les avis d'un produit ou d'une boutique (Public)
+router.get('/:type/:id', getAvisByEntity);
 
 export default router;

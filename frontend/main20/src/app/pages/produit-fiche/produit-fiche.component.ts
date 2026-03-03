@@ -19,6 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
 
+import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-dialog.component';
+
 @Component({
   selector: 'app-produit-fiche',
   standalone: true,
@@ -191,7 +193,7 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -377,20 +379,31 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
   }
 
   reportAvis(avis: Avis): void {
-    const raison = prompt('Raison du signalement :');
-    if (!raison) return;
+    const dialogRef = this.dialog.open(PromptDialogComponent, {
+      data: {
+        title: 'Signaler un avis',
+        message: 'Pour quelle raison souhaitez-vous signaler cet avis ?',
+        placeholder: 'Raison du signalement...',
+        confirmText: 'Signaler',
+        cancelText: 'Annuler'
+      }
+    });
 
-    this.avisService.reportAvis(avis._id, raison).subscribe({
-      next: () => {
-        this.snackBar.open("Avis signalé à l'administration.", 'Fermer', { duration: 3000 });
-        avis.estSignale = true;
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        this.snackBar.open(err?.error?.message || 'Erreur lors du signalement.', 'Fermer', {
-          duration: 3000,
+    dialogRef.afterClosed().subscribe(raison => {
+      if (raison && raison.trim()) {
+        this.avisService.reportAvis(avis._id, raison).subscribe({
+          next: () => {
+            this.snackBar.open("Avis signalé à l'administration.", 'Fermer', { duration: 3000 });
+            avis.estSignale = true;
+            this.cdr.markForCheck();
+          },
+          error: (err: any) => {
+            this.snackBar.open(err?.error?.message || 'Erreur lors du signalement.', 'Fermer', {
+              duration: 3000,
+            });
+          },
         });
-      },
+      }
     });
   }
 

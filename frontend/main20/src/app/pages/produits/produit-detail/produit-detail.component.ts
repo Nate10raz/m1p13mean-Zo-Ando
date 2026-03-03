@@ -18,6 +18,7 @@ import { Avis, AvisService } from 'src/app/services/avis.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
 import { FormsModule } from '@angular/forms';
+import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-dialog.component';
 
 @Component({
   selector: 'app-produit-detail',
@@ -220,7 +221,7 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.userRole = this.authService.getCurrentRole();
@@ -350,6 +351,35 @@ export class AppProduitDetailComponent implements OnInit, OnDestroy {
         });
         this.cdr.markForCheck();
       },
+    });
+  }
+
+  reportAvis(avis: Avis): void {
+    const dialogRef = this.dialog.open(PromptDialogComponent, {
+      data: {
+        title: 'Signaler un avis',
+        message: 'Pour quelle raison souhaitez-vous signaler cet avis ?',
+        placeholder: 'Raison du signalement...',
+        confirmText: 'Signaler',
+        cancelText: 'Annuler'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(raison => {
+      if (raison && raison.trim()) {
+        this.avisService.reportAvis(avis._id, raison).subscribe({
+          next: () => {
+            this.snackBar.open("Avis signalé à l'administration.", 'Fermer', { duration: 3000 });
+            avis.estSignale = true;
+            this.cdr.markForCheck();
+          },
+          error: (err: any) => {
+            this.snackBar.open(err?.error?.message || 'Erreur lors du signalement.', 'Fermer', {
+              duration: 3000,
+            });
+          },
+        });
+      }
     });
   }
 
