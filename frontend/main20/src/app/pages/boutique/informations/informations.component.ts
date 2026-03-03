@@ -12,6 +12,9 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UploadService } from 'src/app/services/upload.service';
 import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
+import { Avis, AvisService } from 'src/app/services/avis.service';
+import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-boutique-informations',
@@ -23,6 +26,7 @@ import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.
     TablerIconsModule,
     MatDialogModule,
     StarRatingComponent,
+    FormsModule,
   ],
   templateUrl: './informations.component.html',
   styleUrls: ['./informations.component.scss'],
@@ -35,6 +39,18 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   isOwner = false;
   private sub = new Subscription();
 
+  // Avis
+  avisList: Avis[] = [];
+  isLoadingAvis = false;
+  canReview = false;
+  newAvis = { note: 5, titre: '', commentaire: '' };
+  isSubmittingAvis = false;
+
+  // Reponse
+  showReponseForm: string | null = null;
+  reponseMessage = '';
+  isSubmittingReponse = false;
+
   jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
   constructor(
@@ -46,6 +62,8 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private uploadService: UploadService,
+    private avisService: AvisService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
@@ -141,6 +159,8 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadBoutique(id);
+      this.loadAvis(id);
+      this.checkCanReview(id);
     } else {
       // Unid route is only for boutique owners
       const isBoutique = this.authService.getCurrentRole() === 'boutique';
@@ -189,6 +209,7 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
               this.boutique = res.data;
               this.isOwner = true;
               this.patchForm(res.data);
+              this.loadAvis(res.data._id);
             }
           },
           error: (err) => {
@@ -522,6 +543,128 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // --- Avis Methods ---
+
+  private loadAvis(boutiqueId: string): void {
+    this.isLoadingAvis = true;
+    this.avisService.getByEntity('boutique', boutiqueId).subscribe({
+      next: (avis) => {
+        this.avisList = avis;
+        this.isLoadingAvis = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isLoadingAvis = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private checkCanReview(boutiqueId: string): void {
+    if (this.authService.getCurrentRole() !== 'client') {
+      this.canReview = false;
+      return;
+    }
+    this.canReview = true;
+  }
+
+  onRate(note: number): void {
+    this.newAvis.note = note;
+  }
+
+  submitAvis(): void {
+    if (!this.boutique) return;
+    this.isSubmittingAvis = true;
+    this.avisService
+      .createAvis({
+        type: 'boutique',
+        boutiqueId: this.boutique._id,
+        note: this.newAvis.note,
+        titre: this.newAvis.titre,
+        commentaire: this.newAvis.commentaire,
+      })
+      .pipe(
+        finalize(() => {
+          this.isSubmittingAvis = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (savedAvis) => {
+          this.snackBar.open('Votre avis a été publié !', 'Fermer', { duration: 3000 });
+          this.avisList.unshift(savedAvis);
+          this.newAvis = { note: 5, titre: '', commentaire: '' };
+          this.loadBoutique(this.boutique!._id);
+        },
+        error: (err) => {
+          this.snackBar.open(err?.error?.message || 'Erreur lors de la publication.', 'Fermer', {
+            duration: 5000,
+          });
+        },
+      });
+  }
+
+  reportAvis(avis: Avis): void {
+    const raison = prompt('Raison du signalement :');
+    if (!raison) return;
+    this.avisService.reportAvis(avis._id, raison).subscribe({
+      next: () => {
+        this.snackBar.open('Avis signalé.', 'Fermer', { duration: 3000 });
+        avis.estSignale = true;
+        this.cdr.markForCheck();
+      },
+      error: (err) =>
+        this.snackBar.open(err?.error?.message || 'Erreur.', 'Fermer', { duration: 3000 }),
+    });
+  }
+
+  toggleReponseForm(avisId: string): void {
+    if (this.showReponseForm === avisId) {
+      this.showReponseForm = null;
+    } else {
+      this.showReponseForm = avisId;
+      this.reponseMessage = '';
+    }
+  }
+
+  submitReponse(avis: Avis): void {
+    if (!this.reponseMessage.trim()) return;
+    this.isSubmittingReponse = true;
+    this.avisService.addReponse(avis._id, this.reponseMessage).subscribe({
+      next: (updatedAvis) => {
+        this.snackBar.open('Réponse publiée !', 'Fermer', { duration: 3000 });
+        const idx = this.avisList.findIndex((a) => a._id === updatedAvis._id);
+        if (idx !== -1) this.avisList[idx] = updatedAvis;
+        this.showReponseForm = null;
+        this.isSubmittingReponse = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.snackBar.open(err?.error?.message || 'Erreur.', 'Fermer', { duration: 3000 });
+        this.isSubmittingReponse = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  getStars(note: number): number[] {
+    return Array(5)
+      .fill(0)
+      .map((_, i) => i + 1);
+  }
+
+  scrollToAvis(event: Event): void {
+    event.preventDefault();
+    const element = document.getElementById('avis-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  isAdmin(): boolean {
+    return this.authService.getCurrentRole() === 'admin';
   }
 }
 

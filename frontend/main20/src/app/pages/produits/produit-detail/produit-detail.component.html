@@ -142,5 +142,109 @@
         </div>
       </div>
     }
+
+    <!-- Section Avis -->
+    <div id="avis-section" class="m-t-32">
+      <div class="d-flex align-items-center justify-content-between m-b-16">
+        <h3 class="m-0">Avis Clients ({{ avisList.length }})</h3>
+      </div>
+
+      @if (isLoadingAvis) {
+        <div class="text-center p-24">Chargement des avis...</div>
+      } @else if (avisList.length === 0) {
+        <div class="text-center p-48 text-muted border rounded-8">
+          <mat-icon class="f-s-48 m-b-16 opacity-25">reviews</mat-icon>
+          <p class="m-0">Aucun avis pour le moment sur ce produit.</p>
+        </div>
+      } @else {
+        <div class="avis-list">
+          @for (avis of avisList; track avis._id) {
+            <div class="avis-item p-16 m-b-16 border rounded-8">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="w-100">
+                  <div class="m-b-4">
+                    <app-star-rating
+                      [rating]="avis.note"
+                      [showNumber]="false"
+                      [size]="14"
+                    ></app-star-rating>
+                  </div>
+                  @if (avis.titre) {
+                    <div class="fw-semibold">{{ avis.titre }}</div>
+                  }
+                  <div class="text-muted f-s-13 m-b-8">
+                    Par {{ avis.clientId?.nom || 'Client' }} {{ avis.clientId?.prenom || '' }} le
+                    {{ avis.createdAt | date: 'dd/MM/yyyy' }}
+                  </div>
+                  <p class="m-0">{{ avis.commentaire }}</p>
+
+                  <!-- Réponses -->
+                  @if (avis.reponses && avis.reponses.length > 0) {
+                    <div
+                      class="m-t-16 p-12 bg-light-primary border-left-4 border-primary rounded-4"
+                    >
+                      @for (rep of avis.reponses; track rep.dateReponse) {
+                        <div class="m-b-8 last-child-m-0">
+                          <div class="f-s-12 f-w-600 text-primary">
+                            @if (rep.roleRepondant === 'boutique') {
+                              {{ rep.prenomRepondant }} de {{ rep.nomBoutique }}
+                            } @else {
+                              Administrateur
+                            }
+                            le {{ rep.dateReponse | date: 'dd/MM/yyyy HH:mm' }}
+                          </div>
+                          <div class="f-s-13">{{ rep.message }}</div>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Formulaire de réponse -->
+                  <div class="m-t-12">
+                    @if (showReponseForm === avis._id) {
+                      <div class="reponse-form m-t-8">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <textarea
+                            matInput
+                            placeholder="Votre réponse..."
+                            rows="2"
+                            [(ngModel)]="reponseMessage"
+                          ></textarea>
+                        </mat-form-field>
+                        <div class="d-flex justify-content-end gap-8">
+                          <button mat-button (click)="toggleReponseForm(avis._id)">Annuler</button>
+                          <button
+                            mat-flat-button
+                            color="primary"
+                            [disabled]="isSubmittingReponse || !reponseMessage.trim()"
+                            (click)="submitReponse(avis)"
+                          >
+                            Répondre
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <button
+                        mat-button
+                        color="primary"
+                        size="small"
+                        (click)="toggleReponseForm(avis._id)"
+                      >
+                        <mat-icon class="icon-16">chat_bubble_outline</mat-icon>
+                        {{
+                          (avis.reponses?.length || 0) > 0
+                            ? 'Ajouter une autre réponse'
+                            : 'Répondre'
+                        }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
   </mat-card-content>
 </mat-card>

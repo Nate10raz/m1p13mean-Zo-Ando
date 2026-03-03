@@ -1,0 +1,98 @@
+<mat-card class="cardWithShadow">
+  <mat-card-header class="p-24 border-bottom">
+    <mat-card-title class="m-0 f-s-20 f-w-700">Gestion des Avis Signalés</mat-card-title>
+    <mat-card-subtitle class="m-t-4 opacity-75"
+      >Gérer les signalements des clients et boutiques</mat-card-subtitle
+    >
+  </mat-card-header>
+
+  <mat-card-content class="p-24">
+    @if (isLoading) {
+      <div class="text-center p-48">
+        <mat-spinner diameter="40" class="d-inline-block"></mat-spinner>
+        <p class="m-t-16 text-muted">Recherche d'avis signalés...</p>
+      </div>
+    } @else if (avisList.length === 0) {
+      <div class="text-center p-48 text-muted border-dashed rounded-12 bg-light">
+        <mat-icon class="f-s-48 m-b-16 opacity-25">check_circle</mat-icon>
+        <p class="m-0">Aucun avis signalé en attente de modération.</p>
+      </div>
+    } @else {
+      <div class="avis-list">
+        @for (avis of avisList; track avis._id) {
+          <div class="avis-item shadow-sm">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span
+                  class="badge"
+                  [ngClass]="avis.type === 'produit' ? 'bg-primary' : 'bg-warning'"
+                >
+                  {{ avis.type | uppercase }}
+                </span>
+                <div class="m-t-8 d-flex align-items-center gap-8">
+                  <app-star-rating
+                    [rating]="avis.note"
+                    [showNumber]="false"
+                    [size]="16"
+                  ></app-star-rating>
+                  <span class="fw-bold">{{ avis.titre || 'Sans titre' }}</span>
+                </div>
+                <p class="m-t-8 m-b-4 f-s-14">{{ avis.commentaire }}</p>
+                <div class="text-muted f-s-12">
+                  Par
+                  <strong
+                    >{{ avis.clientId?.nom || 'Client' }} {{ avis.clientId?.prenom || '' }}</strong
+                  >
+                  pour <strong>{{ getTargetName(avis) }}</strong>
+                </div>
+              </div>
+              <div class="d-flex gap-8">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  class="rounded-pill"
+                  (click)="handleAction(avis, 'rejeter')"
+                >
+                  Accepter l'avis (Rejeter signalement)
+                </button>
+                <button
+                  mat-flat-button
+                  color="warn"
+                  class="rounded-pill"
+                  (click)="handleAction(avis, 'accepter')"
+                >
+                  Valider signalement (Masquer/Supprimer)
+                </button>
+              </div>
+            </div>
+
+            <div class="signalement-info m-t-16">
+              <div class="fw-bold f-s-12 text-error d-flex align-items-center gap-4">
+                <mat-icon class="icon-16">report</mat-icon> Signalement(s) :
+              </div>
+              @for (sig of avis.signalements; track sig.date) {
+                <div class="f-s-13 m-t-4">
+                  - <strong>{{ sig.raison }}</strong> (le {{ sig.date | date: 'short' }})
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+
+<style>
+  .border-dashed {
+    border: 2px dashed #e2e8f0;
+  }
+
+  .bg-light {
+    background: #f8fafc;
+  }
+
+  .text-error {
+    color: #dc2626;
+  }
+</style>

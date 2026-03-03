@@ -13,11 +13,16 @@ import { finalize, Subscription } from 'rxjs';
 import { MaterialModule } from '../../material.module';
 import { ProductCreateResponse, ProductService } from 'src/app/services/product.service';
 import { CategoryNode, CategoryService } from 'src/app/services/category.service';
+import { Avis, AvisService } from 'src/app/services/avis.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
 
 @Component({
   selector: 'app-produit-fiche',
   standalone: true,
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, FormsModule, StarRatingComponent],
   templateUrl: './produit-fiche.component.html',
   styles: [
     `
@@ -163,15 +168,29 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
   activeImageUrl = '';
   categoryMap = new Map<string, CategoryNode>();
 
+  // Avis
+  avisList: Avis[] = [];
+  isLoadingAvis = false;
+  canReview = false;
+  newAvis = {
+    note: 5,
+    titre: '',
+    commentaire: '',
+  };
+  isSubmittingAvis = false;
+
   private readonly subscriptions = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private avisService: AvisService,
+    private authService: AuthService,
     private location: Location,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -186,6 +205,8 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
           return;
         }
         this.loadProduct(id);
+        this.loadAvis(id);
+        this.checkCanReview(id);
       }),
     );
   }
@@ -206,9 +227,12 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
     this.activeImageUrl = url;
   }
 
-  getCategoryLabel(id: string | undefined | null): string {
+  getCategoryLabel(id: any): string {
     if (!id) {
       return '-';
+    }
+    if (typeof id === 'object') {
+      return id.nom || '-';
     }
     return this.categoryMap.get(id)?.nom ?? id;
   }
@@ -279,5 +303,108 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
         this.categoryMap = new Map();
       },
     });
+  }
+
+  // --- Avis Methods ---
+
+  private loadAvis(id: string): void {
+    this.isLoadingAvis = true;
+    this.avisService.getByEntity('produit', id).subscribe({
+      next: (avis) => {
+        this.avisList = avis;
+        this.isLoadingAvis = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isLoadingAvis = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private checkCanReview(id: string): void {
+    if (this.authService.getCurrentRole() !== 'client') {
+      this.canReview = false;
+      return;
+    }
+    // L'éligibilité est vérifiée côté serveur lors de la soumission.
+    // On pourrait aussi avoir un endpoint dédié pour vérifier à l'avance et afficher/masquer le formulaire.
+    this.canReview = true;
+  }
+
+  onRate(note: number): void {
+    this.newAvis.note = note;
+  }
+
+  submitAvis(): void {
+    if (!this.product) return;
+    if (this.newAvis.note < 1 || this.newAvis.note > 5) {
+      this.snackBar.open('La note doit être entre 1 et 5.', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    this.isSubmittingAvis = true;
+    this.cdr.markForCheck();
+
+    this.avisService
+      .createAvis({
+        type: 'produit',
+        produitId: this.product._id,
+        boutiqueId: this.product.boutiqueId,
+        note: this.newAvis.note,
+        titre: this.newAvis.titre,
+        commentaire: this.newAvis.commentaire,
+      })
+      .pipe(
+        finalize(() => {
+          this.isSubmittingAvis = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (savedAvis: Avis) => {
+          this.snackBar.open('Votre avis a été publié !', 'Fermer', { duration: 3000 });
+          this.avisList.unshift(savedAvis);
+          this.newAvis = { note: 5, titre: '', commentaire: '' };
+          // Rafraîchir les stats du produit (note moyenne)
+          this.loadProduct(this.product!._id);
+        },
+        error: (err: any) => {
+          const msg = err?.error?.message || "Erreur lors de la publication de l'avis.";
+          this.snackBar.open(msg, 'Fermer', { duration: 5000 });
+        },
+      });
+  }
+
+  reportAvis(avis: Avis): void {
+    const raison = prompt('Raison du signalement :');
+    if (!raison) return;
+
+    this.avisService.reportAvis(avis._id, raison).subscribe({
+      next: () => {
+        this.snackBar.open("Avis signalé à l'administration.", 'Fermer', { duration: 3000 });
+        avis.estSignale = true;
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.snackBar.open(err?.error?.message || 'Erreur lors du signalement.', 'Fermer', {
+          duration: 3000,
+        });
+      },
+    });
+  }
+
+  getStars(note: number): number[] {
+    return Array(5)
+      .fill(0)
+      .map((_, i) => i + 1);
+  }
+
+  scrollToAvis(event: Event): void {
+    event.preventDefault();
+    const element = document.getElementById('avis-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 }

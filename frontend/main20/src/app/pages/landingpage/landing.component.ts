@@ -64,10 +64,19 @@ interface HowStep {
   desc: string;
 }
 
+import { StarRatingComponent } from 'src/app/components/star-rating/star-rating.component';
+
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, TablerIconsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    TablerIconsModule,
+    StarRatingComponent,
+  ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })
