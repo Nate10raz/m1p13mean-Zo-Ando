@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { StarterComponent } from './starter/starter.component';
 import { BoutiqueInformationsComponent } from './boutique/informations/informations.component';
+import { BoutiqueInventaireComponent } from './boutique/inventaire/inventaire.component';
 
 export const PagesRoutes: Routes = [
   {
@@ -20,6 +21,18 @@ export const PagesRoutes: Routes = [
         { title: 'Dashboard', url: '/dashboard' },
         { title: 'Boutique' },
         { title: 'Informations' },
+      ],
+    },
+  },
+  {
+    path: 'boutique/inventaire',
+    component: BoutiqueInventaireComponent,
+    data: {
+      title: 'Inventaire',
+      urls: [
+        { title: 'Dashboard', url: '/dashboard' },
+        { title: 'Boutique' },
+        { title: 'Inventaire' },
       ],
     },
   },

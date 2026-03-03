@@ -1,16 +1,164 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 import Commande from '../models/Commande.js';
 import Panier from '../models/Panier.js';
 import Boutique from '../models/Boutique.js';
+import Produit from '../models/Produit.js';
+import MouvementStock from '../models/MouvementStock.js';
 import Prix from '../models/Prix.js';
 import User from '../models/User.js';
 import { createNotification } from './notification.service.js';
 import { getLatestFraisLivraison } from './boutique.service.js';
+import { triggerStockAlertIfNeeded } from './produit.service.js';
 
 const createError = (message, status = 400) => {
   const err = new Error(message);
   err.status = status;
   return err;
+};
+
+const getStockQty = (doc) =>
+  typeof doc?.stock?.quantite === 'number' && !Number.isNaN(doc.stock.quantite)
+    ? doc.stock.quantite
+    : 0;
+
+const rollbackStockChanges = async (applied = []) => {
+  const items = [...applied].reverse();
+  for (const item of items) {
+    if (!item || !item.delta) continue;
+    try {
+      await Produit.updateOne(
+        { _id: item.produitId, boutiqueId: item.boutiqueId },
+        { $inc: { 'stock.quantite': -item.delta } },
+      );
+    } catch (error) {
+      console.error('Stock rollback failed:', error);
+    }
+    if (item.movementId) {
+      try {
+        await MouvementStock.deleteOne({ _id: item.movementId });
+      } catch (error) {
+        console.error('Movement rollback failed:', error);
+      }
+    }
+  }
+};
+
+const applyStockChange = async ({
+  produitId,
+  boutiqueId,
+  delta,
+  type,
+  commandeId,
+  userId,
+  variationId,
+  produitTitre,
+  reference,
+  raison,
+}) => {
+  const qty = Math.abs(Number(delta) || 0);
+  if (!qty) return null;
+
+  const filter = { _id: produitId, boutiqueId };
+  if (delta < 0) {
+    filter['stock.quantite'] = { $gte: qty };
+  }
+
+  const beforeDoc = await Produit.findOneAndUpdate(
+    filter,
+    { $inc: { 'stock.quantite': delta } },
+    { new: false },
+  );
+  if (!beforeDoc) {
+    const message =
+      delta < 0 ? 'Stock insuffisant pour accepter la commande' : 'Produit introuvable';
+    const status = delta < 0 ? 409 : 404;
+    throw createError(message, status);
+  }
+
+  const stockBefore = getStockQty(beforeDoc);
+  const stockAfter = stockBefore + delta;
+
+  const mouvement = await MouvementStock.create({
+    produitId,
+    variationId: variationId || undefined,
+    boutiqueId,
+    type,
+    quantite: qty,
+    stockAvant: stockBefore,
+    stockApres: stockAfter,
+    reference,
+    commandeId,
+    userId,
+    raison,
+  });
+
+  return {
+    movementId: mouvement._id,
+    produitId,
+    boutiqueId,
+    variationId: variationId || null,
+    produitTitre,
+    stockBefore,
+    stockAfter,
+    delta,
+  };
+};
+
+const applyStockChanges = async (changes = []) => {
+  const applied = [];
+  try {
+    for (const change of changes) {
+      if (!change || !change.delta) continue;
+      const result = await applyStockChange(change);
+      if (result) applied.push({ ...change, ...result });
+    }
+  } catch (error) {
+    await rollbackStockChanges(applied);
+    throw error;
+  }
+  return applied;
+};
+
+const triggerStockAlerts = async (applied = []) => {
+  for (const item of applied) {
+    try {
+      await triggerStockAlertIfNeeded({
+        produitId: item.produitId,
+        boutiqueId: item.boutiqueId,
+        variationId: item.variationId,
+        stockBefore: item.stockBefore,
+        stockAfter: item.stockAfter,
+        produitTitre: item.produitTitre,
+      });
+    } catch (error) {
+      console.error('Stock alert trigger failed:', error);
+    }
+  }
+};
+
+const buildRestockChanges = (commande, userId, raison) => {
+  const changes = [];
+  for (const boutique of commande.boutiques || []) {
+    if (!boutique?.estAccepte) continue;
+    for (const item of boutique.items || []) {
+      if (!item || item.status === 'annulee') continue;
+      const qty = Math.abs(Number(item.quantite) || 0);
+      if (!qty) continue;
+      changes.push({
+        produitId: item.produitId,
+        variationId: item.variationId,
+        boutiqueId: boutique.boutiqueId,
+        delta: qty,
+        type: 'retour',
+        commandeId: commande._id,
+        userId,
+        produitTitre: item.nomProduit,
+        reference: commande.numeroCommande,
+        raison,
+      });
+    }
+  }
+  return changes;
 };
 
 // HELPER: Send notification to all admins
@@ -109,13 +257,13 @@ export const createCommande = async (userId, deliveryData) => {
   if (typedelivery === 'livraison_boutique') {
     if (boutiqueIds.length > 1) {
       throw createError(
-        "La livraison par boutique n'est possible que si tous les produits proviennent de la même boutique.",
+        "La livraison par boutique n'est possible que si tous les produits proviennent de la mÃªme boutique.",
         400,
       );
     }
     const boutique = boutiques[0];
     if (!boutique.livraisonStatus) {
-      throw createError(`La boutique ${boutique.nom} ne propose pas de livraison à domicile.`, 400);
+      throw createError(`La boutique ${boutique.nom} ne propose pas de livraison Ã  domicile.`, 400);
     }
     if (isJourJ && !boutique.accepteLivraisonJourJ) {
       throw createError(`La boutique ${boutique.nom} n'accepte pas la livraison au Jour J.`, 400);
@@ -215,7 +363,7 @@ export const createCommande = async (userId, deliveryData) => {
     },
     typedelivery,
     dateDeliveryOrAbleCollect,
-    adresseLivraison: typedelivery !== 'collect' ? adresseLivraison : 'Retrait en entrepôt',
+    adresseLivraison: typedelivery !== 'collect' ? adresseLivraison : 'Retrait en entrepÃ´t',
     paiement: {
       methode: paiementMethode || 'especes',
       statut: 'non_paye',
@@ -239,8 +387,8 @@ export const createCommande = async (userId, deliveryData) => {
   await createNotification({
     userId: userId,
     type: 'commande_creee',
-    titre: `Commande #${newCommande.numeroCommande} reçue`,
-    message: `Votre commande ${newCommande.numeroCommande} est enregistrée. Elle attend d'être acceptée par les boutiques.`,
+    titre: `Commande #${newCommande.numeroCommande} reÃ§ue`,
+    message: `Votre commande ${newCommande.numeroCommande} est enregistrÃ©e. Elle attend d'Ãªtre acceptÃ©e par les boutiques.`,
     channel: 'all',
   });
 
@@ -249,13 +397,13 @@ export const createCommande = async (userId, deliveryData) => {
     await notifyBoutiqueUsers(
       bId,
       `Nouvelle Commande #${newCommande.numeroCommande}`,
-      `Une nouvelle commande ${newCommande.numeroCommande} nécessite votre attention.`,
+      `Une nouvelle commande ${newCommande.numeroCommande} nÃ©cessite votre attention.`,
       { commandeId: newCommande._id },
     );
   }
   await notifyAdmins(
-    `Commande #${newCommande.numeroCommande} passée`,
-    `Une nouvelle commande ${newCommande.numeroCommande} a été passée par un client.`,
+    `Commande #${newCommande.numeroCommande} passÃ©e`,
+    `Une nouvelle commande ${newCommande.numeroCommande} a Ã©tÃ© passÃ©e par un client.`,
     { commandeId: newCommande._id },
   );
 
@@ -285,14 +433,14 @@ export const getCommandeById = async (commandeId, userId, role) => {
 
   if (role !== 'admin') {
     if (role === 'client' && commande.clientId?._id.toString() !== userId.toString()) {
-      throw createError('Accès refusé', 403);
+      throw createError('AccÃ¨s refusÃ©', 403);
     }
     if (role === 'boutique') {
       const user = await User.findById(userId);
       const isBoutiqueInOrder = commande.boutiques.some(
         (b) => b.boutiqueId.toString() === user.boutiqueId?.toString(),
       );
-      if (!isBoutiqueInOrder) throw createError('Accès refusé', 403);
+      if (!isBoutiqueInOrder) throw createError('AccÃ¨s refusÃ©', 403);
     }
   }
 
@@ -304,14 +452,35 @@ export const getCommandeById = async (commandeId, userId, role) => {
 };
 
 // 1. Accept Order (Boutique)
-export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
+export const acceptBoutiqueOrder = async (commandeId, boutiqueId, userId) => {
   const commande = await Commande.findById(commandeId);
   if (!commande) throw createError('Commande introuvable', 404);
+  if (!userId) throw createError('Utilisateur introuvable', 404);
 
   const bIndex = commande.boutiques.findIndex(
     (b) => b.boutiqueId.toString() === boutiqueId.toString(),
   );
-  if (bIndex === -1) throw createError('Boutique non concernée par cette commande', 403);
+  if (bIndex === -1) throw createError('Boutique non concernÃ©e par cette commande', 403);
+
+  if (commande.boutiques[bIndex].estAccepte) {
+    return commande;
+  }
+
+  const items = (commande.boutiques[bIndex].items || []).filter((item) => item.status !== 'annulee');
+  const changes = items.map((item) => ({
+    produitId: item.produitId,
+    variationId: item.variationId,
+    boutiqueId: commande.boutiques[bIndex].boutiqueId,
+    delta: -Math.abs(Number(item.quantite) || 0),
+    type: 'commande',
+    commandeId: commande._id,
+    userId,
+    produitTitre: item.nomProduit,
+    reference: commande.numeroCommande,
+    raison: 'Acceptation boutique',
+  }));
+
+  const applied = await applyStockChanges(changes);
 
   commande.boutiques[bIndex].estAccepte = true;
   commande.boutiques[bIndex].dateAcceptation = new Date();
@@ -323,14 +492,21 @@ export const acceptBoutiqueOrder = async (commandeId, boutiqueId) => {
     commande.statusLivraison = 'en_preparation';
   }
 
-  await commande.save();
+  try {
+    await commande.save();
+  } catch (error) {
+    await rollbackStockChanges(applied);
+    throw error;
+  }
+
+  await triggerStockAlerts(applied);
 
   // Notify Client
   await createNotification({
     userId: commande.clientId,
     type: 'order_accepted',
-    titre: `Lot accepté - #${commande.numeroCommande}`,
-    message: `La boutique ${commande.boutiques[bIndex].name} a accepté votre lot.`,
+    titre: `Lot acceptÃ© - #${commande.numeroCommande}`,
+    message: `La boutique ${commande.boutiques[bIndex].name} a acceptÃ© votre lot.`,
     channel: 'all',
   });
 
@@ -343,13 +519,13 @@ export const startBoutiqueDelivery = async (commandeId, boutiqueId) => {
   if (!commande) throw createError('Commande introuvable', 404);
 
   if (!['boutique', 'livraison_boutique', 'livraison_directe'].includes(commande.typedelivery)) {
-    throw createError('Action réservée à la livraison directe boutique', 400);
+    throw createError('Action rÃ©servÃ©e Ã  la livraison directe boutique', 400);
   }
 
   const bIndex = commande.boutiques.findIndex(
     (b) => b.boutiqueId.toString() === boutiqueId.toString(),
   );
-  if (bIndex === -1) throw createError('Boutique non concernée', 403);
+  if (bIndex === -1) throw createError('Boutique non concernÃ©e', 403);
 
   commande.boutiques[bIndex].status = 'en_livraison';
   commande.statusLivraison = 'en_livraison';
@@ -375,7 +551,7 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
   const bIndex = commande.boutiques.findIndex(
     (b) => b.boutiqueId.toString() === boutiqueId.toString(),
   );
-  if (bIndex === -1) throw createError('Boutique non concernée', 403);
+  if (bIndex === -1) throw createError('Boutique non concernÃ©e', 403);
 
   commande.boutiques[bIndex].depotEntrepot.estFait = true;
   commande.boutiques[bIndex].depotEntrepot.adminId = adminId;
@@ -399,8 +575,8 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
       await createNotification({
         userId: commande.clientId,
         type: 'order_ready_collect',
-        titre: `Commande prète au dépôt`,
-        message: `Votre commande #${commande.numeroCommande} est prête à être récupérée au dépôt.`,
+        titre: `Commande prÃ¨te au dÃ©pÃ´t`,
+        message: `Votre commande #${commande.numeroCommande} est prÃªte Ã  Ãªtre rÃ©cupÃ©rÃ©e au dÃ©pÃ´t.`,
         channel: 'all',
       });
     } else if (commande.typedelivery === 'livraison_supermarche') {
@@ -409,7 +585,7 @@ export const confirmDepotReceipt = async (commandeId, boutiqueId, adminId) => {
         userId: commande.clientId,
         type: 'order_in_delivery',
         titre: `Commande en livraison`,
-        message: `Tous les articles de votre commande #${commande.numeroCommande} sont arrivés au dépôt et sont maintenant en cours de livraison.`,
+        message: `Tous les articles de votre commande #${commande.numeroCommande} sont arrivÃ©s au dÃ©pÃ´t et sont maintenant en cours de livraison.`,
         channel: 'all',
       });
     }
@@ -425,7 +601,7 @@ export const adminMarkAsShipped = async (commandeId, adminId) => {
   if (!commande) throw createError('Commande introuvable', 404);
 
   if (commande.typedelivery !== 'livraison_supermarche') {
-    throw createError('Seulement pour la livraison supermarché', 400);
+    throw createError('Seulement pour la livraison supermarchÃ©', 400);
   }
 
   // No status change to 'livree', it stays 'en_livraison' until CLIENT confirms
@@ -438,7 +614,7 @@ export const adminMarkAsShipped = async (commandeId, adminId) => {
     userId: commande.clientId,
     type: 'order_shipped_admin',
     titre: `Livraison en cours`,
-    message: `Votre commande #${commande.numeroCommande} a quitté le dépôt. Veuillez confirmer dès réception.`,
+    message: `Votre commande #${commande.numeroCommande} a quittÃ© le dÃ©pÃ´t. Veuillez confirmer dÃ¨s rÃ©ception.`,
     channel: 'all',
   });
 
@@ -450,15 +626,13 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
   const commande = await Commande.findById(commandeId);
   if (!commande) throw createError('Commande introuvable', 404);
 
+  if (commande.statusLivraison === 'annulee') {
+    return commande;
+  }
+
   let participantsToNotify = [];
 
   if (role === 'admin') {
-    // Admin cancels EVERYTHING
-    commande.statusLivraison = 'annulee';
-    commande.boutiques.forEach((b) => {
-      b.status = 'annulee';
-      b.items.forEach((it) => (it.status = 'annulee'));
-    });
     participantsToNotify = [commande.clientId, ...commande.boutiques.map((b) => b.boutiqueId)];
   } else if (role === 'boutique') {
     const user = await User.findById(userId);
@@ -470,15 +644,8 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
       throw createError('Votre lot est déjà validé et ne peut plus être annulé.', 400);
     }
 
-    commande.statusLivraison = 'annulee';
-    commande.boutiques.forEach((b) => {
-      b.status = 'annulee';
-      b.items.forEach((it) => (it.status = 'annulee'));
-    });
-
     participantsToNotify = [commande.clientId, ...commande.boutiques.map((b) => b.boutiqueId)];
   } else if (role === 'client') {
-    // Client cancels WHOLE ORDER
     if (commande.clientId.toString() !== userId.toString()) throw createError('Non autorisé', 403);
 
     const anyValidated = commande.boutiques.some((b) => b.depotEntrepot?.dateValidation);
@@ -488,16 +655,28 @@ export const cancelOrder = async (commandeId, userId, role, reason) => {
         400,
       );
 
-    commande.statusLivraison = 'annulee';
-    commande.boutiques.forEach((b) => {
-      b.status = 'annulee';
-      b.items.forEach((it) => (it.status = 'annulee'));
-    });
     participantsToNotify = [...commande.boutiques.map((b) => b.boutiqueId)];
   }
 
+  const restockReason = `Annulation (${role || 'unknown'})`;
+  const restockChanges = buildRestockChanges(commande, userId, restockReason);
+  const applied = await applyStockChanges(restockChanges);
+
+  commande.statusLivraison = 'annulee';
+  commande.boutiques.forEach((b) => {
+    b.status = 'annulee';
+    b.items.forEach((it) => (it.status = 'annulee'));
+  });
+
   commande.notes = (commande.notes || '') + `\nAnnulation (${role}): ${reason}`;
-  await commande.save();
+  try {
+    await commande.save();
+  } catch (error) {
+    await rollbackStockChanges(applied);
+    throw error;
+  }
+
+  await triggerStockAlerts(applied);
 
   // Notify relevant parties
   for (const pId of participantsToNotify) {
@@ -525,6 +704,10 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
   const commande = await Commande.findById(commandeId);
   if (!commande) throw createError('Commande introuvable', 404);
 
+  if (commande.statusLivraison === 'annulee') {
+    return commande;
+  }
+
   const boutique = commande.boutiques.find(
     (b) => b.boutiqueId.toString() === boutiqueId.toString(),
   );
@@ -550,6 +733,10 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
   }
   // (Boutique check is already handled by boutiqueId parameter passed from the controller which uses req.user.boutiqueId if role === 'boutique')
 
+  const restockReason = `Annulation article (${role || 'unknown'}): ${reason || ''}`;
+  const restockChanges = buildRestockChanges(commande, userId, restockReason);
+  const applied = await applyStockChanges(restockChanges);
+
   // Mark item as cancelled
   item.status = 'annulee';
   commande.notes =
@@ -567,7 +754,14 @@ export const cancelOrderItem = async (commandeId, boutiqueId, produitId, userId,
     });
   });
 
-  await commande.save();
+  try {
+    await commande.save();
+  } catch (error) {
+    await rollbackStockChanges(applied);
+    throw error;
+  }
+
+  await triggerStockAlerts(applied);
 
   await createNotification({
     userId: commande.clientId,
@@ -609,10 +803,13 @@ export const confirmFinalReceipt = async (commandeId, userId, role) => {
   await commande.save();
 
   await notifyAdmins(
-    'Commande terminée',
-    `La commande ${commande.numeroCommande} a été confirmée comme reçue par le client.`,
+    'Commande terminÃ©e',
+    `La commande ${commande.numeroCommande} a Ã©tÃ© confirmÃ©e comme reÃ§ue par le client.`,
     { commandeId: commande._id },
   );
 
   return commande;
 };
+
+
+

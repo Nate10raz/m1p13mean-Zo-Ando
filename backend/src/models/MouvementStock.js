@@ -26,4 +26,6 @@ const mouvementStockSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+mouvementStockSchema.index({ boutiqueId: 1, produitId: 1, createdAt: -1 });
+
 export default mongoose.model('MouvementStock', mouvementStockSchema);

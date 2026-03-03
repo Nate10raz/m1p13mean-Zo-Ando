@@ -6,6 +6,12 @@ import {
   getBoutiqueByIdController,
   updateBoutiqueController,
   getBoutiqueSalesDashboardController,
+  getBoutiqueInventoryController,
+  getBoutiqueStockMovementsController,
+  exportBoutiqueStockMovementsGlobalCsvController,
+  createBoutiqueStockMovementController,
+  createBoutiqueStockMovementsBulkController,
+  importBoutiqueStockCsvController,
   getMarketplaceFeeController,
   getSupermarketClosuresController,
 } from '../controllers/boutique.controller.js';
@@ -90,6 +96,108 @@ router.get(
   ],
   validateRequest,
   getBoutiqueSalesDashboardController,
+);
+
+router.get(
+  '/me/inventaire',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 200 }).toInt(),
+    query('search').optional().isString(),
+    query('lowStock').optional().isBoolean().toBoolean(),
+    query('categorieId').optional().isMongoId().withMessage('categorieId invalide'),
+    query('estActif').optional().isBoolean().toBoolean(),
+  ],
+  validateRequest,
+  getBoutiqueInventoryController,
+);
+
+router.get(
+  '/me/inventaire/mouvements',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    query('produitId').isMongoId().withMessage('produitId invalide'),
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 5000 }).toInt(),
+    query('type')
+      .optional()
+      .isIn(['ajout', 'retrait', 'commande', 'ajustement', 'retour', 'defectueux']),
+    query('startDate').optional().isISO8601().withMessage('startDate invalide'),
+    query('endDate').optional().isISO8601().withMessage('endDate invalide'),
+    query('format').optional().isIn(['json', 'csv']),
+  ],
+  validateRequest,
+  getBoutiqueStockMovementsController,
+);
+
+router.get(
+  '/me/inventaire/mouvements/export',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    query('type')
+      .optional()
+      .isIn(['ajout', 'retrait', 'commande', 'ajustement', 'retour', 'defectueux']),
+    query('startDate').optional().isISO8601().withMessage('startDate invalide'),
+    query('endDate').optional().isISO8601().withMessage('endDate invalide'),
+    query('limit').optional().isInt({ min: 1, max: 10000 }).toInt(),
+    query('search').optional().isString(),
+    query('categorieId').optional().isMongoId().withMessage('categorieId invalide'),
+    query('estActif').optional().isBoolean().toBoolean(),
+  ],
+  validateRequest,
+  exportBoutiqueStockMovementsGlobalCsvController,
+);
+
+router.post(
+  '/me/inventaire/mouvements',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    body('produitId').isMongoId().withMessage('produitId invalide'),
+    body('type').isIn(['ajout', 'retrait', 'ajustement']).withMessage('type invalide'),
+    body('quantite').optional().isInt({ min: 1 }).toInt(),
+    body('stockPhysique').optional().isInt({ min: 0 }).toInt(),
+    body('raison').optional().isString().trim(),
+    body('reference').optional().isString().trim(),
+  ],
+  validateRequest,
+  createBoutiqueStockMovementController,
+);
+
+router.post(
+  '/me/inventaire/mouvements/bulk',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    body('items').isArray({ min: 1 }).withMessage('items requis'),
+    body('items.*.produitId').isMongoId().withMessage('produitId invalide'),
+    body('items.*.stockPhysique').isInt({ min: 0 }).toInt(),
+    body('items.*.raison').optional().isString().trim(),
+    body('items.*.reference').optional().isString().trim(),
+  ],
+  validateRequest,
+  createBoutiqueStockMovementsBulkController,
+);
+
+router.post(
+  '/me/inventaire/import',
+  requireAuth,
+  requireRole('boutique'),
+  [
+    body('items').isArray({ min: 1 }).withMessage('items requis'),
+    body('items.*.produitId').optional().isMongoId().withMessage('produitId invalide'),
+    body('items.*.produit').optional().isString().trim(),
+    body('items.*.sku').optional().isString().trim(),
+    body('items.*.stockPhysique').isInt({ min: 0 }).toInt(),
+    body('items.*.raison').optional().isString().trim(),
+    body('items.*.reference').optional().isString().trim(),
+  ],
+  validateRequest,
+  importBoutiqueStockCsvController,
 );
 
 /**

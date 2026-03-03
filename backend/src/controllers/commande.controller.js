@@ -93,7 +93,7 @@ export const acceptOrder = async (req, res, next) => {
     }
     if (!boutiqueId) throw new Error('Boutique non identifiée');
 
-    const commande = await commandeService.acceptBoutiqueOrder(id, boutiqueId);
+    const commande = await commandeService.acceptBoutiqueOrder(id, boutiqueId, req.user.id);
     res.status(200).json({ success: true, data: commande });
   } catch (error) {
     next(error);

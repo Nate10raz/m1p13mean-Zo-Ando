@@ -1,0 +1,390 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+
+    <!-- ── En-tête ── -->
+    <div class="d-flex flex-wrap gap-16 align-items-center justify-content-between m-b-20">
+      <div class="dashboard-title">
+        <div class="dashboard-badge bg-light-primary text-primary">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <div>
+          <h5 class="f-s-18 f-w-700 m-0">Inventaire produits</h5>
+          <span class="text-muted f-s-13">Gérer le stock par produit</span>
+        </div>
+      </div>
+      <button mat-stroked-button type="button" (click)="reload()" [disabled]="isLoading" class="inv-action-btn">
+        <mat-icon>refresh</mat-icon>
+        Actualiser
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════
+         BLOC 1 — Filtres principaux
+    ══════════════════════════════════ -->
+    <div class="inv-section">
+      <div class="inv-section__label">
+        <mat-icon>tune</mat-icon>
+        Filtres
+      </div>
+      <div class="inv-filter-row">
+        <mat-form-field appearance="outline" class="inv-field inv-field--wide" color="primary">
+          <mat-label>Recherche</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">search</mat-icon>
+          <input matInput [formControl]="searchControl" placeholder="Titre, slug ou SKU" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inv-field" color="primary">
+          <mat-label>Catégorie</mat-label>
+          <mat-select [formControl]="categoryControl" [disabled]="isLoadingCategories">
+            <mat-option [value]="null">Toutes</mat-option>
+            @for (cat of categories; track cat._id) {
+              <mat-option [value]="cat._id">{{ cat.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inv-field inv-field--sm" color="primary">
+          <mat-label>Statut</mat-label>
+          <mat-select [formControl]="statusControl">
+            <mat-option value="all">Tous</mat-option>
+            <mat-option value="active">Actif</mat-option>
+            <mat-option value="inactive">Inactif</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="inv-toggle-group">
+          <div class="inv-toggle-item">
+            <mat-slide-toggle color="primary" [formControl]="lowStockControl">
+              <span class="f-s-13 f-w-500">Stock bas</span>
+            </mat-slide-toggle>
+          </div>
+          <div class="inv-toggle-item">
+            <mat-slide-toggle color="primary" [formControl]="rapidModeControl">
+              <span class="f-s-13 f-w-500">Inventaire rapide</span>
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        @if (rapidModeControl.value) {
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="saveRapidAdjustments()"
+            [disabled]="isBulkSaving || !pendingAdjustmentsCount"
+            class="inv-save-btn"
+          >
+            <mat-icon>save</mat-icon>
+            Enregistrer {{ pendingAdjustmentsCount }}
+            ajustement{{ pendingAdjustmentsCount > 1 ? 's' : '' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         BLOC 2 — Export CSV
+    ══════════════════════════════════ -->
+    <div class="inv-section">
+      <div class="inv-section__label">
+        <mat-icon>upload_file</mat-icon>
+        Export
+      </div>
+      <div class="inv-filter-row">
+        <mat-form-field appearance="outline" class="inv-field" color="primary">
+          <mat-label>Type mouvement</mat-label>
+          <mat-select [formControl]="exportTypeControl">
+            <mat-option value="all">Tous</mat-option>
+            <mat-option value="ajout">Ajout</mat-option>
+            <mat-option value="retrait">Retrait</mat-option>
+            <mat-option value="commande">Commande</mat-option>
+            <mat-option value="ajustement">Ajustement</mat-option>
+            <mat-option value="retour">Retour</mat-option>
+            <mat-option value="defectueux">Défectueux</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inv-field inv-field--sm" color="primary">
+          <mat-label>Du</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">calendar_today</mat-icon>
+          <input matInput type="date" [formControl]="exportStartDateControl" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inv-field inv-field--sm" color="primary">
+          <mat-label>Au</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">calendar_today</mat-icon>
+          <input matInput type="date" [formControl]="exportEndDateControl" />
+        </mat-form-field>
+
+        <button mat-stroked-button color="primary" type="button" (click)="exportGlobalCsv()" [disabled]="isGlobalExporting" class="inv-action-btn">
+          <mat-icon>download</mat-icon>
+          Exporter CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         BLOC 3 — Import CSV
+    ══════════════════════════════════ -->
+    <div class="inv-section">
+      <div class="inv-section__label">
+        <mat-icon>file_download</mat-icon>
+        Import
+      </div>
+      <div class="inv-import-row">
+        <button mat-stroked-button type="button" (click)="downloadImportTemplate()" class="inv-action-btn">
+          <mat-icon>description</mat-icon>
+          Télécharger le template
+        </button>
+
+        <input
+          #importCsvInput
+          type="file"
+          accept=".csv"
+          class="d-none"
+          (change)="onImportFileSelected($event)"
+        />
+
+        <button mat-stroked-button type="button" (click)="importCsvInput.click()" class="inv-action-btn">
+          <mat-icon>attach_file</mat-icon>
+          Choisir un fichier
+        </button>
+
+        @if (importFileName) {
+          <div class="inv-file-chip">
+            <mat-icon class="text-primary" style="font-size:16px;width:16px;height:16px">table_chart</mat-icon>
+            <span class="f-s-12 f-w-500">{{ importFileName }}</span>
+          </div>
+        }
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="importCsv()"
+          [disabled]="!canImport"
+          class="inv-action-btn"
+        >
+          <mat-icon>table_view</mat-icon>
+          Importer
+        </button>
+      </div>
+
+      <!-- Résultat parsing -->
+      @if (isParsingImport) {
+        <div class="inv-import-feedback inv-import-feedback--loading">
+          <mat-icon>hourglass_empty</mat-icon>
+          Analyse du fichier en cours…
+        </div>
+      } @else if (importFileName) {
+        <div class="inv-import-feedback" [class.inv-import-feedback--error]="importErrors.length" [class.inv-import-feedback--ok]="!importErrors.length">
+          <div class="inv-import-stats">
+            <span class="inv-stat-chip">
+              <mat-icon style="font-size:14px;width:14px;height:14px">format_list_numbered</mat-icon>
+              Lignes : <strong>{{ importTotalRows }}</strong>
+            </span>
+            <span class="inv-stat-chip inv-stat-chip--green">
+              <mat-icon style="font-size:14px;width:14px;height:14px">check</mat-icon>
+              Valides : <strong>{{ importValidRows }}</strong>
+            </span>
+            <span class="inv-stat-chip inv-stat-chip--orange">
+              <mat-icon style="font-size:14px;width:14px;height:14px">visibility_off</mat-icon>
+              Ignorées : <strong>{{ importSkippedRows }}</strong>
+            </span>
+          </div>
+
+          @if (importErrors.length) {
+            <div class="inv-import-errors">
+              <div class="f-w-600 f-s-12 m-b-6">
+                <mat-icon style="font-size:15px;width:15px;height:15px">warning</mat-icon>
+                Erreurs d'import :
+              </div>
+              <ul class="m-0 p-l-16">
+                @for (error of importErrors.slice(0, 5); track error) {
+                  <li class="f-s-12">{{ error }}</li>
+                }
+              </ul>
+              @if (importErrors.length > 5) {
+                <div class="f-s-12 m-t-4 text-muted">+{{ importErrors.length - 5 }} autres erreurs</div>
+              }
+            </div>
+          } @else {
+            <div class="d-flex align-items-center gap-6 text-success f-s-12 f-w-500 m-t-8">
+              <mat-icon style="font-size:16px;width:16px;height:16px">check_circle</mat-icon>
+              Fichier prêt à être importé.
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ══════════════════════════════════
+         TABLEAU
+    ══════════════════════════════════ -->
+    @if (isLoading) {
+      <div class="inv-state-box">
+        <mat-icon style="font-size:32px;width:32px;height:32px" class="text-primary">hourglass_empty</mat-icon>
+        <span class="text-muted f-s-14">Chargement en cours…</span>
+      </div>
+    } @else if (errorMessage) {
+      <div class="inv-state-box inv-state-box--error">
+        <mat-icon style="font-size:32px;width:32px;height:32px" class="text-error">error_outline</mat-icon>
+        <span class="f-s-14">{{ errorMessage }}</span>
+      </div>
+    } @else if (!dataSource.length) {
+      <div class="inv-state-box">
+        <mat-icon style="font-size:36px;width:36px;height:36px" class="text-muted">inventory_2</mat-icon>
+        <span class="text-muted f-s-14">Aucun produit trouvé.</span>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" [trackBy]="trackByProductId" class="w-100 inv-table">
+
+          <!-- Produit -->
+          <ng-container matColumnDef="produit">
+            <th mat-header-cell *matHeaderCellDef>Produit</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="inv-product-cell">
+                <img [src]="element.image" alt="produit" class="inv-product-img" />
+                <div>
+                  <div class="f-s-14 f-w-600">{{ element.titre }}</div>
+                  <div class="f-s-12 text-muted">{{ element.slug }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Stock -->
+          <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef>Stock</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="inv-stock-value" [class.inv-stock-value--low]="element.isLowStock">
+                {{ element.stock }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Stock physique -->
+          <ng-container matColumnDef="stockPhysique">
+            <th mat-header-cell *matHeaderCellDef>Stock physique</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-form-field appearance="outline" class="inv-stock-input" color="primary">
+                <input
+                  matInput
+                  type="number"
+                  min="0"
+                  [value]="element.stockPhysiqueInput ?? element.stock"
+                  (input)="onPhysicalStockInput(element, $event.target.value)"
+                  [disabled]="!rapidModeControl.value || isBulkSaving"
+                />
+              </mat-form-field>
+              @if (element.hasPendingAdjustment) {
+                <div class="inv-delta" [class.inv-delta--pos]="element.pendingDelta > 0" [class.inv-delta--neg]="element.pendingDelta < 0">
+                  {{ element.pendingDelta > 0 ? '+' : '' }}{{ element.pendingDelta }}
+                </div>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Seuil -->
+          <ng-container matColumnDef="seuil">
+            <th mat-header-cell *matHeaderCellDef>Seuil</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="f-s-13 text-muted">{{ element.seuil !== null ? element.seuil : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Alerte -->
+          <ng-container matColumnDef="alerte">
+            <th mat-header-cell *matHeaderCellDef>Alerte</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.isLowStock) {
+                <span class="inv-badge inv-badge--error">
+                  <mat-icon style="font-size:14px;width:14px;height:14px">warning</mat-icon>
+                  Bas
+                </span>
+              } @else {
+                <span class="inv-badge inv-badge--success">
+                  <mat-icon style="font-size:14px;width:14px;height:14px">check</mat-icon>
+                  OK
+                </span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Statut -->
+          <ng-container matColumnDef="statut">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.estActif) {
+                <span class="inv-badge inv-badge--success">Actif</span>
+              } @else {
+                <span class="inv-badge inv-badge--error">Inactif</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Dernier mouvement -->
+          <ng-container matColumnDef="mouvement">
+            <th mat-header-cell *matHeaderCellDef>Dernier mouvement</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.lastMovementAt) {
+                <span class="f-s-12">{{ element.lastMovementAt | date: 'short' }}</span>
+              } @else {
+                <span class="f-s-12 text-muted">—</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="inv-actions">
+                <button mat-icon-button class="inv-action-icon inv-action-icon--add"
+                  (click)="openMovementDialog(element, 'ajout')"
+                  [disabled]="element.isUpdating"
+                  matTooltip="Ajouter du stock">
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+                <button mat-icon-button class="inv-action-icon inv-action-icon--remove"
+                  (click)="openMovementDialog(element, 'retrait')"
+                  [disabled]="element.isUpdating"
+                  matTooltip="Retirer du stock">
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+                <button mat-icon-button class="inv-action-icon inv-action-icon--adjust"
+                  (click)="openMovementDialog(element, 'ajustement')"
+                  [disabled]="element.isUpdating"
+                  matTooltip="Ajustement inventaire">
+                  <mat-icon>inventory_2</mat-icon>
+                </button>
+                <button mat-icon-button class="inv-action-icon inv-action-icon--history"
+                  (click)="openHistoryDialog(element)"
+                  [disabled]="element.isUpdating"
+                  matTooltip="Historique">
+                  <mat-icon>history</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"
+            [class.inv-row--low-stock]="row.isLowStock"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        class="m-t-16"
+        [length]="total"
+        [pageIndex]="page - 1"
+        [pageSize]="limit"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [showFirstLastButtons]="true"
+        (page)="onPageChange($event)"
+      ></mat-paginator>
+    }
+
+  </mat-card-content>
+</mat-card>

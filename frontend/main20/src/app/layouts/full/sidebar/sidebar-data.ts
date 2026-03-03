@@ -122,6 +122,12 @@ export const navItems: NavItem[] = [
     roles: ['boutique'],
   },
   {
+    displayName: 'Inventaire',
+    iconName: 'package',
+    route: '/dashboard/boutique/inventaire',
+    roles: ['boutique'],
+  },
+  {
     navCap: 'Boxes',
     roles: ['boutique'],
   },
