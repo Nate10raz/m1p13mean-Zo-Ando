@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, finalize, mergeMap, of, tap, throwError } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+
 import { environment } from 'src/environments/environment';
 import { TokenService } from './token.service';
 
@@ -38,6 +40,7 @@ export interface UserEntity {
   prenom: string;
   telephone: string;
   isEmailVerified: boolean;
+  avatar?: string;
   googleId?: string;
   preferences: {
     notifications: boolean;
@@ -113,6 +116,7 @@ export interface GoogleAuthData {
 
 export interface RefreshData {
   accessToken: string;
+  user: UserEntity;
 }
 
 export interface ResetPasswordPayload {
@@ -131,6 +135,8 @@ export class AuthService {
     private http: HttpClient,
     private tokenService: TokenService,
   ) {}
+
+  user$ = toObservable(this.tokenService.userSignal);
 
   getBoutiqueMe(): Observable<ApiResponse<BoutiqueMeData>> {
     return this.http.get<ApiResponse<BoutiqueMeData>>(`${environment.apiUrl}/boutiques/me`);
@@ -221,6 +227,10 @@ export class AuthService {
           const accessToken = response?.data?.accessToken;
           if (accessToken) {
             this.tokenService.setAccessToken(accessToken);
+          }
+          const user = response?.data?.user;
+          if (user) {
+            this.tokenService.setUser(user);
           }
         }),
       );

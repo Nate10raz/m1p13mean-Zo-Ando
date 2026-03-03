@@ -13,6 +13,7 @@ export interface StoredUser {
   email?: string;
   nom?: string;
   prenom?: string;
+  avatar?: string;
   googleId?: string;
 }
 
@@ -20,8 +21,11 @@ export interface StoredUser {
   providedIn: 'root',
 })
 export class TokenService {
-  private accessTokenSignal = signal<string | null>(null);
-  private userSignal = signal<StoredUser | null>(null);
+  private readonly TOKEN_KEY = 'marketplace_access_token';
+  private readonly USER_KEY = 'marketplace_user';
+
+  private accessTokenSignal = signal<string | null>(localStorage.getItem(this.TOKEN_KEY));
+  public userSignal = signal<StoredUser | null>(this.getStoredUser());
   private roleSignal = computed(() => {
     const token = this.accessTokenSignal();
     if (!token) {
@@ -42,18 +46,25 @@ export class TokenService {
   });
 
   setAccessToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
     this.accessTokenSignal.set(token);
   }
 
   getAccessToken(): string | null {
-    return this.accessTokenSignal();
+    return this.accessTokenSignal() || localStorage.getItem(this.TOKEN_KEY);
   }
 
   clearAccessToken(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
     this.accessTokenSignal.set(null);
   }
 
   setUser(user: StoredUser | null): void {
+    if (user) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(this.USER_KEY);
+    }
     this.userSignal.set(user);
   }
 
@@ -62,7 +73,18 @@ export class TokenService {
   }
 
   clearUser(): void {
+    localStorage.removeItem(this.USER_KEY);
     this.userSignal.set(null);
+  }
+
+  private getStoredUser(): StoredUser | null {
+    const user = localStorage.getItem(this.USER_KEY);
+    if (!user) return null;
+    try {
+      return JSON.parse(user);
+    } catch {
+      return null;
+    }
   }
 
   getRole(): string | null {

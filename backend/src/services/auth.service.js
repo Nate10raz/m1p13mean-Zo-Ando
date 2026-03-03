@@ -336,6 +336,7 @@ export const refreshSession = async (refreshToken) => {
   await storeRefreshToken(user._id, newRefreshToken);
 
   return {
+    user: sanitizeUser(user),
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
   };

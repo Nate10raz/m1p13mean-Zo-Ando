@@ -315,9 +315,7 @@ export class AdminService {
     });
   }
 
-  getUserById(
-    userId: string,
-  ): Observable<ApiResponse<AdminUser | AdminUserDetailResponse>> {
+  getUserById(userId: string): Observable<ApiResponse<AdminUser | AdminUserDetailResponse>> {
     return this.http.get<ApiResponse<AdminUser | AdminUserDetailResponse>>(
       `${this.apiRootUrl}/admin/users/${userId}`,
     );

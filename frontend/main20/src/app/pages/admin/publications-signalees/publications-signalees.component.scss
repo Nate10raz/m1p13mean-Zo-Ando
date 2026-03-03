@@ -1,0 +1,39 @@
+.badge-error {
+  background-color: #fce7e7;
+  color: #ef4444;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.report-item {
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.medias-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.media-box {
+  flex: 0 0 calc(50% - 5px);
+
+  img,
+  video {
+    width: 100%;
+    object-fit: cover;
+  }
+}
+
+.opacity-20 {
+  opacity: 0.2;
+}
+
+.icon-64 {
+  width: 64px;
+  height: 64px;
+}

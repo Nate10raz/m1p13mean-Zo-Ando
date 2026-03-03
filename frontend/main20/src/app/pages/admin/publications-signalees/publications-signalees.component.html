@@ -1,0 +1,86 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content class="p-24">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <mat-card-title class="m-b-0">Publications Signalées</mat-card-title>
+      <button mat-icon-button (click)="loadReported()" [disabled]="isLoading">
+        <i-tabler name="refresh" class="icon-20"></i-tabler>
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && reportedPublications.length === 0" class="text-center py-5">
+      <div class="mb-3 opacity-20">
+        <i-tabler name="circle-check" class="icon-64"></i-tabler>
+      </div>
+      <h3 class="text-muted">Aucune publication signalée pour le moment</h3>
+    </div>
+
+    <div class="reported-container" *ngIf="!isLoading && reportedPublications.length > 0">
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let pub of reportedPublications" class="mb-3 border rounded">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="d-flex align-items-center gap-2">
+              <span class="badge badge-error">{{ pub.reports?.length || 0 }} Signalement(s)</span>
+              <span class="fw-semibold">{{ getAuthorName(pub) }}</span>
+            </mat-panel-title>
+            <mat-panel-description class="text-truncate">
+              {{ pub.contenu || 'Média uniquement' }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="pub-details pt-3">
+            <div class="row">
+              <div class="col-lg-6">
+                <h6>Contenu de la publication :</h6>
+                <p class="text-muted border p-3 rounded bg-light">{{ pub.contenu }}</p>
+
+                <div class="medias-grid mt-3" *ngIf="pub.medias.length > 0">
+                  <div *ngFor="let media of pub.medias" class="media-box mb-2">
+                    <img
+                      *ngIf="isImage(media)"
+                      [src]="media"
+                      class="img-fluid rounded shadow-sm"
+                      style="max-height: 200px"
+                    />
+                    <video
+                      *ngIf="isVideo(media)"
+                      [src]="media"
+                      class="img-fluid rounded shadow-sm"
+                      style="max-height: 200px"
+                      controls
+                    ></video>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <h6>Motifs des signalements :</h6>
+                <div class="reports-list">
+                  <div *ngFor="let report of pub.reports" class="report-item p-2 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-bold text-primary"
+                        >{{ report.reporterId.prenom }} {{ report.reporterId.nom }}</span
+                      >
+                      <small class="text-muted">{{ formatDate(report.createdAt) }}</small>
+                    </div>
+                    <p class="mb-0 text-dark">{{ report.reason }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button mat-button color="warn" (click)="deletePublication(pub._id)">
+                <i-tabler name="trash" class="icon-18 me-1"></i-tabler> Supprimer la publication
+              </button>
+              <button mat-button (click)="dismissReports(pub._id)">Ignorer</button>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-card-content>
+</mat-card>

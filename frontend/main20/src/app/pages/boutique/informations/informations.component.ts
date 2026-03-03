@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpEventType } from '@angular/common/http';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription, finalize } from 'rxjs';
@@ -242,17 +243,20 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.sub.add(
       this.uploadService.uploadImage(file, 'boutiques').subscribe({
-        next: (res) => {
-          if (res.data?.url) {
-            this.form.get(target)?.setValue(res.data.url);
-            this.form.markAsDirty();
-            this.snackBar.open(
-              `${target === 'logo' ? 'Logo' : 'Bannière'} mise à jour temporairement. N'oubliez pas d'enregistrer !`,
-              'OK',
-              { duration: 3000 },
-            );
+        next: (event: any) => {
+          if (event.type === HttpEventType.Response) {
+            const body = event.body as any;
+            if (body && body.data && body.data.url) {
+              this.form.get(target)?.setValue(body.data.url);
+              this.form.markAsDirty();
+              this.snackBar.open(
+                `${target === 'logo' ? 'Logo' : 'Bannière'} mise à jour temporairement. N'oubliez pas d'enregistrer !`,
+                'OK',
+                { duration: 3000 },
+              );
+            }
+            this.isLoading = false;
           }
-          this.isLoading = false;
         },
         error: (err) => {
           this.isLoading = false;
@@ -614,11 +618,11 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
         message: 'Pour quelle raison souhaitez-vous signaler cet avis ?',
         placeholder: 'Raison du signalement...',
         confirmText: 'Signaler',
-        cancelText: 'Annuler'
-      }
+        cancelText: 'Annuler',
+      },
     });
 
-    dialogRef.afterClosed().subscribe(raison => {
+    dialogRef.afterClosed().subscribe((raison) => {
       if (raison && raison.trim()) {
         this.avisService.reportAvis(avis._id, raison).subscribe({
           next: () => {
@@ -705,5 +709,5 @@ export class BoutiqueInformationsComponent implements OnInit, OnDestroy {
   `,
 })
 export class ConfirmMergeDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 }
