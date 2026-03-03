@@ -102,7 +102,11 @@
         <!-- Media Section (Grid) -->
         <div class="pub-media-section" *ngIf="pub.medias && pub.medias.length > 0">
           <div class="media-container" [ngClass]="'items-' + pub.medias.length">
-            <div *ngFor="let media of pub.medias" class="media-box">
+            <div
+              *ngFor="let media of pub.medias; let idx = index"
+              class="media-box"
+              (click)="openLightbox(pub.medias, idx)"
+            >
               <!-- Image -->
               <img
                 *ngIf="isImage(media)"
@@ -118,10 +122,12 @@
                   #videoPlayer
                   [src]="media"
                   class="media-content video-fluid"
-                  controls
                   playsinline
                   preload="metadata"
                 ></video>
+                <div class="video-play-overlay">
+                  <i-tabler name="play" class="icon-48"></i-tabler>
+                </div>
               </div>
             </div>
           </div>
@@ -250,5 +256,42 @@
         <p class="text-muted fs-sm">Essayez de modifier vos critères de recherche.</p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Lightbox / Media Viewer Overlay -->
+<div class="lightbox-overlay" *ngIf="selectedMediaIndex !== null" (click)="closeLightbox()">
+  <div class="lightbox-close" (click)="closeLightbox()">
+    <i-tabler name="x" class="icon-32"></i-tabler>
+  </div>
+
+  <div class="lightbox-nav-prev" *ngIf="activeMedias.length > 1" (click)="prevMedia($event)">
+    <i-tabler name="chevron-left" class="icon-40"></i-tabler>
+  </div>
+
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+    <ng-container *ngIf="activeMedias[selectedMediaIndex] as currentMedia">
+      <img
+        *ngIf="isImage(currentMedia)"
+        [src]="currentMedia"
+        class="lightbox-media animate-zoom-in"
+      />
+
+      <video
+        *ngIf="isVideo(currentMedia)"
+        [src]="currentMedia"
+        controls
+        autoplay
+        class="lightbox-media animate-zoom-in"
+      ></video>
+    </ng-container>
+  </div>
+
+  <div class="lightbox-nav-next" *ngIf="activeMedias.length > 1" (click)="nextMedia($event)">
+    <i-tabler name="chevron-right" class="icon-40"></i-tabler>
+  </div>
+
+  <div class="lightbox-counter" *ngIf="activeMedias.length > 1">
+    {{ selectedMediaIndex + 1 }} / {{ activeMedias.length }}
   </div>
 </div>

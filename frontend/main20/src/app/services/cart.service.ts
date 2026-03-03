@@ -80,6 +80,10 @@ export class CartService {
     );
   }
 
+  clearCartLocally(): void {
+    this.cartSubject.next(null);
+  }
+
   get totalItems(): number {
     const cart = this.cartSubject.value;
     if (!cart) return 0;

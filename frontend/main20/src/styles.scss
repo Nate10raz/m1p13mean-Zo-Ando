@@ -41,3 +41,42 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+// ── Global Lightbox Overlays Fix ──
+body.lightbox-open {
+  overflow: hidden !important;
+
+  // Kill transforms on parents which create new stacking contexts
+  mat-sidenav-container.mainWrapper,
+  mat-sidenav-content.contentWrapper,
+  .pageWrapper {
+    transform: none !important;
+    perspective: none !important;
+  }
+
+  // Ensure sidebar is behind the main content container
+  .sidebarNav,
+  mat-sidenav.sidebarNav,
+  .mat-drawer-inner-container {
+    z-index: 1 !important; // Absolute minimum
+  }
+
+  // Force the main content area to be on top of the sidebar
+  .contentWrapper,
+  mat-sidenav-content.contentWrapper {
+    z-index: 999999 !important; // Higher than any Material default
+    overflow: visible !important;
+    position: relative;
+    contain: none !important; // Allow children to escape
+  }
+
+  // Ensure the lightbox itself is top of everything
+  .lightbox-overlay {
+    z-index: 1000000 !important;
+  }
+
+  // If there's a backdrop from Material, hide it or lower it
+  .mat-drawer-backdrop.mat-drawer-shown {
+    display: none !important;
+  }
+}
