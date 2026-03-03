@@ -6,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Subscription } from 'rxjs';
 
@@ -107,19 +107,32 @@ import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-d
         border-radius: 10px;
         border: 1px solid #e5e7eb;
         background: #fff;
+        transition: all 0.2s;
+      }
+
+      .meta-item.clickable:hover {
+        background: #f8fafc;
+        border-color: #5d87ff;
       }
 
       .meta-label {
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
         color: #6b7280;
         margin-bottom: 4px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
       }
 
       .meta-value {
-        font-weight: 600;
-        color: #1f2937;
+        font-weight: 700;
+        color: #2a3547;
         word-break: break-word;
+        font-size: 15px;
+      }
+
+      .clickable {
+        cursor: pointer;
       }
 
       .text-muted {
@@ -127,8 +140,12 @@ import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-d
       }
 
       .section-title {
-        font-weight: 600;
-        margin: 16px 0 8px;
+        font-weight: 700;
+        margin: 24px 0 12px;
+        font-size: 16px;
+        color: #2a3547;
+        border-bottom: 2px solid #f0f5ff;
+        padding-bottom: 8px;
       }
 
       .chip-list {
@@ -144,19 +161,70 @@ import { PromptDialogComponent } from 'src/app/components/prompt-dialog/prompt-d
       }
 
       .attribute-item {
-        padding: 8px 10px;
+        padding: 8px 12px;
         border-radius: 8px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       .attribute-name {
         font-weight: 600;
+        color: #475569;
       }
 
       .attribute-values {
-        font-size: 13px;
-        color: #475569;
+        font-size: 14px;
+        color: #2a3547;
+        font-weight: 500;
+      }
+
+      /* Avis styles matching BoutiqueInformations */
+      .bg-light-primary {
+        background-color: rgba(93, 135, 255, 0.08);
+      }
+
+      .border-dashed {
+        border: 2px dashed #e2e8f0;
+      }
+
+      .border-left-4 {
+        border-left: 4px solid !important;
+      }
+
+      .line-height-1-6 {
+        line-height: 1.6;
+      }
+
+      .line-height-1-5 {
+        line-height: 1.5;
+      }
+
+      .shadow-xs {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .w-18 {
+        width: 18px !important;
+      }
+
+      .h-18 {
+        height: 18px !important;
+      }
+
+      .avis-item:hover {
+        border-color: #5d87ff !important;
+        transform: translateY(-2px);
+      }
+
+      .transition-all {
+        transition: all 0.3s ease;
+      }
+
+      .cursor-pointer {
+        cursor: pointer;
       }
     `,
   ],
@@ -181,10 +249,17 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
   };
   isSubmittingAvis = false;
 
+  // Reponse properties
+  isOwner = false;
+  showReponseForm: string | null = null;
+  reponseMessage = '';
+  isSubmittingReponse = false;
+
   private readonly subscriptions = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private productService: ProductService,
     private categoryService: CategoryService,
     private avisService: AvisService,
@@ -222,7 +297,7 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
   }
 
   onAddToCart(): void {
-    this.snackBar.open('Ajout au panier a venir.', 'Fermer', { duration: 3000 });
+    this.snackBar.open('Produit ajouté au panier.', 'Voir le panier', { duration: 3000 });
   }
 
   selectImage(url: string): void {
@@ -278,6 +353,7 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
           }
           this.product = product;
           this.setupImages(product);
+          this.checkOwnership();
         },
         error: (error) => {
           this.errorMessage = error?.error?.message ?? 'Impossible de charger le produit.';
@@ -329,8 +405,6 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
       this.canReview = false;
       return;
     }
-    // L'éligibilité est vérifiée côté serveur lors de la soumission.
-    // On pourrait aussi avoir un endpoint dédié pour vérifier à l'avance et afficher/masquer le formulaire.
     this.canReview = true;
   }
 
@@ -368,7 +442,6 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
           this.snackBar.open('Votre avis a été publié !', 'Fermer', { duration: 3000 });
           this.avisList.unshift(savedAvis);
           this.newAvis = { note: 5, titre: '', commentaire: '' };
-          // Rafraîchir les stats du produit (note moyenne)
           this.loadProduct(this.product!._id);
         },
         error: (err: any) => {
@@ -419,5 +492,64 @@ export class AppProduitFicheComponent implements OnInit, OnDestroy {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  // --- New Methods ---
+  goToBoutique(): void {
+    if (this.product && this.product.boutiqueId) {
+      this.router.navigate(['/boutique-info', this.product.boutiqueId]);
+    }
+  }
+
+  private checkOwnership(): void {
+    const role = this.authService.getCurrentRole();
+    if (role === 'admin') {
+      this.isOwner = true;
+      return;
+    }
+    if (role === 'boutique' && this.product) {
+      const myBId = this.authService.getCurrentBoutiqueId();
+      this.isOwner = !!myBId && myBId === this.product.boutiqueId;
+    } else {
+      this.isOwner = false;
+    }
+    this.cdr.markForCheck();
+  }
+
+  toggleReponseForm(avisId: string): void {
+    if (this.showReponseForm === avisId) {
+      this.showReponseForm = null;
+    } else {
+      this.showReponseForm = avisId;
+      this.reponseMessage = '';
+    }
+    this.cdr.markForCheck();
+  }
+
+  submitReponse(avis: Avis): void {
+    if (!this.reponseMessage.trim()) return;
+    this.isSubmittingReponse = true;
+    this.cdr.markForCheck();
+
+    this.avisService.addReponse(avis._id, this.reponseMessage).subscribe({
+      next: (updatedAvis) => {
+        this.snackBar.open('Réponse publiée !', 'Fermer', { duration: 3000 });
+        const idx = this.avisList.findIndex((a) => a._id === updatedAvis._id);
+        if (idx !== -1) {
+          this.avisList[idx] = updatedAvis;
+        }
+        this.showReponseForm = null;
+        this.reponseMessage = '';
+        this.isSubmittingReponse = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.snackBar.open(err?.error?.message || 'Erreur lors de la réponse.', 'Fermer', {
+          duration: 3000,
+        });
+        this.isSubmittingReponse = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 }

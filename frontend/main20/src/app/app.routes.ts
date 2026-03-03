@@ -85,10 +85,19 @@ export const routes: Routes = [
       {
         path: 'produit/:id',
         canActivate: [RoleGuard],
-        data: { roles: ['client'] },
+        data: { roles: ['client', 'boutique', 'admin'] },
         loadComponent: () =>
           import('./pages/produit-fiche/produit-fiche.component').then(
             (m) => m.AppProduitFicheComponent,
+          ),
+      },
+      {
+        path: 'boutique-info/:id',
+        canActivate: [RoleGuard],
+        data: { roles: ['client', 'admin', 'boutique'] },
+        loadComponent: () =>
+          import('./pages/boutique/informations/informations.component').then(
+            (m) => m.BoutiqueInformationsComponent,
           ),
       },
       {
