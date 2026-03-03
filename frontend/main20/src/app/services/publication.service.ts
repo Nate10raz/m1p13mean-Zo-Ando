@@ -42,6 +42,16 @@ export interface Publication {
   updatedAt: string;
   // UI helper
   isLiked?: boolean;
+  reports?: {
+    reporterId: {
+      _id: string;
+      nom: string;
+      prenom: string;
+      avatar: string;
+    };
+    reason: string;
+    createdAt: string;
+  }[];
 }
 
 export interface Commentaire {
@@ -113,5 +123,22 @@ export class PublicationService {
 
   delete(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  report(id: string, reason: string): Observable<Publication> {
+    return this.http
+      .post<ApiResponse<Publication>>(`${this.apiUrl}/${id}/report`, { reason })
+      .pipe(map((res) => res.data));
+  }
+
+  getReported(page: number = 1): Observable<Publication[]> {
+    let params = new HttpParams().set('page', page.toString());
+    return this.http
+      .get<ApiResponse<Publication[]>>(`${this.apiUrl}/reported`, { params })
+      .pipe(map((res) => res.data));
+  }
+
+  dismissReports(id: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/dismiss-reports`, {});
   }
 }

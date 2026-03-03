@@ -27,6 +27,14 @@ const publicationSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+
+  reports: [
+    {
+      reporterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      reason: { type: String },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 // Hook pour mettre à jour likesCount automatiquement avant sauvegarde si le tableau a changé

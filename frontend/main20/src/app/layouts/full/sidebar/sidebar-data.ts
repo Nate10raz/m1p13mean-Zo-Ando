@@ -58,10 +58,24 @@ export const navItems: NavItem[] = [
     roles: ['admin'],
   },
   {
-    displayName: 'Gestion des avis',
-    iconName: 'star',
-    route: '/admin/avis-signales',
+    displayName: 'Gestion des signalements',
+    iconName: 'alert-circle',
+    route: '/admin/signalements',
     roles: ['admin'],
+    children: [
+      {
+        displayName: 'Avis',
+        iconName: 'point',
+        route: '/admin/avis-signales',
+        roles: ['admin'],
+      },
+      {
+        displayName: 'Publications',
+        iconName: 'point',
+        route: '/admin/publications-signalees',
+        roles: ['admin'],
+      },
+    ],
   },
   {
     navCap: 'Gestion Box',

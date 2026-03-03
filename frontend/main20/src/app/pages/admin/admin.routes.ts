@@ -7,6 +7,8 @@ import { AppAdminCategorieComponent } from './categorie/categorie.component';
 import { AppAdminFraisLivraisonComponent } from './frais-livraison/frais-livraison.component';
 import { AdminAvisSignalesComponent } from './avis-signales/avis-signales.component';
 
+import { PublicationsSignaleesComponent } from './publications-signalees/publications-signalees.component';
+
 export const AdminRoutes: Routes = [
   {
     path: '',
@@ -34,6 +36,10 @@ export const AdminRoutes: Routes = [
       {
         path: 'avis-signales',
         component: AdminAvisSignalesComponent,
+      },
+      {
+        path: 'publications-signalees',
+        component: PublicationsSignaleesComponent,
       },
     ],
   },

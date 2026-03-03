@@ -83,7 +83,7 @@
                 <i-tabler name="trash" class="me-2 icon-18"></i-tabler>
                 <span>Supprimer</span>
               </button>
-              <button mat-menu-item>
+              <button mat-menu-item *ngIf="canReport(pub)" (click)="reportPub(pub)">
                 <i-tabler name="flag" class="me-2 icon-18"></i-tabler>
                 <span>Signaler</span>
               </button>
@@ -130,11 +130,8 @@
         <!-- Stats Section -->
         <div class="pub-stats px-4 py-3 d-flex justify-content-between border-top-soft">
           <div class="like-counter d-flex align-items-center">
-            <div class="like-icons me-2">
-              <i-tabler
-                name="heart-filled"
-                class="icon-14 text-white bg-danger rounded-circle p-1"
-              ></i-tabler>
+            <div class="like-icons">
+              <i-tabler name="heart-filled"></i-tabler>
             </div>
             <span class="fs-xs fw-600 text-secondary">{{ pub.likesCount }} j'aime</span>
           </div>

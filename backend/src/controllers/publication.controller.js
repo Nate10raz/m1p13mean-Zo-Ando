@@ -110,8 +110,52 @@ class PublicationController {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      await publicationService.deletePublication(id, req.user.id, req.user.role);
+      await publicationService.deletePublication(id, req.user);
       return successResponse(req, res, null, 'Publication supprimée');
+    } catch (error) {
+      return errorResponse(req, res, error.message);
+    }
+  }
+
+  async report(req, res) {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+
+      if (req.user.role !== 'client') {
+        return badRequestResponse(req, res, 'Seuls les clients peuvent signaler des publications');
+      }
+
+      const publication = await publicationService.reportPublication(id, req.user.id, reason);
+      return successResponse(req, res, publication, 'Publication signalée');
+    } catch (error) {
+      return errorResponse(req, res, error.message);
+    }
+  }
+
+  async getReported(req, res) {
+    try {
+      if (req.user.role !== 'admin') {
+        return badRequestResponse(req, res, 'Accès réservé aux administrateurs');
+      }
+
+      const page = parseInt(req.query.page) || 1;
+      const reported = await publicationService.getReportedPublications(page);
+      return successResponse(req, res, reported);
+    } catch (error) {
+      return errorResponse(req, res, error.message);
+    }
+  }
+
+  async dismissReports(req, res) {
+    try {
+      if (req.user.role !== 'admin') {
+        return badRequestResponse(req, res, 'Accès réservé aux administrateurs');
+      }
+
+      const { id } = req.params;
+      await publicationService.dismissReports(id);
+      return successResponse(req, res, null, 'Signalements ignorés');
     } catch (error) {
       return errorResponse(req, res, error.message);
     }

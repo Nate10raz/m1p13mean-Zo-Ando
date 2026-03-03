@@ -10,10 +10,13 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PublicationService, Publication, Commentaire } from '../../services/publication.service';
 import { AuthService } from '../../services/auth.service';
 import { CreatePublicationDialogComponent } from './create-publication-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { PromptDialogComponent } from '../../components/prompt-dialog/prompt-dialog.component';
 import { StoredUser } from '../../services/token.service';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { formatDistanceToNow } from 'date-fns';
@@ -36,6 +39,7 @@ import { fr } from 'date-fns/locale';
     ReactiveFormsModule,
     TablerIconsModule,
     MatMenuModule,
+    MatSnackBarModule,
   ],
   templateUrl: './publications.component.html',
   styleUrls: ['./publications.component.scss'],
@@ -56,6 +60,7 @@ export class PublicationsComponent implements OnInit {
     private publicationService: PublicationService,
     private authService: AuthService,
     private dialog: MatDialog,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -238,19 +243,91 @@ export class PublicationsComponent implements OnInit {
   }
 
   deletePub(pubId: string) {
-    if (confirm('Voulez-vous vraiment supprimer cette publication ?')) {
-      this.publicationService.delete(pubId).subscribe(() => {
-        this.publications = this.publications.filter((p) => p._id !== pubId);
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Supprimer la publication',
+        message: 'Êtes-vous sûr de vouloir supprimer définitivement cette publication ?',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+      },
+      maxWidth: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.publicationService.delete(pubId).subscribe({
+          next: () => {
+            this.publications = this.publications.filter((p) => p._id !== pubId);
+            this.snackBar.open('Publication supprimée', 'Fermer', { duration: 3000 });
+          },
+          error: (err) => {
+            this.snackBar.open(err.error?.message || 'Erreur lors de la suppression', 'Fermer', {
+              duration: 3000,
+            });
+          },
+        });
+      }
+    });
   }
 
   canDelete(pub: Publication): boolean {
     if (!this.user) return false;
     if (this.user.role === 'admin') return true;
-    if (this.user.role === 'boutique' && pub.boutiqueId?._id === this.user._id) return true;
-    // userId and user._id are slightly different in storage sometimes
-    if (this.user.role === 'boutique' && pub.boutiqueId?._id === this.user.boutiqueId) return true;
+
+    const auteurId = (
+      pub.boutiqueId?._id ||
+      pub.boutiqueId ||
+      pub.adminId?._id ||
+      pub.adminId
+    )?.toString();
+
+    // Pour une boutique, on compare soit à son ID boutique, soit à son ID user si c'est ce qui est stocké
+    if (this.user.role === 'boutique') {
+      const myBoutiqueId = this.user.boutiqueId?.toString();
+      const myUserId = this.user._id?.toString();
+
+      return !!((auteurId && auteurId === myBoutiqueId) || (auteurId && auteurId === myUserId));
+    }
+
     return false;
+  }
+
+  canReport(pub: Publication): boolean {
+    if (!this.user) return false;
+    // Seuls les clients peuvent signaler (les admins n'ont pas besoin, ils suppriment)
+    return this.user.role === 'client';
+  }
+
+  reportPub(pub: Publication) {
+    const dialogRef = this.dialog.open(PromptDialogComponent, {
+      data: {
+        title: 'Signaler la publication',
+        message: 'Pourquoi souhaitez-vous signaler cette publication ?',
+        placeholder: 'Raison du signalement...',
+        confirmText: 'Signaler',
+        cancelText: 'Annuler',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((reason) => {
+      if (reason) {
+        this.publicationService.report(pub._id, reason).subscribe({
+          next: () => {
+            this.snackBar.open(
+              'Merci pour votre signalement. Nous allons examiner cela.',
+              'Fermer',
+              {
+                duration: 3000,
+              },
+            );
+          },
+          error: (err) => {
+            this.snackBar.open(err.error?.message || 'Erreur lors du signalement', 'Fermer', {
+              duration: 3000,
+            });
+          },
+        });
+      }
+    });
   }
 }

@@ -39,7 +39,17 @@ router.post('/:id/comments', requireAuth, publicationController.addComment);
 // Récupérer les commentaires
 router.get('/:id/comments', publicationController.getComments);
 
-// Supprimer une publication
+// Signalements (Admin)
+router.get('/reported', requireAuth, requireRole('admin'), publicationController.getReported);
+router.patch(
+  '/:id/dismiss-reports',
+  requireAuth,
+  requireRole('admin'),
+  publicationController.dismissReports,
+);
+
+// Actions sur une publication spécifique
 router.delete('/:id', requireAuth, publicationController.delete);
+router.post('/:id/report', requireAuth, publicationController.report);
 
 export default router;

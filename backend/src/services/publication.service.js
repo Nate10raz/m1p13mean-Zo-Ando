@@ -173,21 +173,75 @@ class PublicationService {
       .populate('userId', 'nom prenom avatar');
   }
 
-  async deletePublication(publicationId, userId, userRole) {
+  async deletePublication(publicationId, user) {
+    if (!mongoose.Types.ObjectId.isValid(publicationId)) {
+      throw new Error('ID de publication invalide');
+    }
+
     const publication = await Publication.findById(publicationId);
     if (!publication) throw new Error('Publication non trouvée');
 
     // Vérification des droits
-    if (
-      userRole === 'admin' ||
-      (userRole === 'boutique' && publication.boutiqueId?.toString() === userId.toString())
-    ) {
-      await Publication.findByIdAndDelete(publicationId);
-      await Commentaire.deleteMany({ publicationId });
-      await PublicationVue.deleteMany({ publicationId });
-      return true;
+    const isAdmin = user.role === 'admin';
+    const isOwnerBoutique =
+      user.role === 'boutique' &&
+      publication.boutiqueId &&
+      user.boutiqueId &&
+      String(publication.boutiqueId) === String(user.boutiqueId);
+
+    const isOwnerAdmin =
+      user.role === 'admin' &&
+      publication.adminId &&
+      String(publication.adminId) === String(user.id);
+
+    if (isAdmin || isOwnerBoutique || isOwnerAdmin) {
+      try {
+        await Publication.findByIdAndDelete(publicationId);
+        await Commentaire.deleteMany({ publicationId });
+        await PublicationVue.deleteMany({ publicationId });
+        return true;
+      } catch (err) {
+        throw new Error('Erreur lors de la suppression en base de données : ' + err.message);
+      }
     }
-    throw new Error('Non autorisé');
+    throw new Error('Non autorisé à supprimer cette publication');
+  }
+
+  async reportPublication(publicationId, reporterId, reason) {
+    const publication = await Publication.findById(publicationId);
+    if (!publication) throw new Error('Publication non trouvée');
+
+    // Vérifier si déjà signalé par cet utilisateur
+    const alreadyReported = publication.reports.some(
+      (r) => r.reporterId.toString() === reporterId.toString(),
+    );
+    if (alreadyReported) throw new Error('Vous avez déjà signalé cette publication');
+
+    publication.reports.push({ reporterId, reason });
+    return await publication.save();
+  }
+
+  async getReportedPublications(page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+
+    // On récupère les publications qui ont au moins un signalement
+    const reported = await Publication.find({ 'reports.0': { $exists: true } })
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('boutiqueId', 'nom logo')
+      .populate('adminId', 'nom prenom avatar')
+      .populate('reports.reporterId', 'nom prenom avatar');
+
+    return reported;
+  }
+
+  async dismissReports(publicationId) {
+    const publication = await Publication.findById(publicationId);
+    if (!publication) throw new Error('Publication non trouvée');
+
+    publication.reports = [];
+    return await publication.save();
   }
 }
 
