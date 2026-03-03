@@ -47,7 +47,7 @@ export class AdminAvisSignalesComponent implements OnInit {
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadSignaledAvis();
@@ -70,9 +70,13 @@ export class AdminAvisSignalesComponent implements OnInit {
           this.applyFilters();
         },
         error: (err) =>
-          this.snackBar.open(err?.error?.message || 'Erreur lors du chargement des avis.', 'Fermer', {
-            duration: 3000,
-          }),
+          this.snackBar.open(
+            err?.error?.message || 'Erreur lors du chargement des avis.',
+            'Fermer',
+            {
+              duration: 3000,
+            },
+          ),
       });
   }
 
@@ -84,11 +88,11 @@ export class AdminAvisSignalesComponent implements OnInit {
         title: 'Confirmation',
         message: msg,
         confirmText: 'Oui, continuer',
-        cancelText: 'Annuler'
-      }
+        cancelText: 'Annuler',
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.avisService.handleSignalement(avis._id, action).subscribe({
           next: () => {
@@ -134,10 +138,9 @@ export class AdminAvisSignalesComponent implements OnInit {
     const bout = this.filterBoutiqueId.trim().toLowerCase();
 
     this.filteredAvis = this.avisList.filter((avis) => {
-      const matchProd = !prod ||
-        (avis.type === 'produit' && avis.produitId?._id?.toLowerCase().includes(prod));
-      const matchBout = !bout ||
-        (avis.boutiqueId?._id?.toLowerCase().includes(bout));
+      const matchProd =
+        !prod || (avis.type === 'produit' && avis.produitId?._id?.toLowerCase().includes(prod));
+      const matchBout = !bout || avis.boutiqueId?._id?.toLowerCase().includes(bout);
 
       return matchProd && matchBout;
     });

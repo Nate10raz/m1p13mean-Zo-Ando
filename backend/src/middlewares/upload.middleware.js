@@ -2,18 +2,21 @@ import multer from 'multer';
 
 const storage = multer.memoryStorage();
 
-const imageFilter = (req, file, cb) => {
-  if (!file.mimetype || !file.mimetype.startsWith('image/')) {
-    return cb(new Error('Only image files are allowed'));
+const mediaFilter = (req, file, cb) => {
+  if (
+    !file.mimetype ||
+    (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('video/'))
+  ) {
+    return cb(new Error('Only image and video files are allowed'));
   }
   return cb(null, true);
 };
 
 export const productImageUpload = multer({
   storage,
-  fileFilter: imageFilter,
+  fileFilter: mediaFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 100 * 1024 * 1024, // 100MB
     files: 10,
   },
 }).array('images', 10);
@@ -21,9 +24,9 @@ export const productImageUpload = multer({
 export const singleImageUpload = (fieldName = 'image') =>
   multer({
     storage,
-    fileFilter: imageFilter,
+    fileFilter: mediaFilter,
     limits: {
-      fileSize: 3 * 1024 * 1024,
+      fileSize: 100 * 1024 * 1024, // 100MB for videos
       files: 1,
     },
   }).single(fieldName);

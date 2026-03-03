@@ -1,0 +1,254 @@
+<div class="feed-layout">
+  <!-- Header Section with Search and Create -->
+  <div class="feed-header-section mb-4">
+    <div class="search-and-create-grid">
+      <!-- Search Bar (Premium) -->
+      <div class="search-container glass-morphism animate-fade-down">
+        <i-tabler name="search" class="search-icon"></i-tabler>
+        <input
+          type="text"
+          placeholder="Rechercher une publication ou un auteur..."
+          class="premium-search-input"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <!-- Create Post Button (for authorized users) -->
+      <div class="creator-card-mini glass-morphism animate-fade-down" *ngIf="canPublish">
+        <div class="d-flex align-items-center gap-3 w-100 p-2">
+          <div class="avatar-ring-sm">
+            <img
+              [src]="user?.avatar || 'assets/images/profile/user-1.jpg'"
+              class="user-avatar-small"
+              alt="avatar"
+            />
+          </div>
+          <button class="ghost-post-btn-sm flex-grow-1 text-start" (click)="openCreateModal()">
+            Commencez un post...
+          </button>
+          <div class="d-flex gap-2">
+            <button class="icon-tool-btn" (click)="openCreateModal()">
+              <i-tabler name="photo" class="icon-18"></i-tabler>
+            </button>
+            <button class="icon-tool-btn" (click)="openCreateModal()">
+              <i-tabler name="video" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Feed -->
+  <div class="publications-feed">
+    <div
+      *ngFor="let pub of publications; let i = index"
+      class="publication-entry animate-up"
+      [style.animation-delay]="i * 0.05 + 's'"
+    >
+      <div
+        class="publication-card premium-card"
+        [class.text-only-card]="!pub.medias || pub.medias.length === 0"
+      >
+        <!-- Card Header -->
+        <div class="pub-header px-4 pt-4 pb-2 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="author-avatar-wrapper shadow-sm">
+              <img
+                [src]="getAuthorAvatar(pub)"
+                (error)="$any($event.target).src = 'assets/images/profile/user-1.jpg'"
+                [alt]="getAuthorName(pub)"
+              />
+            </div>
+            <div>
+              <h3 class="author-name-text m-0">{{ getAuthorName(pub) }}</h3>
+              <div class="d-flex align-items-center text-muted fs-xs mt-1">
+                <span class="time-text">{{ formatDate(pub.createdAt) }}</span>
+                <span class="dot-separator mx-1">·</span>
+                <i-tabler name="world" class="icon-12"></i-tabler>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button mat-icon-button class="text-muted options-btn" [matMenuTriggerFor]="pubMenu">
+              <i-tabler name="dots" class="icon-20"></i-tabler>
+            </button>
+            <mat-menu #pubMenu="matMenu" xPosition="before" class="premium-menu">
+              <button
+                mat-menu-item
+                *ngIf="canDelete(pub)"
+                (click)="deletePub(pub._id)"
+                class="text-danger"
+              >
+                <i-tabler name="trash" class="me-2 icon-18"></i-tabler>
+                <span>Supprimer</span>
+              </button>
+              <button mat-menu-item *ngIf="canReport(pub)" (click)="reportPub(pub)">
+                <i-tabler name="flag" class="me-2 icon-18"></i-tabler>
+                <span>Signaler</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <div
+          class="pub-body px-4 py-4"
+          [class.centered-text]="!pub.medias || pub.medias.length === 0"
+        >
+          <p class="pub-content-text m-0">{{ pub.contenu }}</p>
+        </div>
+
+        <!-- Media Section (Grid) -->
+        <div class="pub-media-section" *ngIf="pub.medias && pub.medias.length > 0">
+          <div class="media-container" [ngClass]="'items-' + pub.medias.length">
+            <div *ngFor="let media of pub.medias" class="media-box">
+              <!-- Image -->
+              <img
+                *ngIf="isImage(media)"
+                [src]="media"
+                class="media-content img-overlay"
+                loading="lazy"
+                alt="feed item"
+              />
+
+              <!-- Video -->
+              <div *ngIf="isVideo(media)" class="video-container">
+                <video
+                  #videoPlayer
+                  [src]="media"
+                  class="media-content video-fluid"
+                  controls
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="pub-stats px-4 py-3 d-flex justify-content-between border-top-soft">
+          <div class="like-counter d-flex align-items-center">
+            <div class="like-icons">
+              <i-tabler name="heart-filled"></i-tabler>
+            </div>
+            <span class="fs-xs fw-600 text-secondary">{{ pub.likesCount }} j'aime</span>
+          </div>
+          <div
+            class="comment-count-text fs-xs fw-600 text-secondary"
+            (click)="toggleComments(pub._id)"
+          >
+            {{ comments[pub._id]?.length || 0 }} commentaires
+          </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="pub-actions p-2 d-flex">
+          <button
+            class="action-btn flex-grow-1"
+            [class.active-like]="pub.isLiked"
+            (click)="toggleLike(pub)"
+          >
+            <i-tabler
+              [name]="pub.isLiked ? 'heart-filled' : 'heart'"
+              class="me-2 icon-20"
+            ></i-tabler>
+            <span>J'aime</span>
+          </button>
+          <button class="action-btn flex-grow-1" (click)="toggleComments(pub._id)">
+            <i-tabler name="message-2" class="me-2 icon-20"></i-tabler>
+            <span>Commenter</span>
+          </button>
+        </div>
+
+        <!-- Comments Overlay -->
+        <div
+          *ngIf="showComments[pub._id]"
+          class="comments-area bg-light-soft border-top-soft animate-fade-in"
+        >
+          <!-- Comments List -->
+          <div class="comments-list px-3 pt-3">
+            <div
+              *ngFor="let comment of comments[pub._id]"
+              class="comment-entry d-flex gap-2 mb-4 animate-slide-right"
+            >
+              <img
+                [src]="comment.userId.avatar || 'assets/images/profile/user-1.jpg'"
+                class="comment-avatar-img"
+                (error)="$any($event.target).src = 'assets/images/profile/user-1.jpg'"
+                alt=""
+              />
+              <div class="comment-bubble-wrapper">
+                <div class="comment-bubble-content">
+                  <div class="comment-author-name">
+                    {{ comment.userId.nom }} {{ comment.userId.prenom }}
+                  </div>
+                  <div class="comment-text-body">{{ comment.contenu }}</div>
+                </div>
+                <div class="comment-meta d-flex gap-3 px-2 mt-1">
+                  <span class="fs-xxs text-secondary">{{ formatDate(comment.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State Wrapper inside List -->
+            <div
+              *ngIf="!comments[pub._id] || comments[pub._id].length === 0"
+              class="text-center py-5 no-comments-state"
+            >
+              <i-tabler name="message-off" class="icon-32 text-muted opacity-20 mb-2"></i-tabler>
+              <p class="text-muted fs-sm m-0">Soyez le premier à commenter !</p>
+            </div>
+          </div>
+
+          <!-- Bottom Input (Sticky-like feel) -->
+          <div class="comment-input-box p-3 border-top-soft">
+            <img
+              [src]="user?.avatar || 'assets/images/profile/user-1.jpg'"
+              class="comment-form-avatar"
+              alt=""
+            />
+            <div class="flex-grow-1 comment-field-wrapper">
+              <input
+                [(ngModel)]="commentValue[pub._id]"
+                (keyup.enter)="addComment(pub._id)"
+                placeholder="Votre commentaire..."
+                class="premium-comment-input"
+              />
+              <button
+                mat-icon-button
+                class="mini-send-btn"
+                (click)="addComment(pub._id)"
+                [disabled]="!commentValue[pub._id]"
+              >
+                <i-tabler name="send" class="icon-20"></i-tabler>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infinite scroll trigger & loading states -->
+    <div #scrollEnd class="feed-footer text-center py-5">
+      <div *ngIf="loading" class="spinner-container py-4">
+        <mat-spinner diameter="30" class="mx-auto"></mat-spinner>
+      </div>
+
+      <div *ngIf="!hasMore && publications.length > 0" class="end-of-feed animate-fade-in">
+        <div class="finish-icon mb-2">✨</div>
+        <p class="fw-800 text-dark m-0">Vous avez tout vu</p>
+        <p class="text-secondary fs-sm">Revenez plus tard pour de nouveaux contenus.</p>
+      </div>
+
+      <div *ngIf="!loading && publications.length === 0" class="empty-feed py-5 animate-fade-in">
+        <div class="empty-illustration mb-4">
+          <i-tabler name="news-off" class="icon-64 text-muted opacity-20"></i-tabler>
+        </div>
+        <p class="text-secondary fw-700 fs-5 mb-1">Aucune publication trouvée</p>
+        <p class="text-muted fs-sm">Essayez de modifier vos critères de recherche.</p>
+      </div>
+    </div>
+  </div>
+</div>
